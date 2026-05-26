@@ -25,6 +25,11 @@
         * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body { min-width: 320px; }
+        main, section, header, footer, nav { min-width: 0; }
+        img, video, iframe { max-width: 100%; height: auto; }
+        table { width: 100%; }
         
         body {
             background-color: var(--grey-bg);
@@ -166,6 +171,35 @@
             .message-container {
                 margin-left: 12px;
                 margin-right: 12px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding-left: 0.85rem;
+                padding-right: 0.85rem;
+            }
+
+            .navbar-brand {
+                max-width: 72vw;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .content-card {
+                border-radius: 20px;
+                padding: 1.2rem;
+            }
+
+            .btn {
+                min-height: 44px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1320px;
             }
         }
         

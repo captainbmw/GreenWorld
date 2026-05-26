@@ -20,6 +20,11 @@
         }
 
         * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body { min-width: 320px; }
+        main, section, header, footer, nav { min-width: 0; }
+        img, video, iframe { max-width: 100%; height: auto; }
+        table { width: 100%; }
 
         body {
             margin: 0;
@@ -287,6 +292,22 @@
             .auth-shell { padding-top: 84px; }
             .auth-card { padding: 24px; border-radius: 22px; }
         }
+
+        @media (max-width: 420px) {
+            .top-nav .container { gap: 10px; }
+            .brand-link { font-size: 0.95rem; }
+            .top-nav .btn { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+            .auth-shell { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .auth-card { padding: 20px; }
+            .logo-box i { width: 58px; height: 58px; border-radius: 18px; }
+            .logo-box h2 { font-size: 1.45rem; }
+            .form-control { min-height: 48px; }
+        }
+
+        @media (min-width: 1400px) {
+            .auth-layout { width: min(1180px, 100%); }
+            .auth-card { padding: 42px; }
+        }
     </style>
 </head>
 <body>
@@ -357,7 +378,6 @@
         document.getElementById("loginForm").addEventListener("submit", function(event) {
             event.preventDefault();
             localStorage.setItem("gw_role", "customer");
-            alert("Login successful. Redirecting to home.");
             window.location.href = "home.html";
         });
 

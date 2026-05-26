@@ -18,6 +18,11 @@
         }
 
         * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body { min-width: 320px; }
+        main, section, header, footer, nav { min-width: 0; }
+        img, video, iframe { max-width: 100%; height: auto; }
+        table { width: 100%; }
 
         body {
             margin: 0;
@@ -185,6 +190,20 @@
 
         @media (max-width: 560px) {
             .admin-auth-card { padding: 26px; border-radius: 24px; }
+        }
+
+        @media (max-width: 420px) {
+            .top-nav .container { gap: 10px; }
+            .brand-link { font-size: 0.95rem; }
+            .top-nav .btn { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+            .auth-shell { padding: 34px 0.75rem 48px; }
+            .admin-auth-card { padding: 22px 20px; }
+            .form-title { font-size: 1.65rem; }
+            .form-control-staff { min-height: 48px; }
+        }
+
+        @media (min-width: 1400px) {
+            .admin-auth-card { width: min(620px, 100%); padding: 46px; }
         }
     </style>
 </head>

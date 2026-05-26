@@ -17,6 +17,11 @@
         }
 
         * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body { min-width: 320px; }
+        main, section, header, footer, nav { min-width: 0; }
+        img, video, iframe { max-width: 100%; height: auto; }
+        table { width: 100%; }
 
         body {
             margin: 0;
@@ -169,6 +174,27 @@
             line-height: 1.6;
             text-align: center;
         }
+
+        .status-message {
+            min-height: 22px;
+            margin-top: 14px;
+            color: #fca5a5;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        @media (max-width: 420px) {
+            .auth-shell { padding: 28px 0.75rem; }
+            .admin-card { padding: 24px 20px; border-radius: 24px; }
+            .logo-box i { width: 62px; height: 62px; border-radius: 20px; }
+            .logo-box h1 { font-size: 1.65rem; }
+            .form-control { min-height: 48px; }
+        }
+
+        @media (min-width: 1400px) {
+            .admin-card { width: min(520px, 100%); padding: 42px; }
+        }
     </style>
 </head>
 <body>
@@ -203,6 +229,8 @@
                 <button type="submit" class="btn-admin">Login as Admin</button>
             </form>
 
+            <div id="adminLoginStatus" class="status-message" aria-live="polite"></div>
+
             <div class="admin-links text-center mt-4">
                 <a href="register_admin.html">Register New Admin</a><br>
                 <a href="index.html" class="d-inline-block mt-2">Customer Login</a>
@@ -217,13 +245,13 @@
             event.preventDefault();
             const user = document.getElementById("lAdminUser").value.trim();
             const allowed = ["Susan", "susan", "CaptainBMW", "captainbmw"];
+            const status = document.getElementById("adminLoginStatus");
 
             if (allowed.includes(user)) {
                 localStorage.setItem("gw_role", "admin");
-                alert("Admin access granted. Welcome, " + user + ".");
                 window.location.href = "add_product.html";
             } else {
-                alert("Unauthorized access. Invalid admin credentials.");
+                status.textContent = "Unauthorized access. Invalid admin credentials.";
             }
         });
 

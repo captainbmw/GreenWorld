@@ -20,6 +20,11 @@
         }
 
         * { box-sizing: border-box; }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        body { min-width: 320px; }
+        main, section, header, footer, nav { min-width: 0; }
+        img, video, iframe { max-width: 100%; height: auto; }
+        table { width: 100%; }
 
         body {
             margin: 0;
@@ -293,6 +298,24 @@
             .btn-admin-cancel,
             .btn-soft { width: 100%; }
             .button-group { flex-direction: column; gap: 14px; }
+        }
+
+        @media (max-width: 420px) {
+            .top-nav .container { gap: 10px; }
+            .brand-link { font-size: 0.9rem; }
+            .top-nav .btn { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+            .page-shell { padding: 66px 0.75rem 38px; }
+            .admin-body { padding: 18px; }
+            .section-panel { padding: 18px; border-radius: 20px; }
+            .admin-header h1 { font-size: 1.75rem; }
+            .preview-box-pro { min-height: 280px; }
+            .table th,
+            .table td { padding: 14px 12px; white-space: nowrap; }
+        }
+
+        @media (min-width: 1400px) {
+            .container { max-width: 1320px; }
+            .preview-box-pro { min-height: 380px; }
         }
     </style>
 </head>
