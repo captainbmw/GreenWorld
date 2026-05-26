@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Add Product | Greenworld Staff Administration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #f7fbff;
+            --muted: rgba(247, 251, 255, 0.68);
+            --blue: #60a5fa;
+            --blue-dark: #1e40af;
+            --green: #8bc34a;
+            --danger: #ef4444;
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.14);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: #051105;
+            color: var(--ink);
+            font-family: "Inter", sans-serif;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background:
+                radial-gradient(circle at 18% 22%, rgba(96, 165, 250, 0.18), transparent 30%),
+                radial-gradient(circle at 78% 14%, rgba(139, 195, 74, 0.14), transparent 28%),
+                linear-gradient(135deg, #04130d 0%, #061827 48%, #020713 100%);
+        }
+
+        .page-shell {
+            min-height: 100vh;
+            padding: 78px 0 56px;
+            position: relative;
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            background: rgba(3, 10, 14, 0.76);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(18px);
+        }
+
+        .brand-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 0;
+        }
+
+        .glass-form-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
+            overflow: hidden;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, rgba(30, 42, 42, 0.68), rgba(11, 18, 26, 0.68));
+            padding: 38px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-header i {
+            display: block;
+            margin-bottom: 14px;
+            color: var(--blue);
+            font-size: 3rem;
+            filter: drop-shadow(0 0 14px rgba(96, 165, 250, 0.42));
+        }
+
+        .admin-header h1 {
+            margin: 0;
+            font-weight: 800;
+            font-size: clamp(2rem, 4vw, 3rem);
+        }
+
+        .admin-header p {
+            margin: 8px 0 0;
+            color: var(--muted);
+        }
+
+        .admin-body { padding: 42px; }
+
+        .section-panel {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 28px;
+        }
+
+        .package-add-section {
+            background: rgba(139, 195, 74, 0.07);
+            border-color: rgba(139, 195, 74, 0.18);
+            margin-bottom: 34px;
+        }
+
+        .section-title-pro {
+            color: var(--green);
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+        }
+
+        .form-label {
+            font-weight: 800;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 15px;
+            padding: 14px 18px;
+            border: 1.5px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            transition: all 0.25s ease;
+        }
+
+        .form-control::placeholder { color: rgba(255, 255, 255, 0.34); }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .form-select option { background: #0f2c1f; color: white; }
+
+        .preview-box-pro {
+            background: rgba(255, 255, 255, 0.035);
+            border-radius: 24px;
+            border: 2px dashed rgba(255, 255, 255, 0.13);
+            padding: 26px;
+            text-align: center;
+            min-height: 340px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.25s ease;
+        }
+
+        .preview-box-pro.has-image {
+            border-style: solid;
+            border-color: var(--blue);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .preview-image-large {
+            width: 100%;
+            max-height: 310px;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.32);
+        }
+
+        .btn-admin-submit {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            border: none;
+            padding: 16px 34px;
+            border-radius: 999px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            transition: all 0.25s ease;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.24);
+        }
+
+        .btn-admin-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 32px rgba(37, 99, 235, 0.36);
+            color: white;
+            filter: brightness(1.08);
+        }
+
+        .btn-admin-cancel,
+        .btn-soft {
+            padding: 16px 28px;
+            border-radius: 999px;
+            font-weight: 800;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.72);
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            background: transparent;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-admin-cancel:hover,
+        .btn-soft:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+
+        .table-shell {
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.035);
+        }
+
+        .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: rgba(255, 255, 255, 0.82);
+            --bs-table-border-color: rgba(255, 255, 255, 0.08);
+            margin: 0;
+        }
+
+        .table th {
+            color: #bdf47f;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            padding: 18px;
+        }
+
+        .table td {
+            padding: 18px;
+            vertical-align: middle;
+        }
+
+        .product-thumb {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-message {
+            min-height: 24px;
+            color: #bdf47f;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .page-shell { padding-top: 66px; }
+            .admin-header { padding: 30px 20px; }
+            .admin-body { padding: 22px; }
+            .section-panel { padding: 22px; }
+            .btn-admin-submit,
+            .btn-admin-cancel,
+            .btn-soft { width: 100%; }
+            .button-group { flex-direction: column; gap: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+    <nav class="top-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="brand-link" href="home.html"><i class="bi bi-tree-fill"></i> Greenworld Staff Administration</a>
+            <a href="product.html" class="btn btn-sm btn-outline-light rounded-pill px-3">View Catalog</a>
+        </div>
+    </nav>
+
+    <main class="page-shell">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-11">
+                    <div class="glass-form-card">
+                        <header class="admin-header">
+                            <i class="bi bi-box-seam-fill"></i>
+                            <h1>Inventory Management</h1>
+                            <p>Expand the Greenworld catalog with premium wellness solutions.</p>
+                        </header>
+
+                        <div class="admin-body">
+                            <section class="section-panel package-add-section">
+                                <div class="section-title-pro">
+                                    <i class="bi bi-tags-fill"></i> Create New Package Category
+                                </div>
+                                <form id="packageForm">
+                                    <div class="row g-4 align-items-end">
+                                        <div class="col-md-5">
+                                            <label for="packageName" class="form-label">Package Name</label>
+                                            <input type="text" id="packageName" class="form-control" placeholder="Example: Immunity Support" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="packageIcon" class="form-label">Icon Class</label>
+                                            <input type="text" id="packageIcon" class="form-control" placeholder="bi bi-heart-pulse">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="submit" class="btn-admin-submit w-100 py-3">
+                                                <i class="bi bi-plus-circle me-2"></i> Add Package
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </section>
+
+                            <form id="productForm" class="section-panel" enctype="multipart/form-data">
+                                <input type="hidden" id="editingId">
+                                <input type="hidden" id="productImageData">
+
+                                <div class="row g-5">
+                                    <div class="col-lg-7">
+                                        <div class="section-title-pro">
+                                            <i class="bi bi-info-circle-fill"></i> Product Specifications
+                                        </div>
+
+                                        <div class="row g-4">
+                                            <div class="col-12">
+                                                <label for="productPackage" class="form-label">Select Package Category</label>
+                                                <select id="productPackage" class="form-select" required></select>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <label for="productName" class="form-label">Full Product Name</label>
+                                                <input type="text" id="productName" class="form-control" placeholder="Greenworld Premium Wellness Pack" required>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="productCode" class="form-label">Product ID</label>
+                                                <input type="text" id="productCode" class="form-control" placeholder="GW-001" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="productPrice" class="form-label">Unit Price (Ksh)</label>
+                                                <input type="number" id="productPrice" class="form-control" min="0" step="1" placeholder="0" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="productBv" class="form-label">BV Allocation</label>
+                                                <input type="number" id="productBv" class="form-control" min="0" step="1" placeholder="50">
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="productDescription" class="form-label">Description</label>
+                                                <textarea id="productDescription" class="form-control" rows="3" placeholder="Describe the product, ingredients, and presentation." required></textarea>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="productBenefits" class="form-label">Benefits Admin Explanation</label>
+                                                <textarea id="productBenefits" class="form-control" rows="5" placeholder="Explain the main benefits, target users, usage guidance, and wellness value." required></textarea>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="productImage" class="form-label">Visual Asset</label>
+                                                <input type="file" id="productImage" class="form-control" accept="image/*">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-5">
+                                        <div class="section-title-pro">
+                                            <i class="bi bi-eye-fill"></i> Live Preview
+                                        </div>
+
+                                        <div class="preview-box-pro" id="previewBox">
+                                            <div id="previewEmpty">
+                                                <i class="bi bi-image-fill mb-3" style="font-size: 4rem; color: rgba(255, 255, 255, 0.22);"></i>
+                                                <h6 class="fw-bold text-white opacity-75">Awaiting Asset Upload</h6>
+                                                <p class="small text-white opacity-50 mb-0">Select a high-resolution image to preview the catalog presentation.</p>
+                                            </div>
+                                            <img id="imageDisplay" class="preview-image-large" style="display: none;" alt="Product preview">
+                                        </div>
+
+                                        <div class="mt-4 p-4 rounded-4" style="background: rgba(96, 165, 250, 0.06); border: 1px solid rgba(96, 165, 250, 0.2);">
+                                            <div class="d-flex gap-3 align-items-center">
+                                                <i class="bi bi-info-square-fill text-info fs-3"></i>
+                                                <p class="small text-white opacity-75 mb-0"><strong>Staff Tip:</strong> Use square product images at 800x800px or larger for the cleanest product card layout.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-5 pt-5 border-top button-group" style="border-top-color: rgba(255, 255, 255, 0.1) !important;">
+                                    <a href="home.html" class="btn-admin-cancel">
+                                        <i class="bi bi-arrow-left"></i> Return Home
+                                    </a>
+                                    <div class="d-flex gap-3 button-group">
+                                        <button type="button" id="cancelEdit" class="btn-soft" style="display: none;">
+                                            <i class="bi bi-x-circle"></i> Cancel Edit
+                                        </button>
+                                        <button type="submit" id="submitProduct" class="btn-admin-submit">
+                                            <i class="bi bi-cloud-arrow-up-fill me-2"></i> Deploy Product to Catalog
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="statusMessage" class="status-message mt-3"></div>
+                            </form>
+
+                            <section class="section-panel mt-4">
+                                <div class="section-title-pro">
+                                    <i class="bi bi-list-check"></i> Product Control Center
+                                </div>
+                                <div class="table-responsive table-shell">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Package</th>
+                                                <th>Price (Ksh)</th>
+                                                <th>BV</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="productTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const storageKeys = {
+            products: "greenworld_products",
+            packages: "greenworld_packages",
+            editProduct: "gw_edit_product_id"
+        };
+        const imageDbConfig = {
+            name: "greenworld_catalog_assets",
+            version: 1,
+            store: "product_images"
+        };
+        const imageRequirements = {
+            minWidth: 145,
+            minHeight: 267
+        };
+
+        const defaultPackages = [
+            { id: "detox", name: "Detox", icon: "bi bi-droplet-half" },
+            { id: "immunity", name: "Immunity", icon: "bi bi-shield-plus" },
+            { id: "vitality", name: "Vitality", icon: "bi bi-lightning-charge" },
+            { id: "skincare", name: "Skincare", icon: "bi bi-stars" }
+        ];
+
+        let packages = loadList(storageKeys.packages, defaultPackages);
+        let products = loadList(storageKeys.products, []);
+        let editingId = null;
+
+        const packageSelect = document.getElementById("productPackage");
+        const productForm = document.getElementById("productForm");
+        const imageInput = document.getElementById("productImage");
+        const imageData = document.getElementById("productImageData");
+        const imageDisplay = document.getElementById("imageDisplay");
+        const previewEmpty = document.getElementById("previewEmpty");
+        const previewBox = document.getElementById("previewBox");
+        const statusMessage = document.getElementById("statusMessage");
+        let selectedImageFile = null;
+        let previewObjectUrl = "";
+        const tableObjectUrls = new Set();
+
+        function openImageDb() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(imageDbConfig.name, imageDbConfig.version);
+
+                request.onupgradeneeded = () => {
+                    const db = request.result;
+                    if (!db.objectStoreNames.contains(imageDbConfig.store)) {
+                        db.createObjectStore(imageDbConfig.store);
+                    }
+                };
+
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function putProductImage(key, file) {
+            const db = await openImageDb();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(imageDbConfig.store, "readwrite");
+                transaction.objectStore(imageDbConfig.store).put(file, key);
+                transaction.oncomplete = () => {
+                    db.close();
+                    resolve(key);
+                };
+                transaction.onerror = () => {
+                    db.close();
+                    reject(transaction.error);
+                };
+            });
+        }
+
+        async function getProductImageUrl(key) {
+            if (!key) return "";
+            const db = await openImageDb();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(imageDbConfig.store, "readonly");
+                const request = transaction.objectStore(imageDbConfig.store).get(key);
+                request.onsuccess = () => {
+                    db.close();
+                    resolve(request.result ? URL.createObjectURL(request.result) : "");
+                };
+                request.onerror = () => {
+                    db.close();
+                    reject(request.error);
+                };
+            });
+        }
+
+        async function deleteProductImage(key) {
+            if (!key) return;
+            const db = await openImageDb();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(imageDbConfig.store, "readwrite");
+                transaction.objectStore(imageDbConfig.store).delete(key);
+                transaction.oncomplete = () => {
+                    db.close();
+                    resolve();
+                };
+                transaction.onerror = () => {
+                    db.close();
+                    reject(transaction.error);
+                };
+            });
+        }
+
+        function loadList(key, fallback) {
+            try {
+                return JSON.parse(localStorage.getItem(key)) || fallback;
+            } catch (error) {
+                return fallback;
+            }
+        }
+
+        function saveAll() {
+            localStorage.setItem(storageKeys.packages, JSON.stringify(packages));
+            localStorage.setItem(storageKeys.products, JSON.stringify(products));
+        }
+
+        function createId(value) {
+            const slug = String(value || "item").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+            return `${slug || "item"}-${Date.now()}`;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[char]));
+        }
+
+        function renderPackages() {
+            packageSelect.innerHTML = packages.map(pkg => `<option value="${escapeHtml(pkg.id)}">${escapeHtml(pkg.name)}</option>`).join("");
+        }
+
+        function showPreview(src) {
+            if (previewObjectUrl && previewObjectUrl !== src) {
+                URL.revokeObjectURL(previewObjectUrl);
+                previewObjectUrl = "";
+            }
+
+            if (!src) {
+                imageDisplay.style.display = "none";
+                imageDisplay.removeAttribute("src");
+                previewEmpty.style.display = "block";
+                previewBox.classList.remove("has-image");
+                return;
+            }
+
+            imageDisplay.src = src;
+            imageDisplay.style.display = "block";
+            previewEmpty.style.display = "none";
+            previewBox.classList.add("has-image");
+        }
+
+        function readImageDimensions(file) {
+            return new Promise((resolve, reject) => {
+                const url = URL.createObjectURL(file);
+                const image = new Image();
+
+                image.onload = () => {
+                    const dimensions = { width: image.naturalWidth, height: image.naturalHeight, url };
+                    resolve(dimensions);
+                };
+
+                image.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error("Invalid image file"));
+                };
+
+                image.src = url;
+            });
+        }
+
+        function resetForm() {
+            editingId = null;
+            selectedImageFile = null;
+            productForm.reset();
+            imageData.value = "";
+            document.getElementById("editingId").value = "";
+            document.getElementById("submitProduct").innerHTML = '<i class="bi bi-cloud-arrow-up-fill me-2"></i> Deploy Product to Catalog';
+            document.getElementById("cancelEdit").style.display = "none";
+            statusMessage.textContent = "";
+            showPreview("");
+        }
+
+        function getPackageName(id) {
+            return packages.find(pkg => pkg.id === id)?.name || id || "Uncategorized";
+        }
+
+        function renderProducts() {
+            tableObjectUrls.forEach(url => URL.revokeObjectURL(url));
+            tableObjectUrls.clear();
+
+            const tbody = document.getElementById("productTableBody");
+            if (!products.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-white-50 py-4">No products have been added yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <img data-product-image="${escapeHtml(product.id)}" src="${escapeHtml(product.image || "https://placehold.co/120x120/0a5c36/ffffff?text=GW")}" class="product-thumb" alt="">
+                            <div>
+                                <div class="fw-bold text-white">${escapeHtml(product.name)}</div>
+                                <div class="small text-white-50">${escapeHtml(product.productId || "No product ID")}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${escapeHtml(getPackageName(product.category))}</td>
+                    <td>Ksh ${escapeHtml(product.price)}</td>
+                    <td>${escapeHtml(product.bv || "0")}</td>
+                    <td>
+                        <button class="btn btn-outline-info action-btn me-2" type="button" onclick="editProduct('${escapeHtml(product.id)}')" aria-label="Edit ${escapeHtml(product.name)}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-outline-danger action-btn" type="button" onclick="deleteProduct('${escapeHtml(product.id)}')" aria-label="Delete ${escapeHtml(product.name)}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join("");
+
+            hydrateProductTableImages();
+        }
+
+        async function hydrateProductTableImages() {
+            for (const product of products) {
+                if (!product.imageKey) continue;
+
+                const image = document.querySelector(`[data-product-image="${CSS.escape(product.id)}"]`);
+                if (!image) continue;
+
+                try {
+                    const url = await getProductImageUrl(product.imageKey);
+                    if (url) {
+                        tableObjectUrls.add(url);
+                        image.src = url;
+                    }
+                } catch (error) {
+                    console.warn("Unable to load product image", error);
+                }
+            }
+        }
+
+        document.getElementById("packageForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const name = document.getElementById("packageName").value.trim();
+            const icon = document.getElementById("packageIcon").value.trim();
+            if (!name) return;
+
+            const pkg = { id: createId(name), name, icon };
+            packages.push(pkg);
+            saveAll();
+            renderPackages();
+            packageSelect.value = pkg.id;
+            event.target.reset();
+            statusMessage.textContent = `Package "${name}" added.`;
+        });
+
+        imageInput.addEventListener("change", async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            let dimensions;
+            try {
+                dimensions = await readImageDimensions(file);
+            } catch (error) {
+                selectedImageFile = null;
+                imageInput.value = "";
+                showPreview("");
+                statusMessage.textContent = "Please upload a valid image file.";
+                return;
+            }
+
+            if (dimensions.width < imageRequirements.minWidth || dimensions.height < imageRequirements.minHeight) {
+                selectedImageFile = null;
+                imageInput.value = "";
+                showPreview("");
+                URL.revokeObjectURL(dimensions.url);
+                statusMessage.textContent = `Image must be at least ${imageRequirements.minWidth}x${imageRequirements.minHeight}px. Selected image is ${dimensions.width}x${dimensions.height}px.`;
+                return;
+            }
+
+            selectedImageFile = file;
+            showPreview(dimensions.url);
+            previewObjectUrl = dimensions.url;
+            statusMessage.textContent = `${file.name} selected (${dimensions.width}x${dimensions.height}px, ${(file.size / 1024 / 1024).toFixed(2)} MB).`;
+        });
+
+        productForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const existingProduct = editingId ? products.find(item => item.id === editingId) : null;
+            const productId = editingId || createId(document.getElementById("productName").value);
+            const imageKey = selectedImageFile ? `product-image-${productId}` : (existingProduct?.imageKey || "");
+
+            if (selectedImageFile) {
+                try {
+                    await putProductImage(imageKey, selectedImageFile);
+                } catch (error) {
+                    statusMessage.textContent = "Image could not be saved. Try a smaller file or free browser storage.";
+                    return;
+                }
+            }
+
+            const product = {
+                id: productId,
+                category: packageSelect.value,
+                name: document.getElementById("productName").value.trim(),
+                productId: document.getElementById("productCode").value.trim(),
+                price: Number(document.getElementById("productPrice").value || 0).toFixed(2),
+                bv: document.getElementById("productBv").value.trim(),
+                description: document.getElementById("productDescription").value.trim(),
+                benefits: document.getElementById("productBenefits").value.trim(),
+                imageKey,
+                image: selectedImageFile ? "" : (existingProduct?.image || "")
+            };
+
+            const savedMessage = editingId ? "Product updated." : "Product deployed to catalog.";
+
+            if (editingId) {
+                products = products.map(item => item.id === editingId ? product : item);
+            } else {
+                products.unshift(product);
+            }
+
+            saveAll();
+            renderProducts();
+            resetForm();
+            statusMessage.textContent = savedMessage;
+        });
+
+        window.editProduct = async function(id) {
+            const product = products.find(item => item.id === id);
+            if (!product) return;
+
+            editingId = id;
+            document.getElementById("editingId").value = id;
+            packageSelect.value = product.category;
+            document.getElementById("productName").value = product.name || "";
+            document.getElementById("productCode").value = product.productId || "";
+            document.getElementById("productPrice").value = product.price || "";
+            document.getElementById("productBv").value = product.bv || "";
+            document.getElementById("productDescription").value = product.description || "";
+            document.getElementById("productBenefits").value = product.benefits || "";
+            imageData.value = product.image || "";
+            selectedImageFile = null;
+            const imageUrl = product.imageKey ? await getProductImageUrl(product.imageKey) : "";
+            showPreview(imageUrl || product.image || "");
+            document.getElementById("submitProduct").innerHTML = '<i class="bi bi-check2-circle me-2"></i> Update Product';
+            document.getElementById("cancelEdit").style.display = "inline-flex";
+            statusMessage.textContent = `Editing ${product.name}.`;
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+
+        window.deleteProduct = async function(id) {
+            const product = products.find(item => item.id === id);
+            if (!product || !confirm(`Delete "${product.name}" from the catalog?`)) return;
+
+            products = products.filter(item => item.id !== id);
+            saveAll();
+            await deleteProductImage(product.imageKey);
+            if (editingId === id) resetForm();
+            renderProducts();
+            statusMessage.textContent = "Product deleted.";
+        };
+
+        document.getElementById("cancelEdit").addEventListener("click", resetForm);
+
+        function bootFromProductPageEdit() {
+            const editId = localStorage.getItem(storageKeys.editProduct);
+            if (!editId) return;
+
+            localStorage.removeItem(storageKeys.editProduct);
+            setTimeout(() => editProduct(editId), 100);
+        }
+
+        function initPremiumBackground() {
+            const canvas = document.getElementById("bg-canvas");
+            const ctx = canvas.getContext("2d");
+            const particles = [];
+            const mouse = { x: 0, y: 0 };
+            const count = window.matchMedia("(max-width: 768px)").matches ? 95 : 180;
+
+            function resize() {
+                const ratio = Math.min(window.devicePixelRatio || 1, 2);
+                canvas.width = window.innerWidth * ratio;
+                canvas.height = window.innerHeight * ratio;
+                canvas.style.width = `${window.innerWidth}px`;
+                canvas.style.height = `${window.innerHeight}px`;
+                ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+            }
+
+            function makeParticle() {
+                return {
+                    x: (Math.random() - 0.5) * window.innerWidth * 1.4,
+                    y: (Math.random() - 0.5) * window.innerHeight * 1.4,
+                    z: Math.random() * 900 + 100,
+                    speed: Math.random() * 0.7 + 0.25,
+                    size: Math.random() * 1.8 + 0.6,
+                    hue: Math.random() > 0.5 ? 210 : 96
+                };
+            }
+
+            function resetParticle(particle) {
+                Object.assign(particle, makeParticle(), { z: 1000 });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+
+                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(window.innerWidth, window.innerHeight));
+                gradient.addColorStop(0, "rgba(96, 165, 250, 0.08)");
+                gradient.addColorStop(0.45, "rgba(4, 16, 30, 0.12)");
+                gradient.addColorStop(1, "rgba(0, 0, 0, 0.38)");
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+                for (const particle of particles) {
+                    particle.z -= particle.speed;
+                    if (particle.z <= 1) resetParticle(particle);
+
+                    const depth = 480 / particle.z;
+                    const projectedX = centerX + (particle.x + mouse.x * 0.025) * depth;
+                    const projectedY = centerY + (particle.y + mouse.y * 0.025) * depth;
+                    const radius = Math.max(0.25, particle.size * depth * 2.2);
+
+                    if (projectedX < -60 || projectedX > window.innerWidth + 60 || projectedY < -60 || projectedY > window.innerHeight + 60) {
+                        resetParticle(particle);
+                        continue;
+                    }
+
+                    ctx.beginPath();
+                    ctx.fillStyle = `hsla(${particle.hue}, 86%, 68%, ${Math.min(0.9, depth * 0.9)})`;
+                    ctx.shadowColor = `hsla(${particle.hue}, 86%, 68%, 0.55)`;
+                    ctx.shadowBlur = 12;
+                    ctx.arc(projectedX, projectedY, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+
+                requestAnimationFrame(draw);
+            }
+
+            resize();
+            for (let i = 0; i < count; i += 1) particles.push(makeParticle());
+            window.addEventListener("resize", resize);
+            window.addEventListener("mousemove", (event) => {
+                mouse.x = event.clientX - window.innerWidth / 2;
+                mouse.y = event.clientY - window.innerHeight / 2;
+            });
+            draw();
+        }
+
+        renderPackages();
+        renderProducts();
+        bootFromProductPageEdit();
+        initPremiumBackground();
+    </script>
+</body>
+</html>
