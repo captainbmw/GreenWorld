@@ -265,6 +265,14 @@
             const allowed = ["Susan", "susan", "CaptainBMW", "captainbmw"];
             const disclaimer = document.querySelector(".disclaimer");
 
+            // Password validation
+            const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,15}$/;
+            if (!passRegex.test(password)) {
+                disclaimer.innerHTML = "<b>Error:</b> Password must be 8-15 characters with 1 uppercase, 1 lowercase, and 1 special symbol.";
+                disclaimer.style.background = "rgba(239, 68, 68, 0.2)";
+                return;
+            }
+
             if (password !== confirmPassword) {
                 disclaimer.innerHTML = "<b>Error:</b> Passwords do not match.";
                 disclaimer.style.background = "rgba(239, 68, 68, 0.2)";

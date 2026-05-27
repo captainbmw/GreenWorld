@@ -360,9 +360,15 @@
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
 
+            // Password validation
+            const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,15}$/;
+            if (!passRegex.test(password)) {
+                alert("Password must be 8-15 characters long and include at least one uppercase letter, one lowercase letter, and one special symbol.");
+                return;
+            }
+
             if (password !== confirmPassword) {
-                // Use a non-alert way to show error if possible, but the user asked to remove "all" alerts.
-                // For now, I'll just return to stay consistent with "remove all alerts".
+                alert("Passwords do not match.");
                 return;
             }
 

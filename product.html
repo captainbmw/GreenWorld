@@ -305,9 +305,9 @@
 
     <nav class="top-nav">
         <div class="container d-flex justify-content-between align-items-center">
-            <a class="brand-link" href="home.html"><i class="bi bi-tree-fill"></i> Greenworld Care</a>
+            <a class="brand-link" href="index.html"><i class="bi bi-tree-fill"></i> Greenworld Care</a>
             <div class="d-flex gap-2">
-                <a href="home.html" class="btn btn-sm btn-outline-light rounded-pill px-3">Home</a>
+                <a href="index.html" class="btn btn-sm btn-outline-light rounded-pill px-3">Home</a>
                 <a href="dashboard.html" class="btn btn-sm btn-success rounded-pill px-3 admin-link">Dashboard</a>
             </div>
         </div>
@@ -559,7 +559,12 @@
 
         window.recordPurchase = function(productName, price, bv) {
             const userJson = localStorage.getItem("gw_current_user");
-            const user = userJson ? JSON.parse(userJson) : { fullName: "Anonymous", email: "N/A" };
+            if (!userJson) {
+                alert("Please login to your account to place an order.");
+                window.location.href = "login.html";
+                return;
+            }
+            const user = JSON.parse(userJson);
             
             const orders = JSON.parse(localStorage.getItem("greenworld_orders")) || [];
             orders.push({

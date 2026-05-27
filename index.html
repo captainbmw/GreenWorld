@@ -1,470 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Customer Login | Greenworld Care Wellness</title>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Green World | Susan Aketch Odhiambo - Wellness Consultant</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
+            --forest-green: #006400;
+            --forest-green-dark: #004d00;
+            --forest-green-light: #e0f0e0;
+            --grey-bg: #f4f7f6;
+            --card-white: #ffffff;
+            --text-dark: #1a2c1e;
+            --footer-bg: #1e2a2a;
+            --forest: #0a5c36;
+            --forest-deep: #063d24;
+            --forest-glow: #1a8f55;
             --gold: #d4af37;
-            --green: #8bc34a;
-            --blue: #60a5fa;
-            --ink: #f7fbff;
-            --muted: rgba(247, 251, 255, 0.68);
-            --glass: rgba(255, 255, 255, 0.075);
-            --glass-strong: rgba(255, 255, 255, 0.11);
-            --glass-border: rgba(255, 255, 255, 0.16);
+            --gold-light: #f0e6b8;
+            --surface: #f7faf8;
+            --text: #0f1f14;
+            --text-muted: #5a6f62;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --tree-icon-color: #8bc34a;
+            --footer-brand-color: #e2f0e2;
         }
-
-        * { box-sizing: border-box; }
+        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
         body { min-width: 320px; }
         main, section, header, footer, nav { min-width: 0; }
         img, video, iframe { max-width: 100%; height: auto; }
         table { width: 100%; }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            overflow-x: hidden;
-            background: #04110d;
-            color: var(--ink);
-            font-family: "Inter", sans-serif;
+        body { background-color: var(--grey-bg); display: flex; flex-direction: column; min-height: 100vh; color: #2c3e2f; padding-top: 0; margin: 0; }
+        body:has(.home-page) { background: #021a0f !important; }
+        body:has(.home-page) .main-content { background: transparent !important; }
+        body:has(.home-page) .footer-minimalist { position: relative; z-index: 2; background: rgba(2, 26, 15, 0.75); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+        .main-content { flex: 1 0 auto; }
+        .navbar-forest { background: linear-gradient(135deg, var(--forest-green) 0%, var(--forest-green-dark) 100%); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); padding: 0.7rem 1rem; transition: all 0.2s; }
+        .navbar-brand { font-weight: 700; font-size: 1.65rem; letter-spacing: -0.5px; color: white !important; display: flex; align-items: center; gap: 10px; }
+        .navbar-brand i { font-size: 1.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .navbar-brand span { background: rgba(255,255,255,0.15); padding: 0.2rem 0.6rem; border-radius: 40px; font-size: 0.75rem; font-weight: 500; margin-left: 6px; }
+        .nav-link-custom { color: rgba(255, 255, 255, 0.9) !important; font-weight: 500; margin: 0 0.2rem; border-radius: 40px; transition: all 0.2s ease; padding: 0.5rem 1rem; }
+        .nav-link-custom:hover, .nav-link-custom.active { background: rgba(255, 255, 255, 0.18); color: white !important; transform: translateY(-1px); }
+        .navbar-toggler { border: none; background: rgba(255,255,255,0.2); padding: 0.5rem 0.7rem; }
+        .navbar-toggler-icon { filter: brightness(0) invert(1); }
+        .user-greeting { background: rgba(255, 255, 255, 0.12); padding: 0.35rem 0.9rem; border-radius: 50px; color: white; font-size: 0.9rem; font-weight: 500; }
+        .message-container { margin-top: 1.2rem; margin-bottom: 0.8rem; }
+        .alert-custom { border-radius: 20px; border: none; padding: 0.9rem 1.2rem; font-weight: 500; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+        .footer-minimalist { background-color: var(--footer-bg); color: rgba(255, 255, 255, 0.75); padding: 2rem 0 1.2rem; margin-top: 3rem; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-minimalist a { color: #b8e4b8; text-decoration: none; transition: color 0.2s; }
+        .footer-minimalist a:hover { color: white; text-decoration: underline; }
+        .footer-logo-icon { color: var(--tree-icon-color); }
+        .footer-brand-name { color: var(--footer-brand-color); }
+        .copyright { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.2rem; margin-top: 0.8rem; font-size: 0.75rem; text-align: center; }
+        @media (max-width: 768px) { .navbar-brand { font-size: 1.3rem; } .navbar-brand i { font-size: 1.4rem; } .footer-minimalist { text-align: center; } .message-container { margin-left: 12px; margin-right: 12px; } }
+        .content-card { background: var(--card-white); border-radius: 28px; padding: 1.8rem; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05); border: none; transition: transform 0.1s ease; }
+        .mt-safe { margin-top: 1rem; }
+        .home-page { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; color: rgba(255, 255, 255, 0.92); overflow-x: hidden; position: relative; background: transparent; }
+        .bg-3d-layer { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; background: #021a0f; }
+        #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+        .hero-overlay { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse 90% 70% at 50% 30%, rgba(26, 143, 85, 0.1) 0%, transparent 55%), radial-gradient(ellipse 60% 50% at 80% 70%, rgba(212, 175, 55, 0.05) 0%, transparent 50%), linear-gradient(180deg, rgba(2, 26, 15, 0.12) 0%, rgba(2, 26, 15, 0.28) 100%); }
+        .hero-grid { position: absolute; inset: 0; z-index: 2; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 64px 64px; opacity: 0.45; }
+        .home-content { position: relative; z-index: 1; }
+        .home-page section, .home-page .section-pad, .home-page .cta-final, .home-page .comp-section, .home-page .bg-surface, .home-page .home-container, .home-page .row { background: transparent !important; }
+        .hero-3d { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; background: transparent; text-align: center; }
+        .hero-inner { position: relative; z-index: 10; width: 100%; max-width: 900px; margin: 0 auto; padding: 8rem 1.5rem 6rem; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1rem 0.45rem 0.65rem; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 100px; color: #b8f0d0; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); margin-bottom: 2rem; }
+        .hero-badge .pulse { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 12px #4ade80; animation: pulse-dot 2s ease-in-out infinite; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.85); } }
+        .hero-title { font-size: clamp(3rem, 8vw, 5rem); font-weight: 800; line-height: 1; letter-spacing: -0.04em; color: #fff; margin-bottom: 1.5rem; }
+        .hero-title .accent { background: linear-gradient(135deg, #fff 0%, var(--gold-light) 50%, var(--gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-lead { font-size: clamp(1.1rem, 3vw, 1.25rem); line-height: 1.6; color: rgba(255, 255, 255, 0.85); max-width: 40rem; margin: 0 auto 2.5rem; }
+        .hero-stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 3rem; margin-top: 4rem; padding-top: 2.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .hero-stat strong { display: block; font-size: 2rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+        .hero-stat span { font-size: 0.8rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.08em; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold) 0%, #c9a227 100%); color: var(--forest-deep); border: none; padding: 1.1rem 2.5rem; font-weight: 700; font-size: 1rem; border-radius: 100px; letter-spacing: 0.02em; transition: transform 0.25s ease, box-shadow 0.25s ease; box-shadow: 0 8px 32px rgba(212, 175, 55, 0.35); text-decoration: none; display: inline-block; }
+        .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(212, 175, 55, 0.5); color: var(--forest-deep); }
+        .btn-glass { background: var(--glass); border: 1px solid var(--glass-border); color: #fff; padding: 1.1rem 2.5rem; font-weight: 600; border-radius: 100px; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: background 0.25s ease, transform 0.25s ease; text-decoration: none; display: inline-block; }
+        .btn-glass:hover { background: rgba(255,255,255,0.15); color: #fff; transform: translateY(-3px); }
+        .scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 10; color: rgba(255,255,255,0.4); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; animation: float-hint 2.5s ease-in-out infinite; }
+        @keyframes float-hint { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+        .section-pad { padding: 8rem 0; }
+        .section-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #7ee8a8; margin-bottom: 1rem; }
+        .section-title { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.03em; color: #fff; margin-bottom: 1.25rem; }
+        .section-desc { color: rgba(255, 255, 255, 0.7); max-width: 42rem; margin: 0 auto 4rem; text-align: center; font-size: 1.1rem; line-height: 1.7; }
+        .glass-panel { background: transparent !important; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); padding: 3rem; }
+        .feature-card { padding: 2.5rem; border-radius: 24px; background: transparent !important; border: 1px solid rgba(255, 255, 255, 0.1); height: 100%; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease; }
+        .feature-card:hover { transform: translateY(-10px); border-color: rgba(126, 232, 168, 0.4); background: rgba(255, 255, 255, 0.03) !important; }
+        .feature-icon-wrap { width: 64px; height: 64px; border-radius: 18px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; color: #7ee8a8; margin-bottom: 1.75rem; }
+        .product-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; overflow: hidden; transition: transform 0.3s ease; height: 100%; }
+        .product-card:hover { transform: translateY(-8px); }
+        .product-img-wrap { height: 267px; background: rgba(0,0,0,0.2); overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 12px; }
+        .product-img-wrap img { width: 100%; height: 100%; object-fit: contain; }
+        .product-package-group { margin-bottom: 3rem; overflow: hidden; }
+        .product-package-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+        .product-package-heading h3 { color: #fff; font-weight: 800; margin: 0; font-size: 1.35rem; }
+        .product-package-heading span { color: rgba(255,255,255,0.55); font-size: 0.85rem; font-weight: 700; }
+        .product-scroll-window { overflow: hidden; padding: 0.25rem 0 1rem; }
+        .product-scroll-track { display: flex; gap: 1.5rem; width: max-content; }
+        .product-scroll-track.is-scrolling { animation: homeProductScroll 34s linear infinite; }
+        .product-scroll-track.is-scrolling:hover { animation-play-state: paused; }
+        .home-product-item { width: 250px; flex: 0 0 250px; }
+        @keyframes homeProductScroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 0.75rem)); } }
+        .category-badge { position: absolute; top: 1rem; right: 1rem; background: var(--forest); color: white; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .consultant-card { border-radius: 32px; overflow: hidden; }
+        .consultant-img { width: 200px; height: 200px; object-fit: cover; border: 4px solid var(--forest-glow); padding: 4px; }
+        .comp-step { background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; border-left: 4px solid transparent; transition: all 0.3s ease; }
+        .comp-step:hover { border-left-color: var(--gold); background: rgba(255, 255, 255, 0.08) !important; transform: translateX(10px); }
+        .testimonial-card { background: rgba(255, 255, 255, 0.03) !important; border-radius: 24px; padding: 3rem; border: 1px solid rgba(255, 255, 255, 0.1); height: 100%; }
+        .quote-mark { font-size: 4rem; line-height: 1; color: #7ee8a8; opacity: 0.25; font-family: Georgia, serif; margin-bottom: -1rem; }
+        .avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.3); }
+        .cta-final { padding: 10rem 0; text-align: center; }
+        .home-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        .position-relative { position: relative; z-index: 1; }
+        .lead-narrow { max-width: 36rem; }
+        @media (max-width: 992px) {
+            .section-pad { padding: 6rem 0; }
+            .home-container { padding: 0 1.25rem; }
+            .hero-title { font-size: 4rem; }
+            .product-scroll-window { overflow-x: auto; }
+            .product-scroll-track.is-scrolling { animation-duration: 42s; }
         }
-
-        #bg-canvas {
-            position: fixed;
-            inset: 0;
-            z-index: -2;
-            width: 100%;
-            height: 100%;
-            background:
-                radial-gradient(circle at 16% 18%, rgba(139, 195, 74, 0.18), transparent 30%),
-                radial-gradient(circle at 82% 12%, rgba(96, 165, 250, 0.16), transparent 32%),
-                linear-gradient(135deg, #03120c 0%, #071a28 50%, #020611 100%);
+        @media (max-width: 768px) {
+            .navbar-brand { max-width: 72vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .hero-title { font-size: 3.1rem; }
+            .hero-lead { font-size: 1rem; }
+            .hero-stats { gap: 1rem; flex-wrap: wrap; }
+            .hero-stat { min-width: 92px; }
+            .glass-panel { padding: 1.5rem; }
+            .product-package-heading { align-items: flex-start; flex-direction: column; gap: 0.35rem; }
+            .home-product-item { width: 220px; flex-basis: 220px; }
+            .cta-final { padding: 6rem 0; }
         }
-
-        .top-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 10;
-            background: rgba(3, 10, 14, 0.72);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            -webkit-backdrop-filter: blur(18px);
-            backdrop-filter: blur(18px);
-        }
-
-        .brand-link {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 16px 0;
-        }
-
-        .auth-shell {
-            min-height: 100vh;
-            padding: 96px 1rem 48px;
-            display: grid;
-            place-items: center;
-        }
-
-        .auth-layout {
-            width: min(1040px, 100%);
-            display: grid;
-            grid-template-columns: 1fr 460px;
-            gap: 24px;
-            align-items: stretch;
-        }
-
-        .glass-panel {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 28px;
-            -webkit-backdrop-filter: blur(22px);
-            backdrop-filter: blur(22px);
-            box-shadow: 0 28px 70px rgba(0, 0, 0, 0.34);
-        }
-
-        .intro-panel {
-            padding: 42px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .intro-panel::after {
-            content: "";
-            position: absolute;
-            width: 240px;
-            height: 240px;
-            right: -80px;
-            bottom: -90px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.18), transparent 68%);
-            pointer-events: none;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            width: fit-content;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            background: rgba(139, 195, 74, 0.12);
-            border: 1px solid rgba(139, 195, 74, 0.24);
-            color: #c8f78f;
-            font-size: 0.76rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .intro-panel h1 {
-            margin: 24px 0 16px;
-            font-weight: 800;
-            font-size: clamp(2.4rem, 5vw, 4.8rem);
-            line-height: 0.98;
-        }
-
-        .intro-panel p {
-            color: var(--muted);
-            max-width: 560px;
-            font-size: 1.02rem;
-            line-height: 1.7;
-        }
-
-        .metric-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 34px;
-        }
-
-        .metric-card {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
-            padding: 16px;
-        }
-
-        .metric-card strong {
-            display: block;
-            font-size: 1.3rem;
-            color: #fff;
-        }
-
-        .metric-card span {
-            color: rgba(255, 255, 255, 0.62);
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .auth-card {
-            padding: 34px;
-        }
-
-        .logo-box {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .logo-box i {
-            width: 68px;
-            height: 68px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 22px;
-            color: var(--gold);
-            background: rgba(212, 175, 55, 0.11);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            font-size: 2rem;
-            margin-bottom: 16px;
-        }
-
-        .logo-box h2 {
-            font-weight: 800;
-            margin: 0;
-        }
-
-        .logo-box p {
-            color: var(--muted);
-            margin: 6px 0 0;
-        }
-
-        .form-label {
-            font-size: 0.8rem;
-            font-weight: 800;
-            color: rgba(255, 255, 255, 0.88);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 8px;
-        }
-
-        .input-wrap {
-            position: relative;
-        }
-
-        .input-wrap i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--green);
-            pointer-events: none;
-        }
-
-        .form-control {
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.065);
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-            padding: 14px 16px 14px 46px;
-        }
-
-        .form-control::placeholder { color: rgba(255, 255, 255, 0.35); }
-
-        .form-control:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--blue);
-            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18);
-            color: #fff;
-        }
-
-        .form-check-input {
-            background-color: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.22);
-        }
-
-        .btn-gold {
-            background: linear-gradient(135deg, #f3d56b, var(--gold));
-            color: #07130d;
-            border: none;
-            padding: 15px;
-            font-weight: 800;
-            border-radius: 15px;
-            width: 100%;
-            transition: 0.25s ease;
-            box-shadow: 0 14px 28px rgba(212, 175, 55, 0.2);
-        }
-
-        .btn-gold:hover {
-            color: #07130d;
-            transform: translateY(-2px);
-            box-shadow: 0 18px 36px rgba(212, 175, 55, 0.28);
-        }
-
-        .auth-footer {
-            text-align: center;
-            margin-top: 24px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.92rem;
-        }
-
-        .auth-footer a,
-        .form-link {
-            color: #f3d56b;
-            text-decoration: none;
-            font-weight: 800;
-        }
-
-        .auth-footer a:hover,
-        .form-link:hover { text-decoration: underline; }
-
-        @media (max-width: 900px) {
-            .auth-layout { grid-template-columns: 1fr; }
-            .intro-panel { display: none; }
-            .auth-card { max-width: 460px; margin: 0 auto; }
-        }
-
-        @media (max-width: 520px) {
-            .auth-shell { padding-top: 84px; }
-            .auth-card { padding: 24px; border-radius: 22px; }
-        }
-
         @media (max-width: 420px) {
-            .top-nav .container { gap: 10px; }
-            .brand-link { font-size: 0.95rem; }
-            .top-nav .btn { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
-            .auth-shell { padding-left: 0.75rem; padding-right: 0.75rem; }
-            .auth-card { padding: 20px; }
-            .logo-box i { width: 58px; height: 58px; border-radius: 18px; }
-            .logo-box h2 { font-size: 1.45rem; }
-            .form-control { min-height: 48px; }
+            .home-container { padding: 0 0.85rem; }
+            .section-pad { padding: 4.5rem 0; }
+            .hero-3d { min-height: 92vh; min-height: 92dvh; padding: 5rem 0.75rem 4rem; }
+            .hero-badge { font-size: 0.72rem; padding: 0.5rem 0.75rem; }
+            .hero-title { font-size: 2.45rem; }
+            .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; width: 100%; }
+            .hero-stat strong { font-size: 1.35rem; }
+            .hero-stat span { font-size: 0.72rem; }
+            .section-title { font-size: 1.85rem; }
+            .section-desc { margin-bottom: 2.5rem; }
+            .home-product-item { width: 205px; flex-basis: 205px; }
+            .product-img-wrap { height: 250px; }
+            .product-scroll-track { gap: 1rem; }
+            .display-3 { font-size: 2.1rem; }
+            .btn-lg { width: 100%; }
         }
-
         @media (min-width: 1400px) {
-            .auth-layout { width: min(1180px, 100%); }
-            .auth-card { padding: 42px; }
+            .home-container { max-width: 1320px; }
+            .hero-inner { max-width: 1120px; }
+            .home-product-item { width: 280px; flex-basis: 280px; }
+            .product-img-wrap { height: 300px; }
         }
     </style>
 </head>
 <body>
-    <canvas id="bg-canvas" aria-hidden="true"></canvas>
-
-    <nav class="top-nav">
-        <div class="container d-flex justify-content-between align-items-center">
-            <a class="brand-link" href="index.html"><i class="bi bi-tree-fill"></i> Greenworld Care</a>
-            <a href="login_admin.html" class="btn btn-sm btn-outline-light rounded-pill px-3">Admin Portal</a>
+    <nav class="navbar navbar-expand-lg navbar-forest sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><i class="bi bi-tree-fill"></i> Greenworld Care<span><i class="bi bi-shield-heart"></i> Consultant</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-1" id="mainNavList">
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#hero-section"><i class="bi bi-house-door-fill"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="product.html"><i class="bi bi-bag-heart"></i> Store</a></li>
+                    <li class="nav-item" id="loginLink"><a class="nav-link nav-link-custom" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
+                    <li class="nav-item" id="registerLink"><a class="nav-link nav-link-custom" href="register.html"><i class="bi bi-person-plus"></i> Register</a></li>
+                    <li class="nav-item" id="adminLink"><a class="nav-link nav-link-custom" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item" id="logoutLink"><a class="nav-link nav-link-custom text-danger" href="index.html" onclick="localStorage.removeItem('gw_role')"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                </ul>
+            </div>
         </div>
     </nav>
-
-    <main class="auth-shell">
-        <div class="auth-layout">
-            <section class="intro-panel glass-panel">
-                <div>
-                    <span class="eyebrow"><i class="bi bi-stars"></i> Premium Wellness Access</span>
-                    <h1>Welcome Back</h1>
-                    <p>Sign in to manage your wellness experience, browse Greenworld products, and continue with curated health solutions.</p>
-                </div>
-                <div class="metric-row">
-                    <div class="metric-card"><strong>24/7</strong><span>Catalog Access</span></div>
-                    <div class="metric-card"><strong>100%</strong><span>Focused Support</span></div>
-                    <div class="metric-card"><strong>Fast</strong><span>Ordering Flow</span></div>
-                </div>
-            </section>
-
-            <section class="auth-card glass-panel">
-                <div class="logo-box">
-                    <i class="bi bi-person-circle"></i>
-                    <h2>Customer Sign In</h2>
-                    <p>Access your Greenworld Care account.</p>
-                </div>
-
-                <form id="loginForm">
-                    <div class="mb-3">
-                        <label for="customerEmail" class="form-label">Email Address</label>
-                        <div class="input-wrap">
-                            <i class="bi bi-envelope"></i>
-                            <input type="email" id="customerEmail" class="form-control" placeholder="name@example.com" required>
+    <main class="main-content">
+        <div class="home-page">
+            <div class="bg-3d-layer" id="bg-3d-layer" aria-hidden="true"><canvas id="hero-canvas"></canvas><div class="hero-overlay"></div><div class="hero-grid"></div></div>
+            <div class="home-content">
+                <section class="hero-3d" id="hero-section">
+                    <div class="hero-inner" data-aos="zoom-out" data-aos-duration="1200">
+                        <div class="hero-badge"><span class="pulse"></span>Susan Aketch Odhiambo — Authorized Distributor</div>
+                        <h1 class="hero-title">Harvest <span class="accent">Health</span>,<br>Build Wealth.</h1>
+                        <p class="hero-lead">Experience premium herbal excellence with Susan Aketch Odhiambo. Your dedicated partner for world-class wellness solutions and financial growth.</p>
+                        <div class="d-flex gap-4 justify-content-center flex-wrap"><a href="https://wa.me/254724415604" class="btn btn-gold">WhatsApp Susan</a><a href="tel:0724415604" class="btn btn-glass">Call Now</a></div>
+                        <div class="hero-stats"><div class="hero-stat"><strong>40+</strong><span>Countries</span></div><div class="hero-stat"><strong>1M+</strong><span>Distributors</span></div><div class="hero-stat"><strong>25+</strong><span>Years Legacy</span></div></div>
+                    </div>
+                    <div class="scroll-hint"><i class="bi bi-chevron-double-down"></i>Discover More</div>
+                </section>
+                <section class="section-pad" id="wellness-consultant">
+                    <div class="home-container">
+                        <div class="glass-panel" data-aos="fade-up">
+                            <div class="row align-items-center g-5">
+                                <div class="col-lg-4 text-center"><img src="https://i.pravatar.cc/400?u=susan" alt="Susan Aketch Odhiambo" class="rounded-circle consultant-img" onerror="this.src='https://placehold.co/400x400/0a5c36/ffffff?text=Susan'"></div>
+                                <div class="col-lg-8">
+                                    <p class="section-label">Your Wellness Consultant</p>
+                                    <h2 class="section-title text-start mb-4">Susan Aketch Odhiambo</h2>
+                                    <p class="lead text-white-50 mb-5">"My mission is to empower individuals in Kisumu and beyond to take control of their health and financial destiny using Green World's proven herbal systems."</p>
+                                    <div class="row g-4 mb-5">
+                                        <div class="col-md-6"><div class="d-flex align-items-center gap-3"><div class="feature-icon-wrap mb-0 flex-shrink-0"><i class="bi bi-geo-alt"></i></div><div><h6 class="fw-bold mb-0 text-white">Kisumu Lakebasin Mall</h6><small class="text-white-50">Visit me for consultation</small></div></div></div>
+                                        <div class="col-md-6"><div class="d-flex align-items-center gap-3"><div class="feature-icon-wrap mb-0 flex-shrink-0"><i class="bi bi-envelope-at"></i></div><div><h6 class="fw-bold mb-0 text-white">susanneaketch@gmail.com</h6><small class="text-white-50">Email Susan directly</small></div></div></div>
+                                    </div>
+                                    <div class="d-flex gap-3"><a href="tel:0724415604" class="btn btn-gold">Call: 0724415604</a><a href="https://wa.me/254724415604" class="btn btn-glass"><i class="bi bi-whatsapp me-2"></i> WhatsApp</a></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <label for="customerPassword" class="form-label">Password</label>
-                            <a href="#" class="form-link small">Forgot?</a>
+                </section>
+                <section class="section-pad bg-surface" id="products">
+                    <div class="home-container">
+                        <div class="text-center" data-aos="fade-up"><p class="section-label">Signature Collection</p><h2 class="section-title">Premium Wellness Solutions</h2><p class="section-desc">Hand-picked herbal formulas for vitality, balance, and results.</p></div>
+                        <div class="product-groups" id="homeProductGrid">
+                            <!-- Dynamic products or placeholders -->
+                            <div class="product-card text-center p-5"><i class="bi bi-arrow-repeat spin fs-1 text-success mb-3"></i><h6 class="text-white">Loading...</h6></div>
                         </div>
-                        <div class="input-wrap">
-                            <i class="bi bi-lock"></i>
-                            <input type="password" id="customerPassword" class="form-control" placeholder="Password" required>
+                        <div class="text-center mt-5"><a href="product.html" class="btn btn-gold">Browse Full Catalog</a></div>
+                    </div>
+                </section>
+                <section class="section-pad" id="business-plan">
+                    <div class="home-container">
+                        <div class="row align-items-center g-5">
+                            <div class="col-lg-6" data-aos="fade-right"><p class="section-label">Prosperity Plan</p><h2 class="section-title text-start text-white">Reward Your Ambition</h2><p class="text-white-50 mb-5">Our stair-step compensation system is built to reward leaders who build with purpose. Join Susan's team in Kisumu and start your journey.</p><div class="comp-step"><h4 class="h6 fw-bold text-warning mb-2">Step 1 — Bronze Ambassador</h4><p class="mb-0 small text-white-50">Foundational commissions and direct sales success.</p></div><div class="comp-step"><h4 class="h6 fw-bold text-warning mb-2">Step 2 — Silver Leader</h4><p class="mb-0 small text-white-50">Team bonuses and growing residual network margins.</p></div><div class="comp-step"><h4 class="h6 fw-bold text-warning mb-2">Step 3 — Diamond Director</h4><p class="mb-0 small text-white-50">Global profit sharing and luxury lifestyle incentives.</p></div></div>
+                            <div class="col-lg-6" data-aos="zoom-in"><div class="glass-panel text-center"><img src="https://placehold.co/600x400/063d24/ffffff?text=Green+World+Marketing+Plan" alt="Marketing Plan" class="img-fluid rounded-4 mb-4"><a href="https://wa.me/254724415604?text=Susan, show me the full marketing plan" class="btn btn-gold w-100 py-3">View Full Plan Details</a></div></div>
                         </div>
                     </div>
-                    <div class="mb-4 form-check">
-                        <input type="checkbox" class="form-check-input" id="remember">
-                        <label class="form-check-label small text-white-50" for="remember">Remember me</label>
+                </section>
+                <section class="section-pad bg-surface">
+                    <div class="home-container">
+                        <div class="text-center mb-5" data-aos="fade-up"><p class="section-label">Success Stories</p><h2 class="section-title">Lives Transformed</h2></div>
+                        <div class="row g-4">
+                            <div class="col-md-6" data-aos="fade-up"><div class="testimonial-card"><div class="quote-mark">“</div><p class="text-white-80 lead mb-5">"Green World gave me my health back, and Susan's guidance gave me a business I'm proud of. Financial freedom is no longer just a dream."</p><div class="d-flex align-items-center gap-3"><img class="avatar" src="https://i.pravatar.cc/150?u=a1" alt="Testimonial"><div><h6 class="fw-bold text-white mb-0">Grace Otieno</h6><small class="text-success">Silver Leader, Kisumu</small></div></div></div></div>
+                            <div class="col-md-6" data-aos="fade-up" data-aos-delay="200"><div class="testimonial-card"><div class="quote-mark">“</div><p class="text-white-80 lead mb-5">"I've used herbal products before, but Green World's quality is unmatched. Susan made the onboarding process so simple."</p><div class="d-flex align-items-center gap-3"><img class="avatar" src="https://i.pravatar.cc/150?u=a2" alt="Testimonial"><div><h6 class="fw-bold text-white mb-0">David Maina</h6><small class="text-success">5-Star Member</small></div></div></div></div>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-gold">Sign In</button>
-                </form>
-
-                <div class="auth-footer">
-                    Do not have an account? <a href="register.html">Create one</a>
-                </div>
-            </section>
+                </section>
+                <section class="cta-final position-relative">
+                    <div class="home-container" data-aos="zoom-in"><h2 class="display-3 fw-bold mb-4">Start Your Journey Today.</h2><p class="lead lead-narrow text-white-50 mb-5 mx-auto">Join Susan Aketch Odhiambo and thousands of entrepreneurs building health and wealth worldwide.</p><div class="d-flex gap-4 justify-content-center flex-wrap"><a href="https://wa.me/254724415604" class="btn btn-gold btn-lg px-5">Message Susan on WhatsApp</a><a href="tel:0724415604" class="btn btn-glass btn-lg px-5">Call Susan</a></div><p class="mt-5 small text-white-50">© 2026 Green World | Susan Aketch Odhiambo. All rights reserved.</p></div>
+                </section>
+            </div>
         </div>
     </main>
-
+    <footer class="footer-minimalist">
+        <div class="container">
+            <div class="row gy-3">
+                <div class="col-md-5"><div class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-tree fs-4 footer-logo-icon"></i><span class="fw-semibold footer-brand-name">Greenworld Care</span></div><p class="small opacity-75">Empowering healthcare & membership management with eco-friendly digital solutions. Your wellness, our mission.</p></div>
+                <div class="col-md-3"><h6 class="text-white mb-3 fw-semibold">Quick Links</h6><ul class="list-unstyled small"><li><a href="#hero-section" class="text-decoration-none">Home</a></li><li class="mt-2"><a href="#wellness-consultant" class="text-decoration-none">Consultation</a></li><li class="mt-2"><a href="product.html" class="text-decoration-none">Herbal Products</a></li></ul></div>
+                <div class="col-md-4"><h6 class="text-white mb-3 fw-semibold">Support</h6><ul class="list-unstyled small"><li><i class="bi bi-envelope me-2"></i> susanneaketch@gmail.com</li><li class="mt-2"><i class="bi bi-telephone"></i> +254 724 415 604</li><li class="mt-2"><a href="#" class="text-decoration-none">Privacy Policy</a> | <a href="#" class="text-decoration-none">Terms</a></li></ul></div>
+            </div>
+            <div class="copyright">&copy; 2026 Greenworld Care — Susan Aketch Odhiambo. All rights reserved.<span class="mx-1">•</span> <i class="bi bi-forest"></i> Authorized Distributor</div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
     <script>
-        document.getElementById("loginForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            const email = document.getElementById("customerEmail").value.trim();
-            
-            // Try to find customer name from registered customers
-            const customers = JSON.parse(localStorage.getItem("greenworld_customers")) || [];
-            const customer = customers.find(c => c.email === email);
-            const fullName = customer ? customer.fullName : "Valued Member";
+        document.addEventListener('DOMContentLoaded', function() {
+            const role = localStorage.getItem('gw_role');
+            const loginLink = document.getElementById('loginLink');
+            const registerLink = document.getElementById('registerLink');
+            const adminLink = document.getElementById('adminLink');
+            const logoutLink = document.getElementById('logoutLink');
 
-            localStorage.setItem("gw_role", "customer");
-            localStorage.setItem("gw_current_user", JSON.stringify({
-                email: email,
-                fullName: fullName
-            }));
-            
-            window.location.href = "home.html";
-        });
-
-        initPremiumBackground();
-
-        function initPremiumBackground() {
-            const canvas = document.getElementById("bg-canvas");
-            const ctx = canvas.getContext("2d");
-            const particles = [];
-            const pointer = { x: 0, y: 0 };
-            const count = window.matchMedia("(max-width: 768px)").matches ? 85 : 160;
-
-            function resize() {
-                const ratio = Math.min(window.devicePixelRatio || 1, 2);
-                canvas.width = window.innerWidth * ratio;
-                canvas.height = window.innerHeight * ratio;
-                canvas.style.width = `${window.innerWidth}px`;
-                canvas.style.height = `${window.innerHeight}px`;
-                ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+            if (role) {
+                if (loginLink) loginLink.style.display = 'none';
+                if (registerLink) registerLink.style.display = 'none';
+                if (role === 'customer') {
+                    if (adminLink) adminLink.style.display = 'none';
+                }
+            } else {
+                if (adminLink) adminLink.style.display = 'none';
+                if (logoutLink) logoutLink.style.display = 'none';
             }
 
-            function makeParticle() {
-                return {
-                    x: (Math.random() - 0.5) * window.innerWidth * 1.45,
-                    y: (Math.random() - 0.5) * window.innerHeight * 1.45,
-                    z: Math.random() * 920 + 110,
-                    speed: Math.random() * 0.58 + 0.22,
-                    size: Math.random() * 1.8 + 0.65,
-                    hue: Math.random() > 0.5 ? 92 : 210
-                };
+            const imageDbConfig = {
+                name: 'greenworld_catalog_assets',
+                version: 1,
+                store: 'product_images'
+            };
+
+            function openImageDb() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(imageDbConfig.name, imageDbConfig.version);
+
+                    request.onupgradeneeded = () => {
+                        const db = request.result;
+                        if (!db.objectStoreNames.contains(imageDbConfig.store)) {
+                            db.createObjectStore(imageDbConfig.store);
+                        }
+                    };
+
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
             }
 
-            function reset(item) {
-                Object.assign(item, makeParticle(), { z: 980 });
+            async function getProductImageUrl(key) {
+                if (!key) return '';
+                const db = await openImageDb();
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(imageDbConfig.store, 'readonly');
+                    const request = transaction.objectStore(imageDbConfig.store).get(key);
+                    request.onsuccess = () => {
+                        db.close();
+                        resolve(request.result ? URL.createObjectURL(request.result) : '');
+                    };
+                    request.onerror = () => {
+                        db.close();
+                        reject(request.error);
+                    };
+                });
             }
 
-            function draw() {
-                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-                const cx = window.innerWidth / 2;
-                const cy = window.innerHeight / 2;
+            function escapeHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[char]));
+            }
 
-                particles.forEach(item => {
-                    item.z -= item.speed;
-                    if (item.z <= 1) reset(item);
+            function getPackageName(id, packages) {
+                return packages.find(pkg => pkg.id === id)?.name || id || 'Wellness';
+            }
 
-                    const depth = 480 / item.z;
-                    const x = cx + (item.x + pointer.x * 0.02) * depth;
-                    const y = cy + (item.y + pointer.y * 0.02) * depth;
-                    const radius = Math.max(0.22, item.size * depth * 2.15);
-
-                    if (x < -60 || x > window.innerWidth + 60 || y < -60 || y > window.innerHeight + 60) {
-                        reset(item);
-                        return;
+            function groupProductsByPackage(productList, packages) {
+                const groups = new Map();
+                productList.forEach(product => {
+                    const key = product.category || 'uncategorized';
+                    if (!groups.has(key)) {
+                        groups.set(key, {
+                            id: key,
+                            name: getPackageName(key, packages),
+                            products: []
+                        });
                     }
-
-                    ctx.beginPath();
-                    ctx.fillStyle = `hsla(${item.hue}, 86%, 68%, ${Math.min(0.85, depth * 0.82)})`;
-                    ctx.shadowColor = `hsla(${item.hue}, 86%, 68%, 0.5)`;
-                    ctx.shadowBlur = 12;
-                    ctx.arc(x, y, radius, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
+                    groups.get(key).products.push(product);
                 });
 
-                requestAnimationFrame(draw);
+                return [...groups.values()].sort((a, b) => {
+                    const aIndex = packages.findIndex(pkg => pkg.id === a.id);
+                    const bIndex = packages.findIndex(pkg => pkg.id === b.id);
+                    if (aIndex === -1 && bIndex === -1) return a.name.localeCompare(b.name);
+                    if (aIndex === -1) return 1;
+                    if (bIndex === -1) return -1;
+                    return aIndex - bIndex;
+                });
             }
 
+            function renderHomeProductCard(product, duplicateIndex) {
+                return `
+                    <div class="home-product-item">
+                        <div class="product-card position-relative" data-aos="fade-up">
+                            <span class="category-badge">${escapeHtml(getPackageName(product.category, packages))}</span>
+                            <div class="product-img-wrap">
+                                <img data-product-image="${escapeHtml(product.id)}" src="${escapeHtml(product.image || 'https://placehold.co/145x267/0a5c36/ffffff?text=Product')}" alt="${escapeHtml(product.name)}">
+                            </div>
+                            <div class="p-3 text-center">
+                                <h6 class="fw-bold mb-1 text-white text-truncate">${escapeHtml(product.name)}</h6>
+                                <p class="text-success small fw-bold mb-2">Ksh ${escapeHtml(product.price)}</p>
+                                <a href="product.html" class="btn btn-sm btn-outline-success w-100 rounded-pill">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            async function hydrateHomeProductImages(featuredProducts) {
+                for (const product of featuredProducts) {
+                    if (!product.imageKey) continue;
+                    const images = document.querySelectorAll(`[data-product-image="${CSS.escape(product.id)}"]`);
+                    if (!images.length) continue;
+
+                    try {
+                        const imageUrl = await getProductImageUrl(product.imageKey);
+                        if (imageUrl) images.forEach(image => image.src = imageUrl);
+                    } catch (error) {
+                        console.warn('Unable to load home product image', error);
+                    }
+                }
+            }
+
+            // Render Products from LocalStorage
+            const products = JSON.parse(localStorage.getItem('greenworld_products')) || [];
+            const packages = JSON.parse(localStorage.getItem('greenworld_packages')) || [];
+            const homeGrid = document.getElementById('homeProductGrid');
+
+            if (products.length > 0) {
+                homeGrid.innerHTML = '';
+                const packageGroups = groupProductsByPackage(products, packages);
+
+                packageGroups.forEach(group => {
+                    const shouldScroll = group.products.length > 4;
+                    const trackProducts = shouldScroll ? [...group.products, ...group.products] : group.products;
+                    const section = document.createElement('section');
+                    section.className = 'product-package-group';
+                    section.innerHTML = `
+                        <div class="product-package-heading">
+                            <h3>${escapeHtml(group.name)}</h3>
+                            <span>${group.products.length} product${group.products.length === 1 ? '' : 's'}</span>
+                        </div>
+                        <div class="product-scroll-window">
+                            <div class="product-scroll-track ${shouldScroll ? 'is-scrolling' : ''}">
+                                ${trackProducts.map(renderHomeProductCard).join('')}
+                            </div>
+                        </div>
+                    `;
+                    homeGrid.appendChild(section);
+                });
+
+                hydrateHomeProductImages(products);
+            } else {
+                homeGrid.innerHTML = '<div class="text-center text-white-50"><p>No products featured yet. Check our store soon!</p></div>';
+            }
+
+            AOS.init({ duration: 1000, once: true, offset: 50 });
+            initCentered3D();
+        });
+        
+        function initCentered3D() {
+            const canvas = document.getElementById('hero-canvas');
+            if (!canvas || typeof THREE === 'undefined') return;
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+            camera.position.set(0, 0, 15);
+            const ambient = new THREE.AmbientLight(0xffffff, 0.45);
+            scene.add(ambient);
+            const keyLight = new THREE.DirectionalLight(0x7ee8a8, 1.4);
+            keyLight.position.set(10, 10, 10);
+            scene.add(keyLight);
+            const goldLight = new THREE.PointLight(0xd4af37, 2, 50);
+            goldLight.position.set(-8, 4, 6);
+            scene.add(goldLight);
+            const group = new THREE.Group();
+            scene.add(group);
+            const coreGeo = new THREE.IcosahedronGeometry(2.4, 1);
+            const coreMat = new THREE.MeshPhysicalMaterial({ color: 0x0a5c36, emissive: 0x1a8f55, emissiveIntensity: 0.4, metalness: 0.7, roughness: 0.2, transparent: true, opacity: 0.95 });
+            const core = new THREE.Mesh(coreGeo, coreMat);
+            group.add(core);
+            const wireShell = new THREE.Mesh(new THREE.IcosahedronGeometry(2.8, 2), new THREE.MeshBasicMaterial({ color: 0x4ade80, wireframe: true, transparent: true, opacity: 0.3 }));
+            group.add(wireShell);
+            const ring1 = new THREE.Mesh(new THREE.TorusGeometry(4.2, 0.04, 16, 100), new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.6 }));
+            ring1.rotation.x = Math.PI / 2.5;
+            group.add(ring1);
+            const ring2 = ring1.clone();
+            ring2.scale.set(0.8, 0.8, 0.8);
+            ring2.rotation.x = -Math.PI / 4;
+            group.add(ring2);
+            let mouseX = 0, mouseY = 0;
+            document.addEventListener('mousemove', (e) => { mouseX = (e.clientX / window.innerWidth - 0.5) * 2; mouseY = (e.clientY / window.innerHeight - 0.5) * 2; });
+            function resize() { const w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+            window.addEventListener('resize', resize);
             resize();
-            for (let i = 0; i < count; i += 1) particles.push(makeParticle());
-            window.addEventListener("resize", resize);
-            window.addEventListener("mousemove", event => {
-                pointer.x = event.clientX - window.innerWidth / 2;
-                pointer.y = event.clientY - window.innerHeight / 2;
-            });
-            draw();
+            const clock = new THREE.Clock();
+            function animate() { requestAnimationFrame(animate); const t = clock.getElapsedTime(); core.rotation.y = t * 0.3; wireShell.rotation.y = -t * 0.2; ring1.rotation.z = t * 0.4; ring2.rotation.z = -t * 0.3; group.rotation.y += (mouseX * 0.2 - group.rotation.y) * 0.05; group.rotation.x += (-mouseY * 0.1 - group.rotation.x) * 0.05; renderer.render(scene, camera); }
+            animate();
         }
     </script>
 </body>
