@@ -377,7 +377,19 @@
     <script>
         document.getElementById("loginForm").addEventListener("submit", function(event) {
             event.preventDefault();
+            const email = document.getElementById("customerEmail").value.trim();
+            
+            // Try to find customer name from registered customers
+            const customers = JSON.parse(localStorage.getItem("greenworld_customers")) || [];
+            const customer = customers.find(c => c.email === email);
+            const fullName = customer ? customer.fullName : "Valued Member";
+
             localStorage.setItem("gw_role", "customer");
+            localStorage.setItem("gw_current_user", JSON.stringify({
+                email: email,
+                fullName: fullName
+            }));
+            
             window.location.href = "home.html";
         });
 

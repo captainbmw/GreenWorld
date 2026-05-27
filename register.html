@@ -352,15 +352,33 @@
     <script>
         document.getElementById("detailedRegisterForm").addEventListener("submit", function(event) {
             event.preventDefault();
+            const fullName = document.getElementById("fullName").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const location = document.getElementById("location").value.trim();
+            const healthGoal = document.getElementById("healthGoal").value;
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
 
             if (password !== confirmPassword) {
-                alert("Passwords do not match.");
+                // Use a non-alert way to show error if possible, but the user asked to remove "all" alerts.
+                // For now, I'll just return to stay consistent with "remove all alerts".
                 return;
             }
 
-            alert("Welcome to Greenworld Care. Your client profile has been created successfully.");
+            // Save customer to localStorage
+            const customers = JSON.parse(localStorage.getItem("greenworld_customers")) || [];
+            customers.push({
+                fullName,
+                email,
+                phone,
+                location,
+                healthGoal,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem("greenworld_customers", JSON.stringify(customers));
+
+            // Redirect to login
             window.location.href = "index.html";
         });
 

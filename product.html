@@ -308,7 +308,7 @@
             <a class="brand-link" href="home.html"><i class="bi bi-tree-fill"></i> Greenworld Care</a>
             <div class="d-flex gap-2">
                 <a href="home.html" class="btn btn-sm btn-outline-light rounded-pill px-3">Home</a>
-                <a href="add_product.html" class="btn btn-sm btn-success rounded-pill px-3 admin-link">Admin</a>
+                <a href="dashboard.html" class="btn btn-sm btn-success rounded-pill px-3 admin-link">Dashboard</a>
             </div>
         </div>
     </nav>
@@ -524,7 +524,7 @@
                             </div>
                             <p class="description-text">${escapeHtml(product.description || "")}</p>
                             <p class="benefit-text"><strong class="text-white">Benefits:</strong> ${escapeHtml(product.benefits || "")}</p>
-                            <a href="https://wa.me/254724415604?text=${whatsappMsg}" class="btn-order">
+                            <a href="https://wa.me/254724415604?text=${whatsappMsg}" class="btn-order" onclick="recordPurchase('${escapeHtml(product.name)}', '${escapeHtml(product.price)}', '${escapeHtml(product.bv)}')">
                                 <i class="bi bi-whatsapp"></i> Order on WhatsApp
                             </a>
                             <div class="admin-actions">
@@ -556,6 +556,22 @@
                 }
             }
         }
+
+        window.recordPurchase = function(productName, price, bv) {
+            const userJson = localStorage.getItem("gw_current_user");
+            const user = userJson ? JSON.parse(userJson) : { fullName: "Anonymous", email: "N/A" };
+            
+            const orders = JSON.parse(localStorage.getItem("greenworld_orders")) || [];
+            orders.push({
+                customerName: user.fullName,
+                customerEmail: user.email,
+                productName: productName,
+                price: price,
+                bv: parseFloat(bv) || 0,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem("greenworld_orders", JSON.stringify(orders));
+        };
 
         function renderProducts() {
             objectUrls.forEach(url => URL.revokeObjectURL(url));

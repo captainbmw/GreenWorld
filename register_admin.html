@@ -263,17 +263,20 @@
             const password = document.getElementById("staffPass").value;
             const confirmPassword = document.getElementById("staffPassConfirm").value;
             const allowed = ["Susan", "susan", "CaptainBMW", "captainbmw"];
+            const disclaimer = document.querySelector(".disclaimer");
 
             if (password !== confirmPassword) {
-                alert("Passwords do not match.");
+                disclaimer.innerHTML = "<b>Error:</b> Passwords do not match.";
+                disclaimer.style.background = "rgba(239, 68, 68, 0.2)";
                 return;
             }
 
             if (allowed.includes(user)) {
-                alert("Authorization successful. Admin identity verified for " + user + ".");
+                // Success - redirect directly
                 window.location.href = "login_admin.html";
             } else {
-                alert("Identity not recognized. This registration request was denied.");
+                disclaimer.innerHTML = "<b>Identity not recognized.</b> This registration request was denied.";
+                disclaimer.style.background = "rgba(239, 68, 68, 0.2)";
             }
         });
 
