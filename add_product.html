@@ -484,11 +484,6 @@
             packages: "greenworld_packages",
             editProduct: "gw_edit_product_id"
         };
-        const imageDbConfig = {
-            name: "greenworld_catalog_assets",
-            version: 1,
-            store: "product_images"
-        };
         const imageRequirements = {
             minWidth: 100,
             minHeight: 200
@@ -515,73 +510,6 @@
         const statusMessage = document.getElementById("statusMessage");
         let selectedImageFile = null;
         let previewObjectUrl = "";
-        const tableObjectUrls = new Set();
-
-        function openImageDb() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(imageDbConfig.name, imageDbConfig.version);
-
-                request.onupgradeneeded = () => {
-                    const db = request.result;
-                    if (!db.objectStoreNames.contains(imageDbConfig.store)) {
-                        db.createObjectStore(imageDbConfig.store);
-                    }
-                };
-
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        }
-
-        async function putProductImage(key, file) {
-            const db = await openImageDb();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(imageDbConfig.store, "readwrite");
-                transaction.objectStore(imageDbConfig.store).put(file, key);
-                transaction.oncomplete = () => {
-                    db.close();
-                    resolve(key);
-                };
-                transaction.onerror = () => {
-                    db.close();
-                    reject(transaction.error);
-                };
-            });
-        }
-
-        async function getProductImageUrl(key) {
-            if (!key) return "";
-            const db = await openImageDb();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(imageDbConfig.store, "readonly");
-                const request = transaction.objectStore(imageDbConfig.store).get(key);
-                request.onsuccess = () => {
-                    db.close();
-                    resolve(request.result ? URL.createObjectURL(request.result) : "");
-                };
-                request.onerror = () => {
-                    db.close();
-                    reject(request.error);
-                };
-            });
-        }
-
-        async function deleteProductImage(key) {
-            if (!key) return;
-            const db = await openImageDb();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(imageDbConfig.store, "readwrite");
-                transaction.objectStore(imageDbConfig.store).delete(key);
-                transaction.oncomplete = () => {
-                    db.close();
-                    resolve();
-                };
-                transaction.onerror = () => {
-                    db.close();
-                    reject(transaction.error);
-                };
-            });
-        }
 
         function loadList(key, fallback) {
             try {
@@ -671,9 +599,6 @@
         }
 
         function renderProducts() {
-            tableObjectUrls.forEach(url => URL.revokeObjectURL(url));
-            tableObjectUrls.clear();
-
             const tbody = document.getElementById("productTableBody");
             if (!products.length) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center text-white-50 py-4">No products have been added yet.</td></tr>';
@@ -704,27 +629,6 @@
                     </td>
                 </tr>
             `).join("");
-
-            hydrateProductTableImages();
-        }
-
-        async function hydrateProductTableImages() {
-            for (const product of products) {
-                if (!product.imageKey) continue;
-
-                const image = document.querySelector(`[data-product-image="${CSS.escape(product.id)}"]`);
-                if (!image) continue;
-
-                try {
-                    const url = await getProductImageUrl(product.imageKey);
-                    if (url) {
-                        tableObjectUrls.add(url);
-                        image.src = url;
-                    }
-                } catch (error) {
-                    console.warn("Unable to load product image", error);
-                }
-            }
         }
 
         document.getElementById("packageForm").addEventListener("submit", (event) => {
@@ -772,17 +676,25 @@
             statusMessage.textContent = `${file.name} selected (${dimensions.width}x${dimensions.height}px, ${(file.size / 1024 / 1024).toFixed(2)} MB).`;
         });
 
+        function fileToDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error || new Error("Image read failed"));
+                reader.readAsDataURL(file);
+            });
+        }
+
         productForm.addEventListener("submit", async (event) => {
             event.preventDefault();
             const existingProduct = editingId ? products.find(item => item.id === editingId) : null;
             const productId = editingId || createId(document.getElementById("productName").value);
-            const imageKey = selectedImageFile ? `product-image-${productId}` : (existingProduct?.imageKey || "");
-
+            let productImage = existingProduct?.image || "";
             if (selectedImageFile) {
                 try {
-                    await putProductImage(imageKey, selectedImageFile);
+                    productImage = await fileToDataUrl(selectedImageFile);
                 } catch (error) {
-                    statusMessage.textContent = "Image could not be saved. Try a smaller file or free browser storage.";
+                    statusMessage.textContent = "Image could not be saved. Try a smaller image file.";
                     return;
                 }
             }
@@ -796,8 +708,7 @@
                 bv: document.getElementById("productBv").value.trim(),
                 description: document.getElementById("productDescription").value.trim(),
                 benefits: document.getElementById("productBenefits").value.trim(),
-                imageKey,
-                image: selectedImageFile ? "" : (existingProduct?.image || "")
+                image: productImage
             };
 
             const savedMessage = editingId ? "Product updated." : "Product deployed to catalog.";
@@ -829,8 +740,7 @@
             document.getElementById("productBenefits").value = product.benefits || "";
             imageData.value = product.image || "";
             selectedImageFile = null;
-            const imageUrl = product.imageKey ? await getProductImageUrl(product.imageKey) : "";
-            showPreview(imageUrl || product.image || "");
+            showPreview(product.image || "");
             document.getElementById("submitProduct").innerHTML = '<i class="bi bi-check2-circle me-2"></i> Update Product';
             document.getElementById("cancelEdit").style.display = "inline-flex";
             statusMessage.textContent = `Editing ${product.name}.`;
@@ -843,7 +753,6 @@
 
             products = products.filter(item => item.id !== id);
             saveAll();
-            await deleteProductImage(product.imageKey);
             if (editingId === id) resetForm();
             renderProducts();
             statusMessage.textContent = "Product deleted.";

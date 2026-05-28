@@ -57,7 +57,7 @@
         .footer-logo-icon { color: var(--tree-icon-color); }
         .footer-brand-name { color: var(--footer-brand-color); }
         .copyright { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.2rem; margin-top: 0.8rem; font-size: 0.75rem; text-align: center; }
-        @media (max-width: 768px) { .navbar-brand { font-size: 1.3rem; } .navbar-brand i { font-size: 1.4rem; } .footer-minimalist { text-align: center; } .message-container { margin-left: 12px; margin-right: 12px; } }
+        @media (max-width: 768px) { .navbar-brand { font-size: 1.3rem; } .navbar-brand i { font-size: 1.4rem; } .footer-minimalist { text-align: center; } .message-container { margin-left: 12px; margin-right: 12px; } .navbar-nav { align-items: stretch !important; } .nav-link-custom { margin: 0.15rem 0; } }
         .content-card { background: var(--card-white); border-radius: 28px; padding: 1.8rem; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05); border: none; transition: transform 0.1s ease; }
         .mt-safe { margin-top: 1rem; }
         .home-page { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; color: rgba(255, 255, 255, 0.92); overflow-x: hidden; position: relative; background: transparent; }
@@ -139,6 +139,9 @@
         @media (max-width: 420px) {
             .home-container { padding: 0 0.85rem; }
             .section-pad { padding: 4.5rem 0; }
+            .navbar-brand { max-width: 68vw; font-size: 1.05rem; }
+            .navbar-brand span { display: none; }
+            .navbar .container { padding-left: 0.6rem; padding-right: 0.6rem; }
             .hero-3d { min-height: 92vh; min-height: 92dvh; padding: 5rem 0.75rem 4rem; }
             .hero-badge { font-size: 0.72rem; padding: 0.5rem 0.75rem; }
             .hero-title { font-size: 2.45rem; }
@@ -265,54 +268,18 @@
             const adminLink = document.getElementById('adminLink');
             const logoutLink = document.getElementById('logoutLink');
 
-            if (role) {
+            const isAdmin = role === 'admin';
+
+            if (isAdmin) {
                 if (loginLink) loginLink.style.display = 'none';
                 if (registerLink) registerLink.style.display = 'none';
-                if (role === 'customer') {
-                    if (adminLink) adminLink.style.display = 'none';
-                }
+                if (adminLink) adminLink.style.display = '';
+                if (logoutLink) logoutLink.style.display = '';
             } else {
+                if (loginLink) loginLink.style.display = '';
+                if (registerLink) registerLink.style.display = '';
                 if (adminLink) adminLink.style.display = 'none';
                 if (logoutLink) logoutLink.style.display = 'none';
-            }
-
-            const imageDbConfig = {
-                name: 'greenworld_catalog_assets',
-                version: 1,
-                store: 'product_images'
-            };
-
-            function openImageDb() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(imageDbConfig.name, imageDbConfig.version);
-
-                    request.onupgradeneeded = () => {
-                        const db = request.result;
-                        if (!db.objectStoreNames.contains(imageDbConfig.store)) {
-                            db.createObjectStore(imageDbConfig.store);
-                        }
-                    };
-
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-
-            async function getProductImageUrl(key) {
-                if (!key) return '';
-                const db = await openImageDb();
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction(imageDbConfig.store, 'readonly');
-                    const request = transaction.objectStore(imageDbConfig.store).get(key);
-                    request.onsuccess = () => {
-                        db.close();
-                        resolve(request.result ? URL.createObjectURL(request.result) : '');
-                    };
-                    request.onerror = () => {
-                        db.close();
-                        reject(request.error);
-                    };
-                });
             }
 
             function escapeHtml(value) {
@@ -371,21 +338,6 @@
                 `;
             }
 
-            async function hydrateHomeProductImages(featuredProducts) {
-                for (const product of featuredProducts) {
-                    if (!product.imageKey) continue;
-                    const images = document.querySelectorAll(`[data-product-image="${CSS.escape(product.id)}"]`);
-                    if (!images.length) continue;
-
-                    try {
-                        const imageUrl = await getProductImageUrl(product.imageKey);
-                        if (imageUrl) images.forEach(image => image.src = imageUrl);
-                    } catch (error) {
-                        console.warn('Unable to load home product image', error);
-                    }
-                }
-            }
-
             // Render Products from LocalStorage
             const products = JSON.parse(localStorage.getItem('greenworld_products')) || [];
             const packages = JSON.parse(localStorage.getItem('greenworld_packages')) || [];
@@ -414,7 +366,6 @@
                     homeGrid.appendChild(section);
                 });
 
-                hydrateHomeProductImages(products);
             } else {
                 homeGrid.innerHTML = '<div class="text-center text-white-50"><p>No products featured yet. Check our store soon!</p></div>';
             }

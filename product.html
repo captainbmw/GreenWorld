@@ -259,15 +259,6 @@
             transform: translateY(-1px);
         }
 
-        .admin-actions {
-            display: none;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        body.is-admin .admin-actions { display: grid; }
-
         .empty-state {
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.12);
@@ -347,13 +338,7 @@
     <script>
         const storageKeys = {
             products: "greenworld_products",
-            packages: "greenworld_packages",
-            editProduct: "gw_edit_product_id"
-        };
-        const imageDbConfig = {
-            name: "greenworld_catalog_assets",
-            version: 1,
-            store: "product_images"
+            packages: "greenworld_packages"
         };
 
         const defaultPackages = [
@@ -370,11 +355,7 @@
         const searchInput = document.getElementById("searchInput");
         const categoryFilter = document.getElementById("categoryFilter");
         const isAdmin = localStorage.getItem("gw_role") === "admin";
-        const objectUrls = new Set();
-
-        if (isAdmin) {
-            document.body.classList.add("is-admin");
-        } else {
+        if (!isAdmin) {
             document.querySelectorAll(".admin-link").forEach(link => link.style.display = "none");
         }
 
@@ -384,63 +365,6 @@
             } catch (error) {
                 return fallback;
             }
-        }
-
-        function openImageDb() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(imageDbConfig.name, imageDbConfig.version);
-
-                request.onupgradeneeded = () => {
-                    const db = request.result;
-                    if (!db.objectStoreNames.contains(imageDbConfig.store)) {
-                        db.createObjectStore(imageDbConfig.store);
-                    }
-                };
-
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        }
-
-        async function getProductImageUrl(key) {
-            if (!key) return "";
-            const db = await openImageDb();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(imageDbConfig.store, "readonly");
-                const request = transaction.objectStore(imageDbConfig.store).get(key);
-                request.onsuccess = () => {
-                    db.close();
-                    if (!request.result) {
-                        resolve("");
-                        return;
-                    }
-
-                    const url = URL.createObjectURL(request.result);
-                    objectUrls.add(url);
-                    resolve(url);
-                };
-                request.onerror = () => {
-                    db.close();
-                    reject(request.error);
-                };
-            });
-        }
-
-        async function deleteProductImage(key) {
-            if (!key) return;
-            const db = await openImageDb();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(imageDbConfig.store, "readwrite");
-                transaction.objectStore(imageDbConfig.store).delete(key);
-                transaction.oncomplete = () => {
-                    db.close();
-                    resolve();
-                };
-                transaction.onerror = () => {
-                    db.close();
-                    reject(transaction.error);
-                };
-            });
         }
 
         function escapeHtml(value) {
@@ -527,34 +451,10 @@
                             <a href="https://wa.me/254724415604?text=${whatsappMsg}" class="btn-order" onclick="recordPurchase('${escapeHtml(product.name)}', '${escapeHtml(product.price)}', '${escapeHtml(product.bv)}')">
                                 <i class="bi bi-whatsapp"></i> Order on WhatsApp
                             </a>
-                            <div class="admin-actions">
-                                <button class="btn btn-outline-info rounded-pill" type="button" onclick="editProduct('${escapeHtml(product.id)}')">
-                                    <i class="bi bi-pencil me-1"></i> Edit
-                                </button>
-                                <button class="btn btn-outline-danger rounded-pill" type="button" onclick="deleteProduct('${escapeHtml(product.id)}')">
-                                    <i class="bi bi-trash me-1"></i> Delete
-                                </button>
-                            </div>
                         </div>
                     </article>
                 </div>
             `;
-        }
-
-        async function hydrateProductImages(visibleProducts) {
-            for (const product of visibleProducts) {
-                if (!product.imageKey) continue;
-
-                const image = document.querySelector(`[data-product-image="${CSS.escape(product.id)}"]`);
-                if (!image) continue;
-
-                try {
-                    const url = await getProductImageUrl(product.imageKey);
-                    if (url) image.src = url;
-                } catch (error) {
-                    console.warn("Unable to load product image", error);
-                }
-            }
         }
 
         window.recordPurchase = function(productName, price, bv) {
@@ -579,9 +479,6 @@
         };
 
         function renderProducts() {
-            objectUrls.forEach(url => URL.revokeObjectURL(url));
-            objectUrls.clear();
-
             const visibleProducts = products.filter(productMatches);
             grid.innerHTML = "";
             noProducts.style.display = visibleProducts.length ? "none" : "block";
@@ -600,23 +497,6 @@
                 `;
                 grid.appendChild(section);
             });
-
-            hydrateProductImages(visibleProducts);
-        }
-
-        window.editProduct = function(id) {
-            localStorage.setItem(storageKeys.editProduct, id);
-            window.location.href = "add_product.html";
-        };
-
-        window.deleteProduct = async function(id) {
-            const product = products.find(item => item.id === id);
-            if (!product || !confirm(`Delete "${product.name}" from the catalog?`)) return;
-
-            products = products.filter(item => item.id !== id);
-            saveProducts();
-            await deleteProductImage(product.imageKey);
-            renderProducts();
         };
 
         function initPremiumBackground() {
