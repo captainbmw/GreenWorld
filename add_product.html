@@ -439,7 +439,7 @@
     <script type="module">
         import { db, storage } from './js/firebase-config.js';
         import { ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        import { ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+        import { ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         AOS.init({ duration: 1000, once: true });
 
@@ -594,8 +594,32 @@
 
                 if (file) {
                     const storageRef = sRef(storage, `products/${Date.now()}_${file.name}`);
-                    await uploadBytes(storageRef, file);
-                    imageUrl = await getDownloadURL(storageRef);
+                    
+                    // Using uploadBytesResumable for better error tracking
+                    const uploadTask = uploadBytesResumable(storageRef, file);
+
+                    imageUrl = await new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed', 
+                            (snapshot) => {
+                                // Optional: Track progress
+                            }, 
+                            (error) => {
+                                console.error("Firebase Storage Error:", error);
+                                if (error.code === 'storage/retry-limit-exceeded') {
+                                    alert("Firebase Error: Retry limit exceeded. This usually means your 'Firebase Storage Rules' are blocking the upload or your bucket configuration is incorrect.");
+                                } else if (error.code === 'storage/unauthorized') {
+                                    alert("Firebase Error: Unauthorized. Please update your Storage Rules to allow uploads.");
+                                } else {
+                                    alert("Upload Error (" + error.code + "): " + error.message);
+                                }
+                                reject(error);
+                            }, 
+                            async () => {
+                                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                                resolve(url);
+                            }
+                        );
+                    });
                 }
 
                 const newProductRef = push(ref(db, 'products'));
@@ -620,7 +644,7 @@
                 prevPrice.textContent = 'Ksh 0';
                 prevDesc.textContent = 'Description preview will appear here...';
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('Error submitting product: ' + error.message);
             } finally {
                 toggleLoading(false);
             }

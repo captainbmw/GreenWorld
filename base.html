@@ -250,34 +250,25 @@
             
             <!-- Navbar Links (Dynamic based on user auth) -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-1">
-                    <li class="nav-item">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-1"><li class="nav-item">
                         <a class="nav-link nav-link-custom" href="{% url 'index' %}">
                             <i class="bi bi-house-door-fill"></i> Home
                         </a>
-                    </li>
-                    <li class="nav-item">
+                    </li><li class="nav-item">
                         <a class="nav-link nav-link-custom" href="{% url 'dashboard' %}">
                             <i class="bi bi-speedometer2"></i> Dashboard
                         </a>
-                    </li>
-                    
-                    {% if not user.is_authenticated %}
-                    <li class="nav-item">
+                    </li>{% if not user.is_authenticated %}<li class="nav-item">
                         <a class="nav-link nav-link-custom" href="{% url 'register_member' %}">
                             <i class="bi bi-person-plus-fill"></i> Register
                         </a>
-                    </li>
-                    <li class="nav-item">
+                    </li><li class="nav-item">
                         <a class="nav-link nav-link-custom" href="{% url 'member_login' %}">
                             <i class="bi bi-box-arrow-in-right"></i> Login
                         </a>
-                    </li>
-                    <li class="nav-item">
+                    </li><li class="nav-item">
                         <span class="user-greeting"><i class="bi bi-shield-lock"></i> Secure Access</span>
-                    </li>
-                    {% else %}
-                    <li class="nav-item dropdown">
+                    </li>{% else %}<li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle nav-link-custom" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle"></i> {{ user.username|default:"Member" }}
                         </a>
@@ -286,9 +277,7 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="bi bi-door-closed"></i> Logout</a></li>
                         </ul>
-                    </li>
-                    {% endif %}
-                </ul>
+                    </li>{% endif %}</ul>
             </div>
         </div>
     </nav>
