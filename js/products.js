@@ -1,82 +1,42 @@
 import { db } from './firebase-config.js';
-import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Helper to escape HTML and prevent XSS
 export function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    }[char]));
+    if (typeof value !== 'string') return value;
+    const div = document.createElement('div');
+    div.textContent = value;
+    return div.innerHTML;
 }
 
-// Function to get package name by ID
-export function getPackageName(id, packages) {
-    const pkg = packages.find(p => p.id === id);
-    return pkg ? pkg.name : (id || 'General');
-}
-
-// Function to group products by category/package
-export function groupProducts(productList, packages) {
-    const groups = new Map();
-    productList.forEach(product => {
-        const key = product.category || 'uncategorized';
-        if (!groups.has(key)) {
-            groups.set(key, {
-                id: key,
-                name: getPackageName(key, packages),
-                products: []
-            });
-        }
-        groups.get(key).products.push(product);
-    });
-
-    return [...groups.values()].sort((a, b) => {
-        const aIndex = packages.findIndex(pkg => pkg.id === a.id);
-        const bIndex = packages.findIndex(pkg => pkg.id === b.id);
-        if (aIndex === -1 && bIndex === -1) return a.name.localeCompare(b.name);
-        if (aIndex === -1) return 1;
-        if (bIndex === -1) return -1;
-        return aIndex - bIndex;
-    });
-}
-
-// Real-time listener for products
+// Function to fetch and listen to real-time updates for products
 export function listenToProducts(callback) {
-    const productsRef = ref(db, 'products');
-
-    return onValue(productsRef, (snapshot) => {
-        const data = snapshot.val();
+    const productsRef = collection(db, "products");
+    const q = query(productsRef, orderBy("timestamp", "desc"));
+    
+    return onSnapshot(q, (snapshot) => {
         const products = [];
-        if (data) {
-            Object.keys(data).forEach((id) => {
-                products.push({ id, ...data[id] });
-            });
-            // Sort by timestamp descending
-            products.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        }
+        snapshot.forEach((doc) => {
+            products.push({ id: doc.id, ...doc.data() });
+        });
         callback(products);
     }, (error) => {
-        console.error("Error listening to products: ", error);
-        alert("Failed to load products. Please check your connection.");
+        console.error("Error listening to products:", error);
+        callback([]);
     });
 }
 
-// Real-time listener for packages/categories
+// Function to fetch and listen to real-time updates for packages (categories)
 export function listenToPackages(callback) {
-    const packagesRef = ref(db, 'packages');
+    const packagesRef = collection(db, "packages");
     
-    return onValue(packagesRef, (snapshot) => {
-        const data = snapshot.val();
+    return onSnapshot(packagesRef, (snapshot) => {
         const packages = [];
-        if (data) {
-            Object.keys(data).forEach((id) => {
-                packages.push({ id, ...data[id] });
-            });
-        }
-        // Default packages if empty
+        snapshot.forEach((doc) => {
+            packages.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // If no packages exist, provide defaults for better UX
         if (packages.length === 0) {
             packages.push(
                 { id: "detox", name: "Detox" },
@@ -86,5 +46,34 @@ export function listenToPackages(callback) {
             );
         }
         callback(packages);
+    }, (error) => {
+        console.error("Error listening to packages:", error);
+        callback([]);
     });
+}
+
+// Helper to group products by their category
+export function groupProducts(products, packages) {
+    const groups = {};
+    
+    products.forEach(product => {
+        const catId = product.category || 'uncategorized';
+        if (!groups[catId]) {
+            const pkg = packages.find(p => p.id === catId);
+            groups[catId] = {
+                id: catId,
+                name: pkg ? pkg.name : catId.charAt(0).toUpperCase() + catId.slice(1),
+                products: []
+            };
+        }
+        groups[catId].products.push(product);
+    });
+    
+    return Object.values(groups);
+}
+
+// Helper to get package name from ID
+export function getPackageName(id, packages) {
+    const pkg = packages.find(p => p.id === id);
+    return pkg ? pkg.name : id;
 }
