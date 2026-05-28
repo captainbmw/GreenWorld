@@ -50,6 +50,8 @@
         .navbar-toggler-icon { filter: brightness(0) invert(1); }
         .user-greeting { background: rgba(255, 255, 255, 0.12); padding: 0.35rem 0.9rem; border-radius: 50px; color: white; font-size: 0.9rem; font-weight: 500; }
         .message-container { margin-top: 1.2rem; margin-bottom: 0.8rem; }
+        .sync-badge { position: fixed; right: 12px; bottom: 12px; z-index: 1040; background: rgba(4, 24, 14, 0.88); color: #d7f7df; border: 1px solid rgba(126, 232, 168, 0.35); border-radius: 999px; padding: 0.4rem 0.75rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.01em; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+        .sync-badge.warn { color: #ffe6a1; border-color: rgba(255, 208, 99, 0.45); }
         .alert-custom { border-radius: 20px; border: none; padding: 0.9rem 1.2rem; font-weight: 500; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
         .footer-minimalist { background-color: var(--footer-bg); color: rgba(255, 255, 255, 0.75); padding: 2rem 0 1.2rem; margin-top: 3rem; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); }
         .footer-minimalist a { color: #b8e4b8; text-decoration: none; transition: color 0.2s; }
@@ -155,6 +157,7 @@
             .product-scroll-track { gap: 1rem; }
             .display-3 { font-size: 2.1rem; }
             .btn-lg { width: 100%; }
+            .sync-badge { right: 8px; bottom: 8px; font-size: 0.68rem; padding: 0.35rem 0.6rem; }
         }
         @media (min-width: 1400px) {
             .home-container { max-width: 1320px; }
@@ -257,12 +260,20 @@
             <div class="copyright">&copy; 2026 Greenworld Care — Susan Aketch Odhiambo. All rights reserved.<span class="mx-1">•</span> <i class="bi bi-forest"></i> Authorized Distributor</div>
         </div>
     </footer>
+    <div id="lastSyncedBadge" class="sync-badge" aria-live="polite">Last synced: checking...</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const role = localStorage.getItem('gw_role');
+            const REMOTE_STORE_URL = 'https://captainbmw.github.io/GreenWorld/data/store.json';
+            let role = localStorage.getItem('gw_role');
+            if (role === 'customer') {
+                localStorage.removeItem('gw_role');
+                localStorage.removeItem('gw_current_user');
+                role = null;
+            }
+            const syncBadge = document.getElementById('lastSyncedBadge');
             const loginLink = document.getElementById('loginLink');
             const registerLink = document.getElementById('registerLink');
             const adminLink = document.getElementById('adminLink');
@@ -338,37 +349,76 @@
                 `;
             }
 
-            // Render Products from LocalStorage
-            const products = JSON.parse(localStorage.getItem('greenworld_products')) || [];
-            const packages = JSON.parse(localStorage.getItem('greenworld_packages')) || [];
             const homeGrid = document.getElementById('homeProductGrid');
+            let packages = JSON.parse(localStorage.getItem('greenworld_packages')) || [];
+            const cachedSyncedAt = localStorage.getItem('greenworld_last_synced_at') || '';
 
-            if (products.length > 0) {
-                homeGrid.innerHTML = '';
-                const packageGroups = groupProductsByPackage(products, packages);
-
-                packageGroups.forEach(group => {
-                    const shouldScroll = group.products.length > 4;
-                    const trackProducts = shouldScroll ? [...group.products, ...group.products] : group.products;
-                    const section = document.createElement('section');
-                    section.className = 'product-package-group';
-                    section.innerHTML = `
-                        <div class="product-package-heading">
-                            <h3>${escapeHtml(group.name)}</h3>
-                            <span>${group.products.length} product${group.products.length === 1 ? '' : 's'}</span>
-                        </div>
-                        <div class="product-scroll-window">
-                            <div class="product-scroll-track ${shouldScroll ? 'is-scrolling' : ''}">
-                                ${trackProducts.map(renderHomeProductCard).join('')}
-                            </div>
-                        </div>
-                    `;
-                    homeGrid.appendChild(section);
-                });
-
-            } else {
-                homeGrid.innerHTML = '<div class="text-center text-white-50"><p>No products featured yet. Check our store soon!</p></div>';
+            function formatSyncedAt(iso) {
+                if (!iso) return 'not yet';
+                const date = new Date(iso);
+                if (Number.isNaN(date.getTime())) return 'unknown';
+                return date.toLocaleString();
             }
+
+            function updateSyncBadge(iso, isFallback) {
+                if (!syncBadge) return;
+                const label = formatSyncedAt(iso);
+                syncBadge.textContent = isFallback ? `Last synced: ${label} (cached)` : `Last synced: ${label}`;
+                syncBadge.classList.toggle('warn', !!isFallback);
+            }
+
+            function renderHomeProducts(products, packageList) {
+                packages = packageList;
+                if (products.length > 0) {
+                    homeGrid.innerHTML = '';
+                    const packageGroups = groupProductsByPackage(products, packages);
+
+                    packageGroups.forEach(group => {
+                        const shouldScroll = group.products.length > 4;
+                        const trackProducts = shouldScroll ? [...group.products, ...group.products] : group.products;
+                        const section = document.createElement('section');
+                        section.className = 'product-package-group';
+                        section.innerHTML = `
+                            <div class="product-package-heading">
+                                <h3>${escapeHtml(group.name)}</h3>
+                                <span>${group.products.length} product${group.products.length === 1 ? '' : 's'}</span>
+                            </div>
+                            <div class="product-scroll-window">
+                                <div class="product-scroll-track ${shouldScroll ? 'is-scrolling' : ''}">
+                                    ${trackProducts.map(renderHomeProductCard).join('')}
+                                </div>
+                            </div>
+                        `;
+                        homeGrid.appendChild(section);
+                    });
+                } else {
+                    homeGrid.innerHTML = '<div class="text-center text-white-50"><p>No products featured yet. Check our store soon!</p></div>';
+                }
+            }
+
+            async function loadProductsFromRemote() {
+                try {
+                    const response = await fetch(`${REMOTE_STORE_URL}?v=${Date.now()}`, { cache: 'no-store' });
+                    if (!response.ok) throw new Error('Remote store unavailable');
+                    const store = await response.json();
+                    const remoteProducts = Array.isArray(store.products) ? store.products : [];
+                    const remotePackages = Array.isArray(store.packages) ? store.packages : [];
+                    const syncedAt = new Date().toISOString();
+                    localStorage.setItem('greenworld_products', JSON.stringify(remoteProducts));
+                    localStorage.setItem('greenworld_packages', JSON.stringify(remotePackages));
+                    localStorage.setItem('greenworld_last_synced_at', syncedAt);
+                    renderHomeProducts(remoteProducts, remotePackages);
+                    updateSyncBadge(syncedAt, false);
+                } catch (error) {
+                    const fallbackProducts = JSON.parse(localStorage.getItem('greenworld_products')) || [];
+                    const fallbackPackages = JSON.parse(localStorage.getItem('greenworld_packages')) || [];
+                    renderHomeProducts(fallbackProducts, fallbackPackages);
+                    updateSyncBadge(cachedSyncedAt, true);
+                }
+            }
+
+            updateSyncBadge(cachedSyncedAt, true);
+            loadProductsFromRemote();
 
             AOS.init({ duration: 1000, once: true, offset: 50 });
             initCentered3D();

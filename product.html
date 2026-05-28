@@ -266,6 +266,26 @@
             padding: 48px 24px;
             backdrop-filter: blur(16px);
         }
+        .sync-badge {
+            position: fixed;
+            right: 12px;
+            bottom: 12px;
+            z-index: 1040;
+            background: rgba(3, 10, 14, 0.88);
+            color: #d7f7df;
+            border: 1px solid rgba(126, 232, 168, 0.35);
+            border-radius: 999px;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .sync-badge.warn {
+            color: #ffe6a1;
+            border-color: rgba(255, 208, 99, 0.45);
+        }
 
         @media (max-width: 768px) {
             .main-content { padding-top: 40px; }
@@ -283,6 +303,7 @@
             .catalog-tools { padding: 12px; }
             .package-section-header { align-items: flex-start; flex-direction: column; gap: 6px; }
             .product-info { padding: 18px; }
+            .sync-badge { right: 8px; bottom: 8px; font-size: 0.68rem; padding: 0.35rem 0.6rem; }
         }
 
         @media (min-width: 1400px) {
@@ -334,8 +355,10 @@
             </div>
         </div>
     </main>
+    <div id="lastSyncedBadge" class="sync-badge" aria-live="polite">Last synced: checking...</div>
 
     <script>
+        const REMOTE_STORE_URL = "https://captainbmw.github.io/GreenWorld/data/store.json";
         const storageKeys = {
             products: "greenworld_products",
             packages: "greenworld_packages"
@@ -349,12 +372,14 @@
         ];
 
         let products = loadList(storageKeys.products, []);
-        const packages = loadList(storageKeys.packages, defaultPackages);
+        let packages = loadList(storageKeys.packages, defaultPackages);
         const grid = document.getElementById("storeGrid");
         const noProducts = document.getElementById("noProducts");
         const searchInput = document.getElementById("searchInput");
         const categoryFilter = document.getElementById("categoryFilter");
+        const syncBadge = document.getElementById("lastSyncedBadge");
         const isAdmin = localStorage.getItem("gw_role") === "admin";
+        const cachedSyncedAt = localStorage.getItem("greenworld_last_synced_at") || "";
         if (!isAdmin) {
             document.querySelectorAll(".admin-link").forEach(link => link.style.display = "none");
         }
@@ -365,6 +390,20 @@
             } catch (error) {
                 return fallback;
             }
+        }
+
+        function formatSyncedAt(iso) {
+            if (!iso) return "not yet";
+            const date = new Date(iso);
+            if (Number.isNaN(date.getTime())) return "unknown";
+            return date.toLocaleString();
+        }
+
+        function updateSyncBadge(iso, isFallback) {
+            if (!syncBadge) return;
+            const label = formatSyncedAt(iso);
+            syncBadge.textContent = isFallback ? `Last synced: ${label} (cached)` : `Last synced: ${label}`;
+            syncBadge.classList.toggle("warn", !!isFallback);
         }
 
         function escapeHtml(value) {
@@ -386,6 +425,7 @@
         }
 
         function renderCategories() {
+            categoryFilter.innerHTML = '<option value="all">All package categories</option>';
             categoryFilter.innerHTML += packages.map(pkg => `<option value="${escapeHtml(pkg.id)}">${escapeHtml(pkg.name)}</option>`).join("");
         }
 
@@ -571,8 +611,30 @@
             draw();
         }
 
-        renderCategories();
-        renderProducts();
+        async function loadProductsFromRemote() {
+            try {
+                const response = await fetch(`${REMOTE_STORE_URL}?v=${Date.now()}`, { cache: "no-store" });
+                if (!response.ok) throw new Error("Remote store unavailable");
+                const store = await response.json();
+                products = Array.isArray(store.products) ? store.products : [];
+                packages = Array.isArray(store.packages) && store.packages.length ? store.packages : defaultPackages;
+                const syncedAt = new Date().toISOString();
+                localStorage.setItem(storageKeys.products, JSON.stringify(products));
+                localStorage.setItem(storageKeys.packages, JSON.stringify(packages));
+                localStorage.setItem("greenworld_last_synced_at", syncedAt);
+                updateSyncBadge(syncedAt, false);
+            } catch (error) {
+                products = loadList(storageKeys.products, []);
+                packages = loadList(storageKeys.packages, defaultPackages);
+                updateSyncBadge(cachedSyncedAt, true);
+            }
+
+            renderCategories();
+            renderProducts();
+        }
+
+        updateSyncBadge(cachedSyncedAt, true);
+        loadProductsFromRemote();
         initPremiumBackground();
         searchInput.addEventListener("input", renderProducts);
         categoryFilter.addEventListener("change", renderProducts);

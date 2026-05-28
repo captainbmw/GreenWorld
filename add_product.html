@@ -366,6 +366,22 @@
                                     </div>
                                 </form>
                             </section>
+                            <section class="section-panel package-add-section">
+                                <div class="section-title-pro">
+                                    <i class="bi bi-github"></i> GitHub Sync Settings
+                                </div>
+                                <div class="row g-4">
+                                    <div class="col-md-8">
+                                        <label for="githubToken" class="form-label">GitHub Personal Access Token</label>
+                                        <input type="password" id="githubToken" class="form-control" placeholder="ghp_xxxxxxxxxxxxx">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="githubBranch" class="form-label">Branch</label>
+                                        <input type="text" id="githubBranch" class="form-control" value="main">
+                                    </div>
+                                </div>
+                                <p class="small text-white-50 mt-3 mb-0">Token is used only in your browser to update <code>data/store.json</code> and <code>images/</code> files in your GitHub repo.</p>
+                            </section>
 
                             <form id="productForm" class="section-panel" enctype="multipart/form-data">
                                 <input type="hidden" id="editingId">
@@ -482,7 +498,14 @@
         const storageKeys = {
             products: "greenworld_products",
             packages: "greenworld_packages",
-            editProduct: "gw_edit_product_id"
+            editProduct: "gw_edit_product_id",
+            githubToken: "gw_github_token"
+        };
+        const githubConfig = {
+            owner: "captainbmw",
+            repo: "GreenWorld",
+            storePath: "data/store.json",
+            imagesDir: "images"
         };
         const imageRequirements = {
             minWidth: 100,
@@ -508,8 +531,15 @@
         const previewEmpty = document.getElementById("previewEmpty");
         const previewBox = document.getElementById("previewBox");
         const statusMessage = document.getElementById("statusMessage");
+        const githubTokenInput = document.getElementById("githubToken");
+        const githubBranchInput = document.getElementById("githubBranch");
         let selectedImageFile = null;
         let previewObjectUrl = "";
+
+        githubTokenInput.value = localStorage.getItem(storageKeys.githubToken) || "";
+        githubTokenInput.addEventListener("change", () => {
+            localStorage.setItem(storageKeys.githubToken, githubTokenInput.value.trim());
+        });
 
         function loadList(key, fallback) {
             try {
@@ -522,6 +552,67 @@
         function saveAll() {
             localStorage.setItem(storageKeys.packages, JSON.stringify(packages));
             localStorage.setItem(storageKeys.products, JSON.stringify(products));
+        }
+
+        function toBase64Utf8(value) {
+            return btoa(unescape(encodeURIComponent(value)));
+        }
+
+        async function githubRequest(path, options = {}) {
+            const token = githubTokenInput.value.trim();
+            if (!token) throw new Error("Missing GitHub token");
+            const response = await fetch(`https://api.github.com${path}`, {
+                ...options,
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/vnd.github+json",
+                    "Content-Type": "application/json",
+                    ...(options.headers || {})
+                }
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`GitHub API error ${response.status}: ${errorText}`);
+            }
+            return response.json();
+        }
+
+        async function uploadImageToGitHub(productId, file, branch) {
+            const extension = (file.name.split(".").pop() || "png").toLowerCase();
+            const imagePath = `${githubConfig.imagesDir}/${productId}-${Date.now()}.${extension}`;
+            const dataUrl = await fileToDataUrl(file);
+            const base64Payload = String(dataUrl).split(",")[1] || "";
+            await githubRequest(`/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${encodeURIComponent(imagePath)}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    message: `Add product image ${productId}`,
+                    content: base64Payload,
+                    branch
+                })
+            });
+            return `https://captainbmw.github.io/GreenWorld/${imagePath}`;
+        }
+
+        async function publishStoreToGitHub(branch) {
+            const path = githubConfig.storePath;
+            let sha = null;
+            try {
+                const existing = await githubRequest(`/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`);
+                sha = existing.sha || null;
+            } catch (error) {
+                sha = null;
+            }
+
+            const store = { packages, products };
+            await githubRequest(`/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${encodeURIComponent(path)}`, {
+                method: "PUT",
+                body: JSON.stringify({
+                    message: "Update product store",
+                    content: toBase64Utf8(JSON.stringify(store, null, 2)),
+                    branch,
+                    ...(sha ? { sha } : {})
+                })
+            });
         }
 
         function createId(value) {
@@ -689,12 +780,17 @@
             event.preventDefault();
             const existingProduct = editingId ? products.find(item => item.id === editingId) : null;
             const productId = editingId || createId(document.getElementById("productName").value);
+            const branch = githubBranchInput.value.trim() || "main";
             let productImage = existingProduct?.image || "";
             if (selectedImageFile) {
                 try {
-                    productImage = await fileToDataUrl(selectedImageFile);
+                    if (githubTokenInput.value.trim()) {
+                        productImage = await uploadImageToGitHub(productId, selectedImageFile, branch);
+                    } else {
+                        productImage = await fileToDataUrl(selectedImageFile);
+                    }
                 } catch (error) {
-                    statusMessage.textContent = "Image could not be saved. Try a smaller image file.";
+                    statusMessage.textContent = "Image could not be saved to GitHub. Check token permissions or file size.";
                     return;
                 }
             }
@@ -720,9 +816,20 @@
             }
 
             saveAll();
+            let finalStatus = savedMessage;
+            try {
+                if (githubTokenInput.value.trim()) {
+                    await publishStoreToGitHub(branch);
+                    finalStatus = `${savedMessage} Synced to GitHub. Reload other devices after GitHub Pages updates.`;
+                } else {
+                    finalStatus = `${savedMessage} Saved locally. Add GitHub token to sync everywhere.`;
+                }
+            } catch (error) {
+                finalStatus = `${savedMessage} Local save succeeded, but GitHub sync failed.`;
+            }
             renderProducts();
             resetForm();
-            statusMessage.textContent = savedMessage;
+            statusMessage.textContent = finalStatus;
         });
 
         window.editProduct = async function(id) {
