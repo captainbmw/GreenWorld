@@ -165,19 +165,21 @@
         }
 
         .product-img-box {
-            height: 267px;
+            height: 200px;
+            width: 100px;
+            margin: 0 auto;
             background: rgba(0, 0, 0, 0.22);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            padding: 14px;
+            padding: 5px;
         }
 
         .product-img-box img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
         }
 
         .product-info { padding: 22px; }
@@ -382,7 +384,13 @@
                                 <h2 class="h5 fw-bold mb-0">${escapeHtml(product.name)}</h2>
                                 <div class="price-tag">Ksh ${escapeHtml(product.price || "0.00")}</div>
                             </div>
-                            <p class="description-text">${escapeHtml(product.description || "")}</p>
+                            <p class="description-text mb-2">${escapeHtml(product.description || "")}</p>
+                            ${product.benefits ? `
+                                <div class="mb-3">
+                                    <div class="small fw-bold text-success text-uppercase" style="letter-spacing: 1px; font-size: 0.7rem;">Key Benefits:</div>
+                                    <p class="small text-white-50 mb-0">${escapeHtml(product.benefits)}</p>
+                                </div>
+                            ` : ''}
                             <a href="https://wa.me/254724415604?text=${whatsappMsg}" class="btn-order">
                                 <i class="bi bi-whatsapp"></i> Order on WhatsApp
                             </a>
@@ -415,6 +423,19 @@
 
         listenToPackages(pkgs => {
             currentPackages = pkgs;
+            
+            // Update category filter dropdown
+            const filter = document.getElementById('categoryFilter');
+            const currentVal = filter.value;
+            filter.innerHTML = '<option value="all">All package categories</option>';
+            pkgs.forEach(pkg => {
+                const option = document.createElement('option');
+                option.value = pkg.id;
+                option.textContent = pkg.name;
+                filter.appendChild(option);
+            });
+            filter.value = currentVal;
+
             if (currentProducts.length > 0) renderProducts();
         });
 

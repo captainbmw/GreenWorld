@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
         :root {
             --ink: #f7fbff;
@@ -95,7 +96,7 @@
             filter: drop-shadow(0 0 14px rgba(96, 165, 250, 0.42));
         }
 
-        .admin-header h1 {
+        .admin-header h2 {
             margin: 0;
             font-weight: 800;
             font-size: clamp(2rem, 4vw, 3rem);
@@ -113,11 +114,14 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
             padding: 28px;
+            margin-bottom: 34px;
         }
 
         .package-add-section {
             background: rgba(139, 195, 74, 0.07);
-            border-color: rgba(139, 195, 74, 0.18);
+            border: 1px solid rgba(139, 195, 74, 0.18);
+            border-radius: 24px;
+            padding: 28px;
             margin-bottom: 34px;
         }
 
@@ -212,8 +216,7 @@
             filter: brightness(1.08);
         }
 
-        .btn-admin-cancel,
-        .btn-soft {
+        .btn-admin-cancel {
             padding: 16px 28px;
             border-radius: 999px;
             font-weight: 800;
@@ -228,61 +231,10 @@
             gap: 8px;
         }
 
-        .btn-admin-cancel:hover,
-        .btn-soft:hover {
+        .btn-admin-cancel:hover {
             background: rgba(255, 255, 255, 0.1);
             color: white;
             border-color: rgba(255, 255, 255, 0.28);
-        }
-
-        .table-shell {
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.035);
-        }
-
-        .table {
-            --bs-table-bg: transparent;
-            --bs-table-color: rgba(255, 255, 255, 0.82);
-            --bs-table-border-color: rgba(255, 255, 255, 0.08);
-            margin: 0;
-        }
-
-        .table th {
-            color: #bdf47f;
-            font-size: 0.78rem;
-            text-transform: uppercase;
-            letter-spacing: 0.9px;
-            padding: 18px;
-        }
-
-        .table td {
-            padding: 18px;
-            vertical-align: middle;
-        }
-
-        .product-thumb {
-            width: 58px;
-            height: 58px;
-            object-fit: contain;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .action-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .status-message {
-            min-height: 24px;
-            color: #bdf47f;
-            font-weight: 700;
         }
 
         .loading-overlay {
@@ -297,24 +249,9 @@
             .page-shell { padding-top: 66px; }
             .admin-header { padding: 30px 20px; }
             .admin-body { padding: 22px; }
-            .section-panel { padding: 22px; }
-            .btn-admin-submit,
-            .btn-admin-cancel,
-            .btn-soft { width: 100%; }
+            .section-panel, .package-add-section { padding: 22px; }
+            .btn-admin-submit, .btn-admin-cancel { width: 100%; }
             .button-group { flex-direction: column; gap: 14px; }
-        }
-
-        @media (max-width: 420px) {
-            .top-nav .container { gap: 10px; }
-            .brand-link { font-size: 0.9rem; }
-            .top-nav .btn { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
-            .page-shell { padding: 66px 0.75rem 38px; }
-            .admin-body { padding: 18px; }
-            .section-panel { padding: 18px; border-radius: 20px; }
-            .admin-header h1 { font-size: 1.75rem; }
-            .preview-box-pro { min-height: 280px; }
-            .table th,
-            .table td { padding: 14px 12px; white-space: nowrap; }
         }
     </style>
 </head>
@@ -331,7 +268,7 @@
             <div class="d-flex gap-2">
                 <a href="index.html" class="btn btn-sm btn-outline-light rounded-pill px-3">Home</a>
                 <a href="product.html" class="btn btn-sm btn-outline-light rounded-pill px-3">View Catalog</a>
-                <button id="logoutBtnNav" class="btn btn-sm btn-danger rounded-pill px-3">Logout</button>
+                <button id="logoutBtn" class="btn btn-sm btn-danger rounded-pill px-3">Logout</button>
             </div>
         </div>
     </nav>
@@ -340,18 +277,42 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-xl-11">
-                    <div class="glass-form-card">
-                        <header class="admin-header">
-                            <i class="bi bi-cloud-check-fill"></i>
-                            <h1>Live Inventory Control (Realtime DB)</h1>
-                            <p>Manage your wellness catalog in real-time with Firebase Realtime Database.</p>
-                        </header>
+                    <div class="glass-form-card" data-aos="fade-up">
+                        
+                        <!-- Header -->
+                        <div class="admin-header">
+                            <i class="bi bi-box-seam-fill"></i>
+                            <h2>Inventory Management</h2>
+                            <p>Expand the Greenworld catalog with premium wellness solutions.</p>
+                        </div>
 
+                        <!-- Body -->
                         <div class="admin-body">
-                            <form id="productForm" class="section-panel">
-                                <input type="hidden" id="editingId">
+                            
+                            <!-- Section 1: Add New Package Category -->
+                            <div class="package-add-section" data-aos="fade-right">
+                                <div class="section-title-pro">
+                                    <i class="bi bi-tags-fill"></i> Create New Package Category
+                                </div>
+                                <form id="packageForm">
+                                    <div class="row g-4 align-items-end">
+                                        <div class="col-md-9">
+                                            <label class="form-label">Package Name</label>
+                                            <input type="text" id="packageName" class="form-control" placeholder="e.g. Detox" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="submit" class="btn-admin-submit w-100 py-3">
+                                                <i class="bi bi-plus-circle me-2"></i> Add Package
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
 
+                            <!-- Section 2: Add Product -->
+                            <form id="productForm">
                                 <div class="row g-5">
+                                    <!-- Left Column: Form Fields -->
                                     <div class="col-lg-7">
                                         <div class="section-title-pro">
                                             <i class="bi bi-info-circle-fill"></i> Product Specifications
@@ -359,305 +320,320 @@
 
                                         <div class="row g-4">
                                             <div class="col-12">
-                                                <label for="productPackage" class="form-label">Category</label>
+                                                <label class="form-label">Select Package Category</label>
                                                 <select id="productPackage" class="form-select" required>
-                                                    <option value="detox">Detox</option>
-                                                    <option value="immunity">Immunity</option>
-                                                    <option value="vitality">Vitality</option>
-                                                    <option value="skincare">Skincare</option>
+                                                    <option value="">Select a category</option>
                                                 </select>
                                             </div>
-                                            <div class="col-12">
-                                                <label for="productName" class="form-label">Product Name</label>
+                                            <div class="col-md-8">
+                                                <label class="form-label">Full Product Name</label>
                                                 <input type="text" id="productName" class="form-control" placeholder="e.g. Aloe Vera Plus" required>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label for="productPrice" class="form-label">Price (Ksh)</label>
-                                                <input type="number" id="productPrice" class="form-control" min="0" placeholder="0" required>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Product ID</label>
+                                                <input type="text" id="productId" class="form-control" placeholder="e.g. GW-001" required>
                                             </div>
                                             <div class="col-md-6">
-                                                <label for="productImage" class="form-label">Image URL</label>
-                                                <input type="url" id="productImage" class="form-control" placeholder="https://example.com/image.jpg" required>
+                                                <label class="form-label">Unit Price (Ksh)</label>
+                                                <input type="number" id="productPrice" class="form-control" placeholder="0" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">BV Allocation</label>
+                                                <input type="number" id="productBV" class="form-control" placeholder="0" required>
                                             </div>
                                             <div class="col-12">
-                                                <label for="productDescription" class="form-label">Description</label>
-                                                <textarea id="productDescription" class="form-control" rows="4" placeholder="Briefly describe the product and its benefits." required></textarea>
+                                                <label class="form-label">Description</label>
+                                                <textarea id="productDescription" class="form-control" rows="3" placeholder="Briefly describe the product..." required></textarea>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Key Benefits</label>
+                                                <textarea id="productBenefits" class="form-control" rows="4" placeholder="List the primary health benefits..." required></textarea>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Visual Asset (Product Image)</label>
+                                                <input type="file" id="productImageFile" class="form-control" accept="image/*">
                                             </div>
                                         </div>
                                     </div>
 
+                                    <!-- Right Column: Visual Preview -->
                                     <div class="col-lg-5">
                                         <div class="section-title-pro">
-                                            <i class="bi bi-eye-fill"></i> Image Preview
+                                            <i class="bi bi-eye-fill"></i> Live Preview
                                         </div>
-
+                                        
                                         <div class="preview-box-pro" id="previewBox">
                                             <div id="previewEmpty">
-                                                <i class="bi bi-image-fill mb-3" style="font-size: 4rem; color: rgba(255, 255, 255, 0.22);"></i>
-                                                <h6 class="fw-bold text-white opacity-75">No Preview</h6>
+                                                <i class="bi bi-image-fill mb-3" style="font-size: 4rem; color: rgba(255, 255, 255, 0.2);"></i>
+                                                <h6 class="fw-bold text-white opacity-50">Awaiting Asset Upload</h6>
+                                                <p class="small text-white opacity-40 mb-0">Select a high-resolution image to preview how it will appear in the catalog.</p>
                                             </div>
-                                            <img id="imageDisplay" class="preview-image-large" style="display: none;" alt="Product preview">
+                                            <img id="imageDisplay" class="preview-image-large" style="display: none;" alt="Product Preview">
+                                        </div>
+                                        
+                                        <!-- Real-time Detail Display (optional but helpful) -->
+                                        <div id="previewDetails" class="mt-3 p-3 rounded-4" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); display: none;">
+                                            <h5 id="prevName" class="text-white fw-bold mb-1"></h5>
+                                            <p id="prevPrice" class="text-success fw-bold mb-2"></p>
+                                            <p id="prevDesc" class="small text-white-50 mb-0"></p>
+                                        </div>
+
+                                        <div class="mt-4 p-4 rounded-4" style="background: rgba(96, 165, 250, 0.05); border: 1px solid rgba(96, 165, 250, 0.2);">
+                                            <div class="d-flex gap-3 align-items-center">
+                                                <i class="bi bi-info-square-fill text-info fs-3"></i>
+                                                <p class="small text-white opacity-70 mb-0"><strong>Staff Tip:</strong> Images should be 800x800px or larger for the best presentation. Supported formats: JPG, PNG, WEBP.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
+                                <!-- Footer Actions -->
                                 <div class="d-flex justify-content-between align-items-center mt-5 pt-5 border-top button-group" style="border-top-color: rgba(255, 255, 255, 0.1) !important;">
                                     <a href="index.html" class="btn-admin-cancel">
-                                        <i class="bi bi-arrow-left"></i> Return Home
+                                        <i class="bi bi-arrow-left me-2"></i> Return to Home
                                     </a>
-                                    <div class="d-flex gap-3 button-group">
-                                        <button type="button" id="cancelEdit" class="btn-soft" style="display: none;">
-                                            <i class="bi bi-x-circle"></i> Cancel
-                                        </button>
-                                        <button type="submit" id="submitProduct" class="btn-admin-submit">
-                                            <i class="bi bi-cloud-arrow-up-fill me-2"></i> Save to Firebase
-                                        </button>
-                                    </div>
+                                    <button type="submit" class="btn-admin-submit">
+                                        <i class="bi bi-cloud-arrow-up-fill me-2"></i> Deploy Product to Catalog
+                                    </button>
                                 </div>
-                                <div id="statusMessage" class="status-message mt-3"></div>
                             </form>
-
-                            <section class="section-panel mt-4">
-                                <div class="section-title-pro">
-                                    <i class="bi bi-list-check"></i> Live Inventory Table
-                                </div>
-                                <div class="table-responsive table-shell">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Product</th>
-                                                <th>Category</th>
-                                                <th>Price (Ksh)</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="productTableBody">
-                                            <tr><td colspan="4" class="text-center py-4">Connecting to Database...</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
                         </div>
                     </div>
+
+                    <!-- Section 3: Existing Inventory -->
+                    <div class="glass-form-card mt-5" data-aos="fade-up">
+                        <div class="admin-header py-4">
+                            <i class="bi bi-list-stars mb-2" style="font-size: 2rem;"></i>
+                            <h3>Live Catalog Feed</h3>
+                            <p class="small">Real-time view of products currently deployed to Firebase.</p>
+                        </div>
+                        <div class="admin-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover mb-0 align-middle">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th class="ps-4">Product</th>
+                                            <th>Category</th>
+                                            <th>ID</th>
+                                            <th>Price</th>
+                                            <th>BV</th>
+                                            <th class="pe-4">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inventoryTable">
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5 text-white-50">Connecting to Firebase...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </main>
 
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script type="module">
-        import { db } from './js/firebase-config.js';
-        import { 
-            ref, 
-            push, 
-            set, 
-            update, 
-            remove, 
-            onValue 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { db, storage } from './js/firebase-config.js';
+        import { ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-        const productForm = document.getElementById("productForm");
-        const productTableBody = document.getElementById("productTableBody");
-        const statusMessage = document.getElementById("statusMessage");
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        const imageDisplay = document.getElementById("imageDisplay");
-        const previewEmpty = document.getElementById("previewEmpty");
-        const previewBox = document.getElementById("previewBox");
-        const cancelEditBtn = document.getElementById("cancelEdit");
-        const submitBtn = document.getElementById("submitProduct");
+        AOS.init({ duration: 1000, once: true });
 
-        let editingId = null;
-        let currentProductsData = {};
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const packageForm = document.getElementById('packageForm');
+        const productForm = document.getElementById('productForm');
+        const productPackageSelect = document.getElementById('productPackage');
+        const imageDisplay = document.getElementById('imageDisplay');
+        const previewEmpty = document.getElementById('previewEmpty');
+        const previewBox = document.getElementById('previewBox');
+        const productImageFile = document.getElementById('productImageFile');
+        const inventoryTable = document.getElementById('inventoryTable');
 
         function toggleLoading(show) {
             loadingOverlay.style.display = show ? 'flex' : 'none';
         }
 
-        function escapeHtml(value) {
-            return String(value ?? "").replace(/[&<>"']/g, (char) => ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#039;"
-            }[char]));
-        }
-
-        function showPreview(src) {
-            if (!src) {
-                imageDisplay.style.display = "none";
-                previewEmpty.style.display = "block";
-                previewBox.classList.remove("has-image");
-                return;
-            }
-            imageDisplay.src = src;
-            imageDisplay.style.display = "block";
-            previewEmpty.style.none = "none";
-            previewBox.classList.add("has-image");
-        }
-
-        document.getElementById("productImage").addEventListener("input", (e) => showPreview(e.target.value));
-
-        // Real-time listener
-        const productsRef = ref(db, "products");
-        onValue(productsRef, (snapshot) => {
-            productTableBody.innerHTML = "";
+        // Real-time Packages listener
+        let globalPackages = {};
+        const packagesRef = ref(db, 'packages');
+        onValue(packagesRef, (snapshot) => {
             const data = snapshot.val();
-            currentProductsData = data || {};
+            globalPackages = data || {};
+            productPackageSelect.innerHTML = '<option value="">Select a category</option>';
+            if (data) {
+                Object.keys(data).forEach(id => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = data[id].name;
+                    productPackageSelect.appendChild(option);
+                });
+            }
+        });
 
-            if (!data) {
-                productTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4">No products found.</td></tr>';
+        // Real-time Products listener for Inventory Table
+        const productsRef = ref(db, 'products');
+        onValue(productsRef, (snapshot) => {
+            const data = snapshot.val();
+            inventoryTable.innerHTML = '';
+            if (data) {
+                Object.keys(data).forEach(id => {
+                    const product = data[id];
+                    const pkgName = globalPackages[product.category]?.name || product.category;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = \`
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="\${product.image || 'https://placehold.co/40'}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;">
+                                <div>
+                                    <div class="fw-bold">\${product.name}</div>
+                                    <div class="small opacity-50">\${product.description.substring(0, 30)}...</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-success opacity-75">\${pkgName}</span></td>
+                        <td class="font-monospace small">\${product.product_id}</td>
+                        <td class="fw-bold text-success">Ksh \${product.price}</td>
+                        <td>\${product.bv_value}</td>
+                        <td class="pe-4">
+                            <button class="btn btn-sm btn-outline-danger border-0 delete-btn" data-id="\${id}">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        </td>
+                    \`;
+                    inventoryTable.appendChild(tr);
+                });
+
+                // Attach delete listeners
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        if (confirm('Are you sure you want to delete this product?')) {
+                            const productId = btn.getAttribute('data-id');
+                            await remove(ref(db, 'products/' + productId));
+                        }
+                    });
+                });
+            } else {
+                inventoryTable.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-white-50">No products found in inventory.</td></tr>';
+            }
+        });
+
+        // Handle Package Addition
+        packageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('packageName').value.trim();
+            if (!name) return;
+
+            try {
+                toggleLoading(true);
+                const newPackageRef = push(ref(db, 'packages'));
+                await set(newPackageRef, { name });
+                alert('Package category added successfully!');
+                packageForm.reset();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        // Handle Image Preview
+        productImageFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imageDisplay.src = event.target.result;
+                    imageDisplay.style.display = 'block';
+                    previewEmpty.style.display = 'none';
+                    previewBox.classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imageDisplay.style.display = 'none';
+                previewEmpty.style.display = 'block';
+                previewBox.classList.remove('has-image');
+            }
+        });
+
+        // Handle Product Addition
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const category = productPackageSelect.value;
+            const name = document.getElementById('productName').value.trim();
+            const pId = document.getElementById('productId').value.trim();
+            const price = document.getElementById('productPrice').value.trim();
+            const bv = document.getElementById('productBV').value.trim();
+            const description = document.getElementById('productDescription').value.trim();
+            const benefits = document.getElementById('productBenefits').value.trim();
+            const file = productImageFile.files[0];
+
+            if (!category) {
+                alert('Please select a category.');
                 return;
             }
 
-            // Convert to array and sort by timestamp
-            const products = Object.keys(data).map(id => ({ id, ...data[id] }));
-            products.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-            products.forEach((product) => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="${escapeHtml(product.image)}" class="product-thumb" onerror="this.src='https://placehold.co/120x120/0a5c36/ffffff?text=GW'">
-                            <div>
-                                <div class="fw-bold text-white">${escapeHtml(product.name)}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="badge bg-dark">${escapeHtml(product.category)}</span></td>
-                    <td>Ksh ${escapeHtml(product.price)}</td>
-                    <td>
-                        <button class="btn btn-outline-info action-btn me-2 edit-btn" data-id="${product.id}"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-outline-danger action-btn delete-btn" data-id="${product.id}"><i class="bi bi-trash"></i></button>
-                    </td>
-                `;
-                productTableBody.appendChild(tr);
-            });
-
-            // Edit/Delete listeners
-            document.querySelectorAll(".edit-btn").forEach(btn => {
-                btn.addEventListener("click", () => startEdit(btn.getAttribute("data-id")));
-            });
-            document.querySelectorAll(".delete-btn").forEach(btn => {
-                btn.addEventListener("click", () => deleteProduct(btn.getAttribute("data-id")));
-            });
-        });
-
-        function startEdit(id) {
-            const product = currentProductsData[id];
-            if (!product) return;
-
-            editingId = id;
-            document.getElementById("productName").value = product.name;
-            document.getElementById("productPrice").value = product.price;
-            document.getElementById("productPackage").value = product.category;
-            document.getElementById("productImage").value = product.image;
-            document.getElementById("productDescription").value = product.description;
-            
-            showPreview(product.image);
-            cancelEditBtn.style.display = "inline-flex";
-            submitBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i> Update Product';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function resetForm() {
-            editingId = null;
-            productForm.reset();
-            showPreview("");
-            cancelEditBtn.style.display = "none";
-            submitBtn.innerHTML = '<i class="bi bi-cloud-arrow-up-fill me-2"></i> Save to Firebase';
-        }
-
-        cancelEditBtn.addEventListener("click", resetForm);
-
-        // Handle Logout
-        const logoutBtnNav = document.getElementById('logoutBtnNav');
-        if (logoutBtnNav) {
-            logoutBtnNav.addEventListener('click', () => {
-                localStorage.removeItem('gw_role');
-                localStorage.removeItem('gw_current_user');
-                window.location.href = 'index.html';
-            });
-        }
-
-        async function deleteProduct(id) {
-            if (!confirm("Are you sure you want to delete this product?")) return;
             try {
                 toggleLoading(true);
-                await remove(ref(db, `products/${id}`));
-                statusMessage.textContent = "Product deleted successfully.";
-            } catch (error) {
-                alert("Error: " + error.message);
-            } finally {
-                toggleLoading(false);
-            }
-        }
+                let imageUrl = '';
 
-        productForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const data = {
-                name: document.getElementById("productName").value.trim(),
-                price: document.getElementById("productPrice").value.trim(),
-                category: document.getElementById("productPackage").value,
-                image: document.getElementById("productImage").value.trim(),
-                description: document.getElementById("productDescription").value.trim(),
-                timestamp: Date.now()
-            };
-
-            try {
-                toggleLoading(true);
-                if (editingId) {
-                    await update(ref(db, `products/${editingId}`), data);
-                    statusMessage.textContent = "Product updated successfully!";
-                } else {
-                    const newProductRef = push(ref(db, 'products'));
-                    await set(newProductRef, data);
-                    statusMessage.textContent = "Product added successfully!";
+                if (file) {
+                    const storageRef = sRef(storage, \`products/\${Date.now()}_\${file.name}\`);
+                    await uploadBytes(storageRef, file);
+                    imageUrl = await getDownloadURL(storageRef);
                 }
-                resetForm();
+
+                const newProductRef = push(ref(db, 'products'));
+                await set(newProductRef, {
+                    category,
+                    name,
+                    product_id: pId,
+                    price,
+                    bv_value: bv,
+                    description,
+                    benefits,
+                    image: imageUrl,
+                    timestamp: Date.now()
+                });
+
+                alert('Product deployed to catalog successfully!');
+                productForm.reset();
+                imageDisplay.style.display = 'none';
+                previewEmpty.style.display = 'block';
+                previewBox.classList.remove('has-image');
             } catch (error) {
-                alert("Error: " + error.message);
+                alert('Error: ' + error.message);
             } finally {
                 toggleLoading(false);
             }
         });
 
-        // Init Background
-        initPremiumBackground();
-        function initPremiumBackground() {
-            const canvas = document.getElementById("bg-canvas");
-            const ctx = canvas.getContext("2d");
-            const particles = [];
-            const count = 150;
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            function makeParticle() {
-                return {
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight,
-                    size: Math.random() * 2,
-                    speed: Math.random() * 0.5 + 0.1
-                };
-            }
-            function draw() {
-                ctx.clearRect(0,0,canvas.width,canvas.height);
-                ctx.fillStyle = "rgba(139, 195, 74, 0.5)";
-                particles.forEach(p => {
-                    p.y -= p.speed;
-                    if (p.y < 0) p.y = canvas.height;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                    ctx.fill();
-                });
-                requestAnimationFrame(draw);
-            }
-            resize();
-            for(let i=0; i<count; i++) particles.push(makeParticle());
-            window.addEventListener("resize", resize);
-            draw();
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('gw_role');
+            localStorage.removeItem('gw_current_user');
+            window.location.href = 'index.html';
+        });
+
+        // BG Animation
+        const canvas = document.getElementById("bg-canvas");
+        const ctx = canvas.getContext("2d");
+        const particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function makeParticle() { return { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, size: Math.random() * 2, speed: Math.random() * 0.5 + 0.1 }; }
+        function draw() {
+            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "rgba(139, 195, 74, 0.5)";
+            particles.forEach(p => { p.y -= p.speed; if (p.y < 0) p.y = canvas.height; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); });
+            requestAnimationFrame(draw);
         }
+        resize();
+        for(let i=0; i<150; i++) particles.push(makeParticle());
+        window.addEventListener("resize", resize);
+        draw();
     </script>
 </body>
 </html>

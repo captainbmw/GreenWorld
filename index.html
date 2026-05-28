@@ -94,8 +94,8 @@
         .feature-icon-wrap { width: 64px; height: 64px; border-radius: 18px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; color: #7ee8a8; margin-bottom: 1.75rem; }
         .product-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; overflow: hidden; transition: transform 0.3s ease; height: 100%; }
         .product-card:hover { transform: translateY(-8px); }
-        .product-img-wrap { height: 267px; background: rgba(0,0,0,0.2); overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 12px; }
-        .product-img-wrap img { width: 100%; height: 100%; object-fit: contain; }
+        .product-img-wrap { height: 200px; width: 100px; margin: 0 auto; background: rgba(0,0,0,0.2); overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 5px; }
+        .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
         .product-package-group { margin-bottom: 3rem; overflow: hidden; }
         .product-package-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
         .product-package-heading h3 { color: #fff; font-weight: 800; margin: 0; font-size: 1.35rem; }
@@ -307,6 +307,7 @@
                             <div class="p-3 text-center">
                                 <h6 class="fw-bold mb-1 text-white text-truncate">${escapeHtml(product.name)}</h6>
                                 <p class="text-success small fw-bold mb-2">Ksh ${escapeHtml(product.price)}</p>
+                                ${product.benefits ? `<p class="small text-white-50 text-truncate mb-2" title="${escapeHtml(product.benefits)}">${escapeHtml(product.benefits)}</p>` : ''}
                                 <a href="product.html" class="btn btn-sm btn-outline-success w-100 rounded-pill">View Details</a>
                             </div>
                         </div>
