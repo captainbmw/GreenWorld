@@ -357,76 +357,40 @@
     </main>
     <div id="lastSyncedBadge" class="sync-badge" aria-live="polite">Last synced: checking...</div>
 
-    <script>
-        const REMOTE_STORE_URL = "https://captainbmw.github.io/GreenWorld/data/store.json";
-        const storageKeys = {
-            products: "greenworld_products",
-            packages: "greenworld_packages"
-        };
+    <script type="module">
+        import { listenToProducts, listenToPackages, groupProducts, escapeHtml, getPackageName } from './js/products.js';
 
-        const defaultPackages = [
-            { id: "detox", name: "Detox" },
-            { id: "immunity", name: "Immunity" },
-            { id: "vitality", name: "Vitality" },
-            { id: "skincare", name: "Skincare" }
-        ];
-
-        let products = loadList(storageKeys.products, []);
-        let packages = loadList(storageKeys.packages, defaultPackages);
         const grid = document.getElementById("storeGrid");
         const noProducts = document.getElementById("noProducts");
         const searchInput = document.getElementById("searchInput");
         const categoryFilter = document.getElementById("categoryFilter");
         const syncBadge = document.getElementById("lastSyncedBadge");
         const isAdmin = localStorage.getItem("gw_role") === "admin";
-        const cachedSyncedAt = localStorage.getItem("greenworld_last_synced_at") || "";
+
         if (!isAdmin) {
             document.querySelectorAll(".admin-link").forEach(link => link.style.display = "none");
+        } else {
+             document.querySelectorAll(".admin-link").forEach(link => {
+                 if (link.tagName === 'A' && link.innerText.includes('Dashboard')) {
+                     link.href = 'admin.html';
+                 }
+             });
         }
 
-        function loadList(key, fallback) {
-            try {
-                return JSON.parse(localStorage.getItem(key)) || fallback;
-            } catch (error) {
-                return fallback;
-            }
-        }
+        let currentProducts = [];
+        let currentPackages = [];
 
-        function formatSyncedAt(iso) {
-            if (!iso) return "not yet";
-            const date = new Date(iso);
-            if (Number.isNaN(date.getTime())) return "unknown";
-            return date.toLocaleString();
-        }
-
-        function updateSyncBadge(iso, isFallback) {
+        function updateSyncBadge(iso) {
             if (!syncBadge) return;
-            const label = formatSyncedAt(iso);
-            syncBadge.textContent = isFallback ? `Last synced: ${label} (cached)` : `Last synced: ${label}`;
-            syncBadge.classList.toggle("warn", !!isFallback);
+            const label = iso ? new Date(iso).toLocaleString() : 'Just now';
+            syncBadge.textContent = `Live: ${label}`;
         }
 
-        function escapeHtml(value) {
-            return String(value ?? "").replace(/[&<>"']/g, (char) => ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#039;"
-            }[char]));
-        }
-
-        function getPackageName(id) {
-            return packages.find(pkg => pkg.id === id)?.name || id || "Wellness";
-        }
-
-        function saveProducts() {
-            localStorage.setItem(storageKeys.products, JSON.stringify(products));
-        }
-
-        function renderCategories() {
+        function renderCategories(packages) {
+            const currentVal = categoryFilter.value;
             categoryFilter.innerHTML = '<option value="all">All package categories</option>';
             categoryFilter.innerHTML += packages.map(pkg => `<option value="${escapeHtml(pkg.id)}">${escapeHtml(pkg.name)}</option>`).join("");
+            categoryFilter.value = currentVal;
         }
 
         function productMatches(product) {
@@ -434,37 +398,11 @@
             const category = categoryFilter.value;
             const haystack = [
                 product.name,
-                product.productId,
                 product.description,
-                product.benefits,
-                getPackageName(product.category)
+                getPackageName(product.category, currentPackages)
             ].join(" ").toLowerCase();
 
             return (!query || haystack.includes(query)) && (category === "all" || product.category === category);
-        }
-
-        function groupProductsByPackage(productList) {
-            const groups = new Map();
-            productList.forEach(product => {
-                const key = product.category || "uncategorized";
-                if (!groups.has(key)) {
-                    groups.set(key, {
-                        id: key,
-                        name: getPackageName(key),
-                        products: []
-                    });
-                }
-                groups.get(key).products.push(product);
-            });
-
-            return [...groups.values()].sort((a, b) => {
-                const aIndex = packages.findIndex(pkg => pkg.id === a.id);
-                const bIndex = packages.findIndex(pkg => pkg.id === b.id);
-                if (aIndex === -1 && bIndex === -1) return a.name.localeCompare(b.name);
-                if (aIndex === -1) return 1;
-                if (bIndex === -1) return -1;
-                return aIndex - bIndex;
-            });
         }
 
         function renderProductCard(product) {
@@ -473,22 +411,17 @@
             return `
                 <div class="col-md-6 col-xl-4">
                     <article class="product-card">
-                        <span class="category-pill">${escapeHtml(getPackageName(product.category))}</span>
+                        <span class="category-pill">${escapeHtml(getPackageName(product.category, currentPackages))}</span>
                         <div class="product-img-box">
-                            <img data-product-image="${escapeHtml(product.id)}" src="${escapeHtml(product.image || "https://placehold.co/700x520/0a5c36/ffffff?text=Greenworld+Wellness")}" alt="${escapeHtml(product.name)}">
+                            <img src="${escapeHtml(product.image || "https://placehold.co/700x520/0a5c36/ffffff?text=Greenworld+Wellness")}" alt="${escapeHtml(product.name)}">
                         </div>
                         <div class="product-info">
                             <div class="d-flex justify-content-between gap-3 align-items-start mb-2">
                                 <h2 class="h5 fw-bold mb-0">${escapeHtml(product.name)}</h2>
                                 <div class="price-tag">Ksh ${escapeHtml(product.price || "0.00")}</div>
                             </div>
-                            <div class="meta-row">
-                                <span class="meta-chip">ID: ${escapeHtml(product.productId || "N/A")}</span>
-                                <span class="meta-chip">BV: ${escapeHtml(product.bv || "0")}</span>
-                            </div>
                             <p class="description-text">${escapeHtml(product.description || "")}</p>
-                            <p class="benefit-text"><strong class="text-white">Benefits:</strong> ${escapeHtml(product.benefits || "")}</p>
-                            <a href="https://wa.me/254724415604?text=${whatsappMsg}" class="btn-order" onclick="recordPurchase('${escapeHtml(product.name)}', '${escapeHtml(product.price)}', '${escapeHtml(product.bv)}')">
+                            <a href="https://wa.me/254724415604?text=${whatsappMsg}" class="btn-order">
                                 <i class="bi bi-whatsapp"></i> Order on WhatsApp
                             </a>
                         </div>
@@ -497,33 +430,12 @@
             `;
         }
 
-        window.recordPurchase = function(productName, price, bv) {
-            const userJson = localStorage.getItem("gw_current_user");
-            if (!userJson) {
-                alert("Please login to your account to place an order.");
-                window.location.href = "login.html";
-                return;
-            }
-            const user = JSON.parse(userJson);
-            
-            const orders = JSON.parse(localStorage.getItem("greenworld_orders")) || [];
-            orders.push({
-                customerName: user.fullName,
-                customerEmail: user.email,
-                productName: productName,
-                price: price,
-                bv: parseFloat(bv) || 0,
-                timestamp: new Date().toISOString()
-            });
-            localStorage.setItem("greenworld_orders", JSON.stringify(orders));
-        };
-
         function renderProducts() {
-            const visibleProducts = products.filter(productMatches);
+            const visibleProducts = currentProducts.filter(productMatches);
             grid.innerHTML = "";
             noProducts.style.display = visibleProducts.length ? "none" : "block";
 
-            groupProductsByPackage(visibleProducts).forEach(group => {
+            groupProducts(visibleProducts, currentPackages).forEach(group => {
                 const section = document.createElement("section");
                 section.className = "package-section";
                 section.innerHTML = `
@@ -537,7 +449,26 @@
                 `;
                 grid.appendChild(section);
             });
+            updateSyncBadge(new Date().toISOString());
         };
+
+        // Initialize real-time listeners
+        listenToPackages(pkgs => {
+            currentPackages = pkgs;
+            renderCategories(pkgs);
+            if (currentProducts.length > 0) renderProducts();
+        });
+
+        listenToProducts(prods => {
+            currentProducts = prods;
+            renderProducts();
+        });
+
+        searchInput.addEventListener("input", renderProducts);
+        categoryFilter.addEventListener("change", renderProducts);
+
+        // Particle background logic
+        initPremiumBackground();
 
         function initPremiumBackground() {
             const canvas = document.getElementById("bg-canvas");
@@ -610,34 +541,6 @@
             });
             draw();
         }
-
-        async function loadProductsFromRemote() {
-            try {
-                const response = await fetch(`${REMOTE_STORE_URL}?v=${Date.now()}`, { cache: "no-store" });
-                if (!response.ok) throw new Error("Remote store unavailable");
-                const store = await response.json();
-                products = Array.isArray(store.products) ? store.products : [];
-                packages = Array.isArray(store.packages) && store.packages.length ? store.packages : defaultPackages;
-                const syncedAt = new Date().toISOString();
-                localStorage.setItem(storageKeys.products, JSON.stringify(products));
-                localStorage.setItem(storageKeys.packages, JSON.stringify(packages));
-                localStorage.setItem("greenworld_last_synced_at", syncedAt);
-                updateSyncBadge(syncedAt, false);
-            } catch (error) {
-                products = loadList(storageKeys.products, []);
-                packages = loadList(storageKeys.packages, defaultPackages);
-                updateSyncBadge(cachedSyncedAt, true);
-            }
-
-            renderCategories();
-            renderProducts();
-        }
-
-        updateSyncBadge(cachedSyncedAt, true);
-        loadProductsFromRemote();
-        initPremiumBackground();
-        searchInput.addEventListener("input", renderProducts);
-        categoryFilter.addEventListener("change", renderProducts);
     </script>
 </body>
 </html>
