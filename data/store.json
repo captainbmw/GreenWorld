@@ -1,9 +1,0 @@
-{
-  "packages": [
-    { "id": "detox", "name": "Detox", "icon": "bi bi-droplet-half" },
-    { "id": "immunity", "name": "Immunity", "icon": "bi bi-shield-plus" },
-    { "id": "vitality", "name": "Vitality", "icon": "bi bi-lightning-charge" },
-    { "id": "skincare", "name": "Skincare", "icon": "bi bi-stars" }
-  ],
-  "products": []
-}

@@ -21,9 +21,6 @@
         * { box-sizing: border-box; }
         html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
         body { min-width: 320px; }
-        main, section, header, footer, nav { min-width: 0; }
-        img, video, iframe { max-width: 100%; height: auto; }
-        table { width: 100%; }
 
         body {
             margin: 0;
@@ -206,35 +203,11 @@
             font-size: 1.28rem;
         }
 
-        .benefit-text,
         .description-text {
             color: rgba(255, 255, 255, 0.68);
             font-size: 0.92rem;
             line-height: 1.58;
-        }
-
-        .benefit-text {
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .meta-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 14px 0 18px;
-        }
-
-        .meta-chip {
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.06);
-            color: rgba(255, 255, 255, 0.74);
-            border-radius: 999px;
-            padding: 6px 10px;
-            font-size: 0.76rem;
-            font-weight: 700;
+            margin-bottom: 20px;
         }
 
         .btn-order {
@@ -266,26 +239,6 @@
             padding: 48px 24px;
             backdrop-filter: blur(16px);
         }
-        .sync-badge {
-            position: fixed;
-            right: 12px;
-            bottom: 12px;
-            z-index: 1040;
-            background: rgba(3, 10, 14, 0.88);
-            color: #d7f7df;
-            border: 1px solid rgba(126, 232, 168, 0.35);
-            border-radius: 999px;
-            padding: 0.4rem 0.75rem;
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.01em;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-        .sync-badge.warn {
-            color: #ffe6a1;
-            border-color: rgba(255, 208, 99, 0.45);
-        }
 
         @media (max-width: 768px) {
             .main-content { padding-top: 40px; }
@@ -303,13 +256,8 @@
             .catalog-tools { padding: 12px; }
             .package-section-header { align-items: flex-start; flex-direction: column; gap: 6px; }
             .product-info { padding: 18px; }
-            .sync-badge { right: 8px; bottom: 8px; font-size: 0.68rem; padding: 0.35rem 0.6rem; }
         }
-
-        @media (min-width: 1400px) {
-            .container { max-width: 1320px; }
-            .product-img-box { height: 300px; }
-        }
+        #adminBtn, #logoutBtn { display: none; }
     </style>
 </head>
 <body>
@@ -320,7 +268,10 @@
             <a class="brand-link" href="index.html"><i class="bi bi-tree-fill"></i> Greenworld Care</a>
             <div class="d-flex gap-2">
                 <a href="index.html" class="btn btn-sm btn-outline-light rounded-pill px-3">Home</a>
-                <a href="dashboard.html" class="btn btn-sm btn-success rounded-pill px-3 admin-link">Dashboard</a>
+                <a href="login.html" id="loginBtn" class="btn btn-sm btn-outline-light rounded-pill px-3">Login</a>
+                <a href="register.html" id="registerBtn" class="btn btn-sm btn-outline-light rounded-pill px-3">Register</a>
+                <a href="add_product.html" id="adminBtn" class="btn btn-sm btn-success rounded-pill px-3">Dashboard</a>
+                <button id="logoutBtn" class="btn btn-sm btn-danger rounded-pill px-3">Logout</button>
             </div>
         </div>
     </nav>
@@ -335,11 +286,15 @@
             <section class="catalog-tools">
                 <div class="row g-3">
                     <div class="col-lg-8">
-                        <input type="search" id="searchInput" class="form-control" placeholder="Search products, benefits, or product ID">
+                        <input type="search" id="searchInput" class="form-control" placeholder="Search products or descriptions...">
                     </div>
                     <div class="col-lg-4">
                         <select id="categoryFilter" class="form-select">
                             <option value="all">All package categories</option>
+                            <option value="detox">Detox</option>
+                            <option value="immunity">Immunity</option>
+                            <option value="vitality">Vitality</option>
+                            <option value="skincare">Skincare</option>
                         </select>
                     </div>
                 </div>
@@ -355,7 +310,6 @@
             </div>
         </div>
     </main>
-    <div id="lastSyncedBadge" class="sync-badge" aria-live="polite">Last synced: checking...</div>
 
     <script type="module">
         import { listenToProducts, listenToPackages, groupProducts, escapeHtml, getPackageName } from './js/products.js';
@@ -364,34 +318,42 @@
         const noProducts = document.getElementById("noProducts");
         const searchInput = document.getElementById("searchInput");
         const categoryFilter = document.getElementById("categoryFilter");
-        const syncBadge = document.getElementById("lastSyncedBadge");
-        const isAdmin = localStorage.getItem("gw_role") === "admin";
+        
+        const loginBtn = document.getElementById("loginBtn");
+        const registerBtn = document.getElementById("registerBtn");
+        const adminBtn = document.getElementById("adminBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
 
-        if (!isAdmin) {
-            document.querySelectorAll(".admin-link").forEach(link => link.style.display = "none");
-        } else {
-             document.querySelectorAll(".admin-link").forEach(link => {
-                 if (link.tagName === 'A' && link.innerText.includes('Dashboard')) {
-                     link.href = 'admin.html';
-                 }
-             });
+        function updateNavbar() {
+            const role = localStorage.getItem("gw_role");
+            const isAdmin = role === "admin";
+
+            if (isAdmin) {
+                if (loginBtn) loginBtn.style.display = "none";
+                if (registerBtn) registerBtn.style.display = "none";
+                if (adminBtn) adminBtn.style.display = "inline-block";
+                if (logoutBtn) logoutBtn.style.display = "inline-block";
+            } else {
+                if (loginBtn) loginBtn.style.display = "inline-block";
+                if (registerBtn) registerBtn.style.display = "inline-block";
+                if (adminBtn) adminBtn.style.display = "none";
+                if (logoutBtn) logoutBtn.style.display = "none";
+            }
+        }
+
+        updateNavbar();
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('gw_role');
+                localStorage.removeItem('gw_current_user');
+                updateNavbar();
+                window.location.reload();
+            });
         }
 
         let currentProducts = [];
         let currentPackages = [];
-
-        function updateSyncBadge(iso) {
-            if (!syncBadge) return;
-            const label = iso ? new Date(iso).toLocaleString() : 'Just now';
-            syncBadge.textContent = `Live: ${label}`;
-        }
-
-        function renderCategories(packages) {
-            const currentVal = categoryFilter.value;
-            categoryFilter.innerHTML = '<option value="all">All package categories</option>';
-            categoryFilter.innerHTML += packages.map(pkg => `<option value="${escapeHtml(pkg.id)}">${escapeHtml(pkg.name)}</option>`).join("");
-            categoryFilter.value = currentVal;
-        }
 
         function productMatches(product) {
             const query = searchInput.value.trim().toLowerCase();
@@ -449,13 +411,10 @@
                 `;
                 grid.appendChild(section);
             });
-            updateSyncBadge(new Date().toISOString());
         };
 
-        // Initialize real-time listeners
         listenToPackages(pkgs => {
             currentPackages = pkgs;
-            renderCategories(pkgs);
             if (currentProducts.length > 0) renderProducts();
         });
 
@@ -467,78 +426,23 @@
         searchInput.addEventListener("input", renderProducts);
         categoryFilter.addEventListener("change", renderProducts);
 
-        // Particle background logic
         initPremiumBackground();
 
         function initPremiumBackground() {
             const canvas = document.getElementById("bg-canvas");
             const ctx = canvas.getContext("2d");
             const particles = [];
-            const count = window.matchMedia("(max-width: 768px)").matches ? 85 : 160;
-            const pointer = { x: 0, y: 0 };
-
-            function resize() {
-                const ratio = Math.min(window.devicePixelRatio || 1, 2);
-                canvas.width = window.innerWidth * ratio;
-                canvas.height = window.innerHeight * ratio;
-                canvas.style.width = `${window.innerWidth}px`;
-                canvas.style.height = `${window.innerHeight}px`;
-                ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-            }
-
-            function particle() {
-                return {
-                    x: (Math.random() - 0.5) * window.innerWidth * 1.5,
-                    y: (Math.random() - 0.5) * window.innerHeight * 1.5,
-                    z: Math.random() * 900 + 120,
-                    speed: Math.random() * 0.55 + 0.2,
-                    size: Math.random() * 1.6 + 0.7,
-                    hue: Math.random() > 0.48 ? 210 : 92
-                };
-            }
-
-            function reset(item) {
-                Object.assign(item, particle(), { z: 980 });
-            }
-
+            const count = 150;
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+            function makeParticle() { return { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, size: Math.random() * 2, speed: Math.random() * 0.5 + 0.1 }; }
             function draw() {
-                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-                const cx = window.innerWidth / 2;
-                const cy = window.innerHeight / 2;
-
-                particles.forEach(item => {
-                    item.z -= item.speed;
-                    if (item.z <= 1) reset(item);
-
-                    const depth = 470 / item.z;
-                    const x = cx + (item.x + pointer.x * 0.02) * depth;
-                    const y = cy + (item.y + pointer.y * 0.02) * depth;
-                    const r = Math.max(0.22, item.size * depth * 2.1);
-
-                    if (x < -60 || x > window.innerWidth + 60 || y < -60 || y > window.innerHeight + 60) {
-                        reset(item);
-                        return;
-                    }
-
-                    ctx.beginPath();
-                    ctx.fillStyle = `hsla(${item.hue}, 86%, 68%, ${Math.min(0.85, depth * 0.8)})`;
-                    ctx.shadowColor = `hsla(${item.hue}, 86%, 68%, 0.5)`;
-                    ctx.shadowBlur = 12;
-                    ctx.arc(x, y, r, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                });
-
+                ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "rgba(139, 195, 74, 0.5)";
+                particles.forEach(p => { p.y -= p.speed; if (p.y < 0) p.y = canvas.height; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); });
                 requestAnimationFrame(draw);
             }
-
             resize();
-            for (let i = 0; i < count; i += 1) particles.push(particle());
+            for(let i=0; i<count; i++) particles.push(makeParticle());
             window.addEventListener("resize", resize);
-            window.addEventListener("mousemove", event => {
-                pointer.x = event.clientX - window.innerWidth / 2;
-                pointer.y = event.clientY - window.innerHeight / 2;
-            });
             draw();
         }
     </script>

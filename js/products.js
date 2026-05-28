@@ -1,5 +1,5 @@
 import { db } from './firebase-config.js';
-import { collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // Helper to escape HTML and prevent XSS
 export function escapeHtml(value) {
@@ -45,14 +45,18 @@ export function groupProducts(productList, packages) {
 
 // Real-time listener for products
 export function listenToProducts(callback) {
-    const productsRef = collection(db, 'products');
-    const q = query(productsRef, orderBy('timestamp', 'desc'));
+    const productsRef = ref(db, 'products');
 
-    return onSnapshot(q, (snapshot) => {
+    return onValue(productsRef, (snapshot) => {
+        const data = snapshot.val();
         const products = [];
-        snapshot.forEach((doc) => {
-            products.push({ id: doc.id, ...doc.data() });
-        });
+        if (data) {
+            Object.keys(data).forEach((id) => {
+                products.push({ id, ...data[id] });
+            });
+            // Sort by timestamp descending
+            products.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        }
         callback(products);
     }, (error) => {
         console.error("Error listening to products: ", error);
@@ -62,13 +66,16 @@ export function listenToProducts(callback) {
 
 // Real-time listener for packages/categories
 export function listenToPackages(callback) {
-    const packagesRef = collection(db, 'packages');
+    const packagesRef = ref(db, 'packages');
     
-    return onSnapshot(packagesRef, (snapshot) => {
+    return onValue(packagesRef, (snapshot) => {
+        const data = snapshot.val();
         const packages = [];
-        snapshot.forEach((doc) => {
-            packages.push({ id: doc.id, ...doc.data() });
-        });
+        if (data) {
+            Object.keys(data).forEach((id) => {
+                packages.push({ id, ...data[id] });
+            });
+        }
         // Default packages if empty
         if (packages.length === 0) {
             packages.push(
