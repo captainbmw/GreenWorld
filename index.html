@@ -331,11 +331,26 @@
 
     // Segment and build sliding group category packages
     function renderHomeProducts() {
-        if (!homeGrid) return;
+        if (!homeGrid) {
+            console.error("DEBUG ERROR: DOM element '#homeProductGrid' was not found in your HTML file structure.");
+            return;
+        }
+        
+        console.log("DEBUG EVENT: Running renderHomeProducts() matrix...", {
+            productsCount: currentProducts.length,
+            packagesCount: currentPackages.length
+        });
         
         if (currentProducts.length > 0) {
             homeGrid.innerHTML = '';
             const packageGroups = groupProducts(currentProducts, currentPackages);
+
+            console.log("DEBUG: Resulting groups after processing groupProducts():", packageGroups);
+
+            if (!packageGroups || packageGroups.length === 0) {
+                homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>Products exist but could not be grouped into matching category packages. Check category IDs!</p></div>';
+                return;
+            }
 
             packageGroups.forEach(group => {
                 const shouldScroll = group.products.length > 4;
@@ -365,12 +380,14 @@
 
     // Stream package data pipelines
     listenToPackages(pkgs => {
+        console.log("DEBUG DATA: Firebase Packages Stream Received:", pkgs);
         currentPackages = pkgs;
         if (currentProducts.length > 0) renderHomeProducts();
     });
 
     // Stream premium products arrays
     listenToProducts(prods => {
+        console.log("DEBUG DATA: Firebase Products Stream Received:", prods);
         currentProducts = prods;
         renderHomeProducts();
     });
