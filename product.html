@@ -1,87 +1,651 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Products | Green World Care</title>
 
-{% block title %}Products | Greenworld Care Wellness{% endblock %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-{% block extra_css %}
 <style>
-    :root {
-        --green: #8bc34a;
-        --forest: #0a5c36;
-        --gold: #d4af37;
-        --blue: #60a5fa;
-        --glass: rgba(255, 255, 255, 0.075);
-        --glass-border: rgba(255, 255, 255, 0.16);
-        --muted: rgba(255, 255, 255, 0.68);
+
+:root{
+    --bg:#030b08;
+    --bg2:#071612;
+    --glass:rgba(255,255,255,0.08);
+    --glass-2:rgba(255,255,255,0.05);
+    --border:rgba(255,255,255,0.12);
+    --green:#7dff9c;
+    --green-dark:#0d8a56;
+    --blue:#5bc0ff;
+    --gold:#ffcc70;
+    --white:#ffffff;
+    --muted:rgba(255,255,255,0.65);
+    --shadow:0 30px 80px rgba(0,0,0,0.45);
+    --radius:28px;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:
+    radial-gradient(circle at top left, rgba(0,255,140,0.15), transparent 25%),
+    radial-gradient(circle at top right, rgba(0,140,255,0.18), transparent 30%),
+    radial-gradient(circle at bottom center, rgba(255,255,255,0.06), transparent 40%),
+    linear-gradient(140deg,#020705,#04120f,#071d18,#020705);
+    min-height:100vh;
+    overflow-x:hidden;
+    color:white;
+    position:relative;
+}
+
+/* PARTICLES */
+
+.particles{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:-5;
+}
+
+.particle{
+    position:absolute;
+    width:4px;
+    height:4px;
+    background:rgba(255,255,255,0.6);
+    border-radius:50%;
+    animation:floatParticle linear infinite;
+}
+
+@keyframes floatParticle{
+    from{
+        transform:translateY(100vh) scale(0);
+        opacity:0;
+    }
+    10%{
+        opacity:1;
+    }
+    to{
+        transform:translateY(-120vh) scale(1.5);
+        opacity:0;
+    }
+}
+
+/* BLOBS */
+
+.blob{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(80px);
+    opacity:0.4;
+    z-index:-4;
+    animation:blobFloat 18s infinite ease-in-out;
+}
+
+.blob1{
+    width:500px;
+    height:500px;
+    background:#00ff88;
+    top:-150px;
+    left:-120px;
+}
+
+.blob2{
+    width:450px;
+    height:450px;
+    background:#006eff;
+    right:-150px;
+    top:30%;
+}
+
+.blob3{
+    width:350px;
+    height:350px;
+    background:#7a00ff;
+    bottom:-100px;
+    left:35%;
+}
+
+@keyframes blobFloat{
+    0%,100%{
+        transform:translateY(0px) translateX(0px);
+    }
+    50%{
+        transform:translateY(-30px) translateX(30px);
+    }
+}
+
+/* NAVBAR */
+
+.navbar{
+    position:sticky;
+    top:0;
+    z-index:999;
+    backdrop-filter:blur(22px);
+    background:rgba(0,0,0,0.28);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.nav-container{
+    width:min(1400px,92%);
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 0;
+}
+
+.logo{
+    font-size:1.4rem;
+    font-weight:800;
+    color:white;
+    text-decoration:none;
+    letter-spacing:-0.5px;
+    position:relative;
+}
+
+.logo span{
+    background:linear-gradient(90deg,#7dff9c,#5bc0ff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.nav-links{
+    display:flex;
+    align-items:center;
+    gap:28px;
+}
+
+.nav-links a{
+    text-decoration:none;
+    color:rgba(255,255,255,0.72);
+    font-weight:600;
+    transition:0.35s;
+    position:relative;
+}
+
+.nav-links a:hover{
+    color:white;
+}
+
+.nav-links a::after{
+    content:"";
+    position:absolute;
+    width:0%;
+    height:2px;
+    left:0;
+    bottom:-8px;
+    background:linear-gradient(90deg,#7dff9c,#5bc0ff);
+    transition:0.35s;
+}
+
+.nav-links a:hover::after{
+    width:100%;
+}
+
+.nav-btn{
+    padding:12px 20px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#14d96b,#00a6ff);
+    color:white!important;
+    box-shadow:
+    0 0 25px rgba(0,255,140,0.3),
+    0 0 45px rgba(0,140,255,0.18);
+}
+
+.menu-btn{
+    display:none;
+    flex-direction:column;
+    gap:5px;
+    cursor:pointer;
+}
+
+.menu-btn span{
+    width:26px;
+    height:3px;
+    border-radius:999px;
+    background:white;
+}
+
+/* HERO */
+
+.hero{
+    width:min(1400px,92%);
+    margin:auto;
+    padding:110px 0 70px;
+    text-align:center;
+}
+
+.hero h1{
+    font-size:clamp(3rem,8vw,7rem);
+    line-height:0.95;
+    font-weight:900;
+    letter-spacing:-4px;
+    margin-bottom:24px;
+    background:linear-gradient(180deg,#ffffff,#7dff9c);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.hero p{
+    max-width:760px;
+    margin:auto;
+    color:var(--muted);
+    font-size:1.08rem;
+    line-height:1.8;
+}
+
+/* TOOLBAR */
+
+.toolbar{
+    width:min(1400px,92%);
+    margin:0 auto 40px;
+    padding:24px;
+    border-radius:var(--radius);
+    background:var(--glass);
+    backdrop-filter:blur(18px);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+}
+
+.toolbar::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+    linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent);
+    transform:translateX(-100%);
+    animation:shine 6s infinite linear;
+}
+
+@keyframes shine{
+    to{
+        transform:translateX(100%);
+    }
+}
+
+.toolbar-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:20px;
+}
+
+.search-box{
+    position:relative;
+}
+
+.search-box input{
+    width:100%;
+    padding:18px 22px 18px 58px;
+    border:none;
+    outline:none;
+    border-radius:18px;
+    background:rgba(255,255,255,0.07);
+    color:white;
+    font-size:1rem;
+    border:1px solid rgba(255,255,255,0.08);
+    transition:0.35s;
+}
+
+.search-box input:focus{
+    border-color:#5bc0ff;
+    box-shadow:
+    0 0 25px rgba(91,192,255,0.22);
+}
+
+.search-box svg{
+    position:absolute;
+    left:20px;
+    top:50%;
+    transform:translateY(-50%);
+    opacity:0.6;
+}
+
+select{
+    width:100%;
+    padding:18px;
+    border:none;
+    outline:none;
+    border-radius:18px;
+    background:rgba(255,255,255,0.07);
+    color:white;
+    font-size:1rem;
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+option{
+    background:#071612;
+}
+
+/* PRODUCTS */
+
+.catalog{
+    width:min(1400px,92%);
+    margin:auto;
+    padding-bottom:120px;
+}
+
+.section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:70px 0 30px;
+}
+
+.section-title h2{
+    font-size:2rem;
+    font-weight:800;
+}
+
+.section-title span{
+    color:rgba(255,255,255,0.55);
+    font-weight:600;
+}
+
+.products-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
+    gap:28px;
+}
+
+.product-card{
+    position:relative;
+    border-radius:32px;
+    overflow:hidden;
+    background:
+    linear-gradient(180deg,
+    rgba(255,255,255,0.12),
+    rgba(255,255,255,0.04));
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter:blur(18px);
+    box-shadow:
+    0 20px 60px rgba(0,0,0,0.45),
+    inset 0 1px 1px rgba(255,255,255,0.08);
+    transition:0.5s cubic-bezier(.2,.8,.2,1);
+    transform-style:preserve-3d;
+}
+
+.product-card:hover{
+    transform:
+    rotateX(4deg)
+    rotateY(-4deg)
+    translateY(-12px)
+    scale(1.02);
+    border-color:rgba(91,192,255,0.35);
+    box-shadow:
+    0 30px 100px rgba(0,0,0,0.65),
+    0 0 60px rgba(0,255,140,0.14);
+}
+
+.card-glow{
+    position:absolute;
+    inset:-1px;
+    background:
+    linear-gradient(135deg,
+    rgba(0,255,140,0.2),
+    rgba(0,140,255,0.1),
+    transparent);
+    opacity:0;
+    transition:0.5s;
+}
+
+.product-card:hover .card-glow{
+    opacity:1;
+}
+
+.category-pill{
+    position:absolute;
+    top:18px;
+    right:18px;
+    z-index:5;
+    padding:10px 14px;
+    border-radius:999px;
+    background:rgba(0,255,140,0.16);
+    border:1px solid rgba(0,255,140,0.22);
+    color:#7dff9c;
+    font-size:0.72rem;
+    font-weight:800;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    backdrop-filter:blur(12px);
+}
+
+.product-image{
+    height:260px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:30px;
+    position:relative;
+}
+
+.product-image::before{
+    content:"";
+    position:absolute;
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,0.14), transparent 70%);
+}
+
+.product-image img{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    z-index:2;
+    filter:drop-shadow(0 25px 30px rgba(0,0,0,0.5));
+    transition:0.5s;
+}
+
+.product-card:hover img{
+    transform:translateY(-10px) scale(1.05);
+}
+
+.product-content{
+    padding:28px;
+}
+
+.product-title{
+    font-size:1.3rem;
+    font-weight:800;
+    margin-bottom:12px;
+}
+
+.product-desc{
+    color:rgba(255,255,255,0.68);
+    line-height:1.7;
+    margin-bottom:24px;
+}
+
+.product-bottom{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+}
+
+.price{
+    font-size:1.4rem;
+    font-weight:800;
+    color:var(--gold);
+}
+
+.buy-btn{
+    padding:14px 20px;
+    border:none;
+    border-radius:16px;
+    font-weight:700;
+    cursor:pointer;
+    color:white;
+    background:
+    linear-gradient(135deg,#14d96b,#00a6ff);
+    box-shadow:
+    0 10px 30px rgba(0,255,140,0.25);
+    transition:0.35s;
+}
+
+.buy-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:
+    0 20px 40px rgba(0,255,140,0.35);
+}
+
+/* EMPTY */
+
+.empty-state{
+    text-align:center;
+    padding:80px 20px;
+    border-radius:30px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter:blur(18px);
+    display:none;
+}
+
+.empty-state h3{
+    margin:20px 0 12px;
+    font-size:2rem;
+}
+
+.empty-state p{
+    color:var(--muted);
+}
+
+/* FOOTER */
+
+.footer{
+    padding:50px 20px;
+    text-align:center;
+    border-top:1px solid rgba(255,255,255,0.06);
+    color:rgba(255,255,255,0.5);
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+    .toolbar-grid{
+        grid-template-columns:1fr;
     }
 
-    body:has(.catalog-page) { background: #04110d !important; }
-    
-    .catalog-page { position: relative; color: #fff; }
-    #bg-canvas { position: fixed; inset: 0; z-index: -1; width: 100%; height: 100%; background: radial-gradient(circle at 18% 14%, rgba(139, 195, 74, 0.16), transparent 30%), radial-gradient(circle at 82% 20%, rgba(96, 165, 250, 0.16), transparent 32%), linear-gradient(135deg, #03120c 0%, #071a28 50%, #020611 100%); }
+    .nav-links{
+        position:fixed;
+        top:82px;
+        right:-100%;
+        width:300px;
+        height:calc(100vh - 82px);
+        background:rgba(5,10,10,0.96);
+        backdrop-filter:blur(22px);
+        flex-direction:column;
+        padding:40px 30px;
+        transition:0.45s;
+        border-left:1px solid rgba(255,255,255,0.08);
+    }
 
-    .catalog-header { max-width: 820px; margin: 0 auto 42px; text-align: center; }
-    .catalog-header h1 { font-weight: 800; font-size: clamp(2.4rem, 7vw, 5.4rem); line-height: 0.98; margin-bottom: 18px; }
-    .catalog-header p { color: var(--muted); font-size: 1.06rem; margin: 0 auto; max-width: 660px; }
+    .nav-links.active{
+        right:0;
+    }
 
-    .catalog-tools { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 16px; backdrop-filter: blur(16px); margin-bottom: 28px; }
-    .form-control, .form-select { border-radius: 14px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.14); color: white; padding: 12px 16px; }
-    .form-control::placeholder { color: rgba(255, 255, 255, 0.42); }
-    .form-control:focus, .form-select:focus { background: rgba(255, 255, 255, 0.1); border-color: var(--blue); color: white; box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18); }
-    .form-select option { background: #0f2c1f; color: #fff; }
+    .menu-btn{
+        display:flex;
+    }
 
-    .product-card { position: relative; height: 100%; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 22px; overflow: hidden; backdrop-filter: blur(18px); box-shadow: 0 24px 46px rgba(0, 0, 0, 0.28); transition: transform 0.25s ease, border-color 0.25s ease; }
-    .product-card:hover { transform: translateY(-6px); border-color: rgba(96, 165, 250, 0.34); }
-    .catalog-groups { display: grid; gap: 44px; }
-    .package-section-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
-    .package-section-header h2 { color: #fff; font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; margin: 0; }
-    .package-section-header span { color: rgba(255, 255, 255, 0.6); font-size: 0.85rem; font-weight: 800; }
-    .product-img-box { height: 200px; width: 100px; margin: 0 auto; background: rgba(0, 0, 0, 0.22); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 5px; }
-    .product-img-box img { width: 100%; height: 100%; object-fit: cover; }
-    .product-info { padding: 22px; }
-    .category-pill { position: absolute; top: 16px; right: 16px; z-index: 2; background: rgba(10, 92, 54, 0.92); color: #fff; padding: 7px 12px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; }
-    .price-tag { color: var(--gold); font-weight: 800; font-size: 1.28rem; }
-    .description-text { color: rgba(255, 255, 255, 0.68); font-size: 0.92rem; line-height: 1.58; margin-bottom: 20px; }
-    .btn-order { background: #25d366; color: #fff; border: none; border-radius: 14px; padding: 12px; font-weight: 800; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: 0.25s; }
-    .btn-order:hover { background: #128c7e; color: #fff; transform: translateY(-1px); }
-    .empty-state { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 48px 24px; backdrop-filter: blur(16px); }
+}
+
 </style>
-{% endblock %}
+</head>
 
-{% block content_wrapper %}<div class="catalog-page">{% endblock %}
-{% block content %}
-<canvas id="bg-canvas" aria-hidden="true"></canvas>
-<div class="container py-5">
-    <header class="catalog-header">
-        <h1>Wellness Catalog</h1>
-        <p>Premium Greenworld wellness products with clear benefits, package details, and fast ordering.</p>
-    </header>
+<body>
 
-    <section class="catalog-tools">
-        <div class="row g-3">
-            <div class="col-lg-8">
-                <input type="search" id="searchInput" class="form-control" placeholder="Search products or descriptions...">
-            </div>
-            <div class="col-lg-4">
-                <select id="categoryFilter" class="form-select">
-                    <option value="all">All package categories</option>
-                </select>
-            </div>
+<div class="particles" id="particles"></div>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<nav class="navbar">
+    <div class="nav-container">
+
+        <a href="index.html" class="logo">
+            <span>Green World Care</span>
+        </a>
+
+        <div class="nav-links" id="navLinks">
+            <a href="#">Products</a>
+            <a href="#">Categories</a>
+            <a href="#">Wellness</a>
+            <a href="#">Support</a>
+            <a href="#" class="nav-btn">Shop Now</a>
         </div>
-    </section>
 
-    <div class="catalog-groups" id="storeGrid"></div>
+        <div class="menu-btn" id="menuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
 
-    <div id="noProducts" class="empty-state text-center" style="display: none;">
-        <i class="bi bi-bag-x fs-1 text-white-50 mb-3 d-block"></i>
-        <h3>No products available</h3>
-        <p class="text-white-50 mb-3">The catalog is ready for new product entries.</p>
-        <a href="add_product.html" class="btn btn-success rounded-pill px-4">Add Product</a>
     </div>
-</div>
-{% endblock %}
-{% block content_wrapper_end %}</div>{% endblock %}
+</nav>
 
-{% block extra_js %}
+<section class="hero">
+    <h1>Wellness Catalog</h1>
+    <p>
+        Discover futuristic premium wellness products engineered for modern lifestyles,
+        holistic vitality, energy optimization, and elite health performance.
+    </p>
+</section>
+
+<section class="toolbar">
+
+    <div class="toolbar-grid">
+
+        <div class="search-box">
+
+            <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+            </svg>
+
+            <input
+                type="search"
+                id="searchInput"
+                placeholder="Search wellness products..."
+            />
+
+        </div>
+
+        <div>
+            <select id="categoryFilter">
+                <option value="all">All Categories</option>
+            </select>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="catalog" id="catalog"></section>
+
+<div class="catalog empty-state" id="emptyState">
+    <h3>No Products Found</h3>
+    <p>No wellness products match your search.</p>
+</div>
+
+<footer class="footer">
+    © 2026 Green World Care — Futuristic Wellness Commerce
+</footer>
 <script type="module">
     import { listenToProducts, listenToPackages, groupProducts, escapeHtml, getPackageName } from './js/products.js';
 
