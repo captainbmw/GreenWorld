@@ -73,8 +73,8 @@
 
         .glass-form-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(22px);
             -webkit-backdrop-filter: blur(22px);
+            backdrop-filter: blur(22px);
             border-radius: 28px;
             border: 1px solid var(--glass-border);
             box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
@@ -435,241 +435,229 @@
     </main>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script type="module">
-        import { db, storage } from './js/firebase-config.js';
-        import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+<script type="module">
+    // Removed storage import
+    import { db } from './js/firebase-config.js';
+    import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        AOS.init({ duration: 1000, once: true });
+    AOS.init({ duration: 1000, once: true });
 
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const packageForm = document.getElementById('packageForm');
-        const productForm = document.getElementById('productForm');
-        const productPackageSelect = document.getElementById('productPackage');
-        const imageDisplay = document.getElementById('imageDisplay');
-        const previewEmpty = document.getElementById('previewEmpty');
-        const previewBox = document.getElementById('previewBox');
-        const productImageFile = document.getElementById('productImageFile');
-        const inventoryTable = document.getElementById('inventoryTable');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const packageForm = document.getElementById('packageForm');
+    const productForm = document.getElementById('productForm');
+    const productPackageSelect = document.getElementById('productPackage');
+    const imageDisplay = document.getElementById('imageDisplay');
+    const previewEmpty = document.getElementById('previewEmpty');
+    const previewBox = document.getElementById('previewBox');
+    const productImageFile = document.getElementById('productImageFile');
+    const inventoryTable = document.getElementById('inventoryTable');
 
-        const prevName = document.getElementById('prevName');
-        const prevPrice = document.getElementById('prevPrice');
-        const prevDesc = document.getElementById('prevDesc');
+    const prevName = document.getElementById('prevName');
+    const prevPrice = document.getElementById('prevPrice');
+    const prevDesc = document.getElementById('prevDesc');
 
-        function toggleLoading(show) {
-            loadingOverlay.style.display = show ? 'flex' : 'none';
-        }
+    function toggleLoading(show) {
+        loadingOverlay.style.display = show ? 'flex' : 'none';
+    }
 
-        // Live Preview Listeners
-        document.getElementById('productName').addEventListener('input', (e) => prevName.textContent = e.target.value || 'Product Title');
-        document.getElementById('productPrice').addEventListener('input', (e) => prevPrice.textContent = 'Ksh ' + (e.target.value || '0'));
-        document.getElementById('productDescription').addEventListener('input', (e) => prevDesc.textContent = e.target.value || 'Description preview will appear here...');
+    // Live Preview Listeners
+    document.getElementById('productName').addEventListener('input', (e) => prevName.textContent = e.target.value || 'Product Title');
+    document.getElementById('productPrice').addEventListener('input', (e) => prevPrice.textContent = 'Ksh ' + (e.target.value || '0'));
+    document.getElementById('productDescription').addEventListener('input', (e) => prevDesc.textContent = e.target.value || 'Description preview will appear here...');
 
-        // Real-time Packages listener
-        let globalPackages = {};
-        const packagesCol = collection(db, 'packages');
-        onSnapshot(packagesCol, (snapshot) => {
-            productPackageSelect.innerHTML = '<option value="">Select a category</option>';
-            globalPackages = {};
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const id = doc.id;
-                globalPackages[id] = data;
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = data.name;
-                productPackageSelect.appendChild(option);
-            });
+    // Real-time Packages listener
+    let globalPackages = {};
+    const packagesCol = collection(db, 'packages');
+    onSnapshot(packagesCol, (snapshot) => {
+        productPackageSelect.innerHTML = '<option value="">Select a category</option>';
+        globalPackages = {};
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const id = doc.id;
+            globalPackages[id] = data;
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = data.name;
+            productPackageSelect.appendChild(option);
         });
+    });
 
-        // Real-time Products listener for Inventory Table
-        const productsCol = collection(db, 'products');
-        const q = query(productsCol, orderBy('timestamp', 'desc'));
-        onSnapshot(q, (snapshot) => {
-            inventoryTable.innerHTML = '';
-            if (!snapshot.empty) {
-                snapshot.forEach(docSnap => {
-                    const product = docSnap.data();
-                    const id = docSnap.id;
-                    const pkgName = globalPackages[product.category]?.name || product.category;
-                    const tr = document.createElement('tr');
-                    const safeDesc = (product.description || "").substring(0, 30);
-                    
-                    tr.innerHTML = `
-                        <td class="ps-4">
-                            <div class="d-flex align-items-center gap-3">
-                                <img src="${product.image || 'https://placehold.co/40'}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;">
-                                <div>
-                                    <div class="fw-bold">${product.name || 'Unnamed Product'}</div>
-                                    <div class="small opacity-50">${safeDesc}${product.description?.length > 30 ? '...' : ''}</div>
-                                </div>
+    // Real-time Products listener for Inventory Table
+    const productsCol = collection(db, 'products');
+    const q = query(productsCol, orderBy('timestamp', 'desc'));
+    onSnapshot(q, (snapshot) => {
+        inventoryTable.innerHTML = '';
+        if (!snapshot.empty) {
+            snapshot.forEach(docSnap => {
+                const product = docSnap.data();
+                const id = docSnap.id;
+                const pkgName = globalPackages[product.category]?.name || product.category;
+                const tr = document.createElement('tr');
+                const safeDesc = (product.description || "").substring(0, 30);
+                
+                tr.innerHTML = `
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="${product.image || 'https://placehold.co/40'}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;">
+                            <div>
+                                <div class="fw-bold">${product.name || 'Unnamed Product'}</div>
+                                <div class="small opacity-50">${safeDesc}${product.description?.length > 30 ? '...' : ''}</div>
                             </div>
-                        </td>
-                        <td><span class="badge bg-success opacity-75">${pkgName}</span></td>
-                        <td class="font-monospace small">${product.product_id || 'N/A'}</td>
-                        <td class="fw-bold text-success">Ksh ${product.price || '0'}</td>
-                        <td>${product.bv_value || '0'}</td>
-                        <td class="pe-4">
-                            <button class="btn btn-sm btn-outline-danger border-0 delete-btn" data-id="${id}">
-                                <i class="bi bi-trash3-fill"></i>
-                            </button>
-                        </td>
-                    `;
-                    inventoryTable.appendChild(tr);
-                });
+                        </div>
+                    </td>
+                    <td><span class="badge bg-success opacity-75">${pkgName}</span></td>
+                    <td class="font-monospace small">${product.product_id || 'N/A'}</td>
+                    <td class="fw-bold text-success">Ksh ${product.price || '0'}</td>
+                    <td>${product.bv_value || '0'}</td>
+                    <td class="pe-4">
+                        <button class="btn btn-sm btn-outline-danger border-0 delete-btn" data-id="${id}">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </td>
+                `;
+                inventoryTable.appendChild(tr);
+            });
 
-                // Attach delete listeners
-                document.querySelectorAll('.delete-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        if (confirm('Are you sure you want to delete this product?')) {
-                            const productId = btn.getAttribute('data-id');
-                            try {
-                                toggleLoading(true);
-                                await deleteDoc(doc(db, 'products', productId));
-                            } catch (e) {
-                                alert("Error deleting product: " + e.message);
-                            } finally {
-                                toggleLoading(false);
-                            }
+            // Attach delete listeners
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (confirm('Are you sure you want to delete this product?')) {
+                        const productId = btn.getAttribute('data-id');
+                        try {
+                            toggleLoading(true);
+                            await deleteDoc(doc(db, 'products', productId));
+                        } catch (e) {
+                            alert("Error deleting product: " + e.message);
+                        } finally {
+                            toggleLoading(false);
                         }
-                    });
+                    }
                 });
-            } else {
-                inventoryTable.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-white-50">No products found in inventory.</td></tr>';
-            }
-        });
-
-        // Handle Package Addition
-        packageForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('packageName').value.trim();
-            if (!name) return;
-
-            try {
-                toggleLoading(true);
-                await addDoc(collection(db, 'packages'), { name });
-                alert('Package category added successfully!');
-                packageForm.reset();
-            } catch (error) {
-                alert('Error: ' + error.message);
-            } finally {
-                toggleLoading(false);
-            }
-        });
-
-        // Handle Image Preview
-        productImageFile.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    imageDisplay.src = event.target.result;
-                    imageDisplay.style.display = 'block';
-                    previewEmpty.style.display = 'none';
-                    previewBox.classList.add('has-image');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                imageDisplay.style.display = 'none';
-                previewEmpty.style.display = 'block';
-                previewBox.classList.remove('has-image');
-            }
-        });
-
-        // Handle Product Addition
-        productForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const category = productPackageSelect.value;
-            const name = document.getElementById('productName').value.trim();
-            const pId = document.getElementById('productId').value.trim();
-            const price = document.getElementById('productPrice').value.trim();
-            const bv = document.getElementById('productBV').value.trim();
-            const description = document.getElementById('productDescription').value.trim();
-            const benefits = document.getElementById('productBenefits').value.trim();
-            const file = productImageFile.files[0];
-
-            if (!category) {
-                alert('Please select a category.');
-                return;
-            }
-
-            try {
-                toggleLoading(true);
-                let imageUrl = '';
-
-                if (file) {
-                    const storageRef = sRef(storage, `products/${Date.now()}_${file.name}`);
-                    const uploadTask = uploadBytesResumable(storageRef, file);
-
-                    imageUrl = await new Promise((resolve, reject) => {
-                        uploadTask.on('state_changed', null, 
-                            (error) => {
-                                console.error("Firebase Storage Error:", error);
-                                if (error.code === 'storage/retry-limit-exceeded') {
-                                    alert("Firebase Error: Retry limit exceeded. Check your Storage Rules or bucket configuration.");
-                                } else {
-                                    alert("Upload Error: " + error.message);
-                                }
-                                reject(error);
-                            }, 
-                            async () => {
-                                const url = await getDownloadURL(uploadTask.snapshot.ref);
-                                resolve(url);
-                            }
-                        );
-                    });
-                }
-
-                await addDoc(collection(db, 'products'), {
-                    category,
-                    name,
-                    product_id: pId,
-                    price,
-                    bv_value: bv,
-                    description,
-                    benefits,
-                    image: imageUrl,
-                    timestamp: Date.now()
-                });
-
-                alert('Product deployed to catalog successfully!');
-                productForm.reset();
-                imageDisplay.style.display = 'none';
-                previewEmpty.style.display = 'block';
-                previewBox.classList.remove('has-image');
-                prevName.textContent = 'Product Title';
-                prevPrice.textContent = 'Ksh 0';
-                prevDesc.textContent = 'Description preview will appear here...';
-            } catch (error) {
-                alert('Error submitting product: ' + error.message);
-            } finally {
-                toggleLoading(false);
-            }
-        });
-
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            localStorage.removeItem('gw_role');
-            localStorage.removeItem('gw_current_user');
-            window.location.href = 'index.html';
-        });
-
-        // BG Animation
-        const canvas = document.getElementById("bg-canvas");
-        const ctx = canvas.getContext("2d");
-        const particles = [];
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        function makeParticle() { return { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, size: Math.random() * 2, speed: Math.random() * 0.5 + 0.1 }; }
-        function draw() {
-            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "rgba(139, 195, 74, 0.5)";
-            particles.forEach(p => { p.y -= p.speed; if (p.y < 0) p.y = canvas.height; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); });
-            requestAnimationFrame(draw);
+            });
+        } else {
+            inventoryTable.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-white-50">No products found in inventory.</td></tr>';
         }
-        resize();
-        for(let i=0; i<150; i++) particles.push(makeParticle());
-        window.addEventListener("resize", resize);
-        draw();
-    </script>
+    });
+
+    // Handle Package Addition
+    packageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('packageName').value.trim();
+        if (!name) return;
+
+        try {
+            toggleLoading(true);
+            await addDoc(collection(db, 'packages'), { name });
+            alert('Package category added successfully!');
+            packageForm.reset();
+        } catch (error) {
+            alert('Error: ' + error.message);
+        } finally {
+            toggleLoading(false);
+        }
+    });
+
+    // Handle Image Preview
+    productImageFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                imageDisplay.src = event.target.result;
+                imageDisplay.style.display = 'block';
+                previewEmpty.style.display = 'none';
+                previewBox.classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imageDisplay.style.display = 'none';
+            previewEmpty.style.display = 'block';
+            previewBox.classList.remove('has-image');
+        }
+    });
+
+    // Handle Product Addition via Base64 String to Firestore Directly
+    productForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const category = productPackageSelect.value;
+        const name = document.getElementById('productName').value.trim();
+        const pId = document.getElementById('productId').value.trim();
+        const price = document.getElementById('productPrice').value.trim();
+        const bv = document.getElementById('productBV').value.trim();
+        const description = document.getElementById('productDescription').value.trim();
+        const benefits = document.getElementById('productBenefits').value.trim();
+        const file = productImageFile.files[0];
+
+        if (!category) {
+            alert('Please select a category.');
+            return;
+        }
+
+        try {
+            toggleLoading(true);
+            let imageUrl = '';
+
+            // Handle file reading inside a Promise wrapper for safe async/await flow
+            if (file) {
+                imageUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => resolve(event.target.result);
+                    reader.onerror = (error) => reject(error);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Write straight to Firestore without hitting Firebase Storage
+            await addDoc(collection(db, 'products'), {
+                category,
+                name,
+                product_id: pId,
+                price,
+                bv_value: bv,
+                description,
+                benefits,
+                image: imageUrl, // Saves the raw Base64 Data URL string
+                timestamp: Date.now()
+            });
+
+            alert('Product deployed to catalog successfully!');
+            productForm.reset();
+            imageDisplay.style.display = 'none';
+            previewEmpty.style.display = 'block';
+            previewBox.classList.remove('has-image');
+            prevName.textContent = 'Product Title';
+            prevPrice.textContent = 'Ksh 0';
+            prevDesc.textContent = 'Description preview will appear here...';
+        } catch (error) {
+            alert('Error submitting product to Firestore: ' + error.message);
+        } finally {
+            toggleLoading(false);
+        }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('gw_role');
+        localStorage.removeItem('gw_current_user');
+        window.location.href = 'index.html';
+    });
+
+    // BG Animation
+    const canvas = document.getElementById("bg-canvas");
+    const ctx = canvas.getContext("2d");
+    const particles = [];
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    function makeParticle() { return { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, size: Math.random() * 2, speed: Math.random() * 0.5 + 0.1 }; }
+    function draw() {
+        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "rgba(139, 195, 74, 0.5)";
+        particles.forEach(p => { p.y -= p.speed; if (p.y < 0) p.y = canvas.height; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); });
+        requestAnimationFrame(draw);
+    }
+    resize();
+    for(let i=0; i<150; i++) particles.push(makeParticle());
+    window.addEventListener("resize", resize);
+    draw();
+</script>
 </body>
 </html>

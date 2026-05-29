@@ -253,154 +253,161 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-    
-    <script type="module">
-        import { listenToProducts, listenToPackages, groupProducts, escapeHtml, getPackageName } from './js/products.js';
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginLink = document.getElementById('loginLink');
-            const registerLink = document.getElementById('registerLink');
-            const adminLink = document.getElementById('adminLink');
-            const logoutLink = document.getElementById('logoutLink');
-            const logoutBtn = document.getElementById('logoutBtn');
+<script type="module">
+    import { listenToProducts, listenToPackages, groupProducts, escapeHtml, getPackageName } from './js/products.js';
 
-            function updateNavbar() {
-                const role = localStorage.getItem('gw_role');
-                const isAdmin = role === 'admin';
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginLink = document.getElementById('loginLink');
+        const registerLink = document.getElementById('registerLink');
+        const adminLink = document.getElementById('adminLink');
+        const logoutLink = document.getElementById('logoutLink');
+        const logoutBtn = document.getElementById('logoutBtn');
 
-                if (isAdmin) {
-                    if (loginLink) loginLink.style.display = 'none';
-                    if (registerLink) registerLink.style.display = 'none';
-                    if (adminLink) adminLink.style.display = 'block';
-                    if (logoutLink) logoutLink.style.display = 'block';
-                } else {
-                    if (loginLink) loginLink.style.display = 'block';
-                    if (registerLink) registerLink.style.display = 'block';
-                    if (adminLink) adminLink.style.display = 'none';
-                    if (logoutLink) logoutLink.style.display = 'none';
-                }
+        function updateNavbar() {
+            const role = localStorage.getItem('gw_role');
+            const isAdmin = role === 'admin';
+
+            if (isAdmin) {
+                if (loginLink) loginLink.style.display = 'none';
+                if (registerLink) registerLink.style.display = 'none';
+                if (adminLink) adminLink.style.display = 'block';
+                if (logoutLink) logoutLink.style.display = 'block';
+            } else {
+                if (loginLink) loginLink.style.display = 'block';
+                if (registerLink) registerLink.style.display = 'block';
+                if (adminLink) adminLink.style.display = 'none';
+                if (logoutLink) logoutLink.style.display = 'none';
             }
+        }
 
-            // Initial Navbar check
-            updateNavbar();
+        // Initial Navbar check
+        updateNavbar();
 
-            // Handle Logout
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    localStorage.removeItem('gw_role');
-                    localStorage.removeItem('gw_current_user');
-                    updateNavbar();
-                    window.location.reload(); 
-                });
-            }
+        // Handle Logout
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('gw_role');
+                localStorage.removeItem('gw_current_user');
+                updateNavbar();
+                window.location.reload(); 
+            });
+        }
 
-            function renderHomeProductCard(product, packages) {
-                return `
-                    <div class="home-product-item">
-                        <div class="product-card position-relative" data-aos="fade-up">
-                            <span class="category-badge">${escapeHtml(getPackageName(product.category, packages))}</span>
-                            <div class="product-img-wrap">
-                                <img src="${escapeHtml(product.image || 'https://placehold.co/145x267/0a5c36/ffffff?text=Product')}" alt="${escapeHtml(product.name)}">
-                            </div>
-                            <div class="p-3 text-center">
-                                <h6 class="fw-bold mb-1 text-white text-truncate">${escapeHtml(product.name)}</h6>
-                                <p class="text-success small fw-bold mb-2">Ksh ${escapeHtml(product.price)}</p>
-                                ${product.benefits ? `<p class="small text-white-50 text-truncate mb-2" title="${escapeHtml(product.benefits)}">${escapeHtml(product.benefits)}</p>` : ''}
-                                <a href="product.html" class="btn btn-sm btn-outline-success w-100 rounded-pill">View Details</a>
-                            </div>
+        // Render individual scroll item card
+        function renderHomeProductCard(product, packages) {
+            // Raw string insertion for product.image to seamlessly pass large Base64 strings without breaking URLs
+            const finalImageSrc = product.image ? product.image : 'https://placehold.co/145x267/0a5c36/ffffff?text=Product';
+
+            return `
+                <div class="home-product-item">
+                    <div class="product-card position-relative" data-aos="fade-up">
+                        <span class="category-badge">${escapeHtml(getPackageName(product.category, packages))}</span>
+                        <div class="product-img-wrap">
+                            <img src="${finalImageSrc}" alt="${escapeHtml(product.name)}">
+                        </div>
+                        <div class="p-3 text-center">
+                            <h6 class="fw-bold mb-1 text-white text-truncate">${escapeHtml(product.name)}</h6>
+                            <p class="text-success small fw-bold mb-2">Ksh ${escapeHtml(product.price)}</p>
+                            ${product.benefits ? `<p class="small text-white-50 text-truncate mb-2" title="${escapeHtml(product.benefits)}">${escapeHtml(product.benefits)}</p>` : ''}
+                            <a href="product.html" class="btn btn-sm btn-outline-success w-100 rounded-pill">View Details</a>
                         </div>
                     </div>
-                `;
-            }
-
-            const homeGrid = document.getElementById('homeProductGrid');
-            let currentPackages = [];
-            let currentProducts = [];
-
-            function renderHomeProducts() {
-                if (currentProducts.length > 0) {
-                    homeGrid.innerHTML = '';
-                    const packageGroups = groupProducts(currentProducts, currentPackages);
-
-                    packageGroups.forEach(group => {
-                        const shouldScroll = group.products.length > 4;
-                        const trackProducts = shouldScroll ? [...group.products, ...group.products] : group.products;
-                        const section = document.createElement('section');
-                        section.className = 'product-package-group';
-                        section.innerHTML = `
-                            <div class="product-package-heading">
-                                <h3>${escapeHtml(group.name)}</h3>
-                                <span>${group.products.length} product${group.products.length === 1 ? '' : 's'}</span>
-                            </div>
-                            <div class="product-scroll-window">
-                                <div class="product-scroll-track ${shouldScroll ? 'is-scrolling' : ''}">
-                                    ${trackProducts.map(p => renderHomeProductCard(p, currentPackages)).join('')}
-                                </div>
-                            </div>
-                        `;
-                        homeGrid.appendChild(section);
-                    });
-                } else {
-                    homeGrid.innerHTML = '<div class="text-center text-white-50"><p>No products featured yet. Check our store soon!</p></div>';
-                }
-            }
-
-            listenToPackages(pkgs => {
-                currentPackages = pkgs;
-                if (currentProducts.length > 0) renderHomeProducts();
-            });
-
-            listenToProducts(prods => {
-                currentProducts = prods;
-                renderHomeProducts();
-            });
-
-            AOS.init({ duration: 1000, once: true, offset: 50 });
-            initCentered3D();
-        });
-        
-        function initCentered3D() {
-            const canvas = document.getElementById('hero-canvas');
-            if (!canvas || typeof THREE === 'undefined') return;
-            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
-            camera.position.set(0, 0, 15);
-            const ambient = new THREE.AmbientLight(0xffffff, 0.45);
-            scene.add(ambient);
-            const keyLight = new THREE.DirectionalLight(0x7ee8a8, 1.4);
-            keyLight.position.set(10, 10, 10);
-            scene.add(keyLight);
-            const goldLight = new THREE.PointLight(0xd4af37, 2, 50);
-            goldLight.position.set(-8, 4, 6);
-            scene.add(goldLight);
-            const group = new THREE.Group();
-            scene.add(group);
-            const coreGeo = new THREE.IcosahedronGeometry(2.4, 1);
-            const coreMat = new THREE.MeshPhysicalMaterial({ color: 0x0a5c36, emissive: 0x1a8f55, emissiveIntensity: 0.4, metalness: 0.7, roughness: 0.2, transparent: true, opacity: 0.95 });
-            const core = new THREE.Mesh(coreGeo, coreMat);
-            group.add(core);
-            const wireShell = new THREE.Mesh(new THREE.IcosahedronGeometry(2.8, 2), new THREE.MeshBasicMaterial({ color: 0x4ade80, wireframe: true, transparent: true, opacity: 0.3 }));
-            group.add(wireShell);
-            const ring1 = new THREE.Mesh(new THREE.TorusGeometry(4.2, 0.04, 16, 100), new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.6 }));
-            ring1.rotation.x = Math.PI / 2.5;
-            group.add(ring1);
-            const ring2 = ring1.clone();
-            ring2.scale.set(0.8, 0.8, 0.8);
-            ring2.rotation.x = -Math.PI / 4;
-            group.add(ring2);
-            let mouseX = 0, mouseY = 0;
-            document.addEventListener('mousemove', (e) => { mouseX = (e.clientX / window.innerWidth - 0.5) * 2; mouseY = (e.clientY / window.innerHeight - 0.5) * 2; });
-            function resize() { const w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
-            window.addEventListener('resize', resize);
-            resize();
-            const clock = new THREE.Clock();
-            function animate() { requestAnimationFrame(animate); const t = clock.getElapsedTime(); core.rotation.y = t * 0.3; wireShell.rotation.y = -t * 0.2; ring1.rotation.z = t * 0.4; ring2.rotation.z = -t * 0.3; group.rotation.y += (mouseX * 0.2 - group.rotation.y) * 0.05; group.rotation.x += (-mouseY * 0.1 - group.rotation.x) * 0.05; renderer.render(scene, camera); }
-            animate();
+                </div>
+            `;
         }
-    </script>
+
+        const homeGrid = document.getElementById('homeProductGrid');
+        let currentPackages = [];
+        let currentProducts = [];
+
+        // Build product groups dynamically into sliding visual track rows
+        function renderHomeProducts() {
+            if (currentProducts.length > 0) {
+                homeGrid.innerHTML = '';
+                const packageGroups = groupProducts(currentProducts, currentPackages);
+
+                packageGroups.forEach(group => {
+                    const shouldScroll = group.products.length > 4;
+                    const trackProducts = shouldScroll ? [...group.products, ...group.products] : group.products;
+                    const section = document.createElement('section');
+                    section.className = 'product-package-group';
+                    section.innerHTML = `
+                        <div class="product-package-heading">
+                            <h3>${escapeHtml(group.name)}</h3>
+                            <span>${group.products.length} product${group.products.length === 1 ? '' : 's'}</span>
+                        </div>
+                        <div class="product-scroll-window">
+                            <div class="product-scroll-track ${shouldScroll ? 'is-scrolling' : ''}">
+                                ${trackProducts.map(p => renderHomeProductCard(p, currentPackages)).join('')}
+                            </div>
+                        </div>
+                    `;
+                    homeGrid.appendChild(section);
+                });
+            } else {
+                homeGrid.innerHTML = '<div class="text-center text-white-50"><p>No products featured yet. Check our store soon!</p></div>';
+            }
+        }
+
+        // Real-time updates subscription context maps
+        listenToPackages(pkgs => {
+            currentPackages = pkgs;
+            if (currentProducts.length > 0) renderHomeProducts();
+        });
+
+        listenToProducts(prods => {
+            currentProducts = prods;
+            renderHomeProducts();
+        });
+
+        AOS.init({ duration: 1000, once: true, offset: 50 });
+        initCentered3D();
+    });
+    
+    // Core Three.JS Graphic Rendering Context Engine for Header
+    function initCentered3D() {
+        const canvas = document.getElementById('hero-canvas');
+        if (!canvas || typeof THREE === 'undefined') return;
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+        camera.position.set(0, 0, 15);
+        const ambient = new THREE.AmbientLight(0xffffff, 0.45);
+        scene.add(ambient);
+        const keyLight = new THREE.DirectionalLight(0x7ee8a8, 1.4);
+        keyLight.position.set(10, 10, 10);
+        scene.add(keyLight);
+        const goldLight = new THREE.PointLight(0xd4af37, 2, 50);
+        goldLight.position.set(-8, 4, 6);
+        scene.add(goldLight);
+        const group = new THREE.Group();
+        scene.add(group);
+        const coreGeo = new THREE.IcosahedronGeometry(2.4, 1);
+        const coreMat = new THREE.MeshPhysicalMaterial({ color: 0x0a5c36, emissive: 0x1a8f55, emissiveIntensity: 0.4, metalness: 0.7, roughness: 0.2, transparent: true, opacity: 0.95 });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        group.add(core);
+        const wireShell = new THREE.Mesh(new THREE.IcosahedronGeometry(2.8, 2), new THREE.MeshBasicMaterial({ color: 0x4ade80, wireframe: true, transparent: true, opacity: 0.3 }));
+        group.add(wireShell);
+        const ring1 = new THREE.Mesh(new THREE.TorusGeometry(4.2, 0.04, 16, 100), new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.6 }));
+        ring1.rotation.x = Math.PI / 2.5;
+        group.add(ring1);
+        const ring2 = ring1.clone();
+        ring2.scale.set(0.8, 0.8, 0.8);
+        ring2.rotation.x = -Math.PI / 4;
+        group.add(ring2);
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => { mouseX = (e.clientX / window.innerWidth - 0.5) * 2; mouseY = (e.clientY / window.innerHeight - 0.5) * 2; });
+        function resize() { const w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+        window.addEventListener('resize', resize);
+        resize();
+        const clock = new THREE.Clock();
+        function animate() { requestAnimationFrame(animate); const t = clock.getElapsedTime(); core.rotation.y = t * 0.3; wireShell.rotation.y = -t * 0.2; ring1.rotation.z = t * 0.4; ring2.rotation.z = -t * 0.3; group.rotation.y += (mouseX * 0.2 - group.rotation.y) * 0.05; group.rotation.x += (-mouseY * 0.1 - group.rotation.x) * 0.05; renderer.render(scene, camera); }
+        animate();
+    }
+</script>
 </body>
 </html>

@@ -93,6 +93,7 @@
     let currentProducts = [];
     let currentPackages = [];
 
+    // Filter validation logic based on real-time inputs
     function productMatches(product) {
         const query = searchInput.value.trim().toLowerCase();
         const category = categoryFilter.value;
@@ -105,15 +106,19 @@
         return (!query || haystack.includes(query)) && (category === "all" || product.category === category);
     }
 
+    // Render individual product card UI
     function renderProductCard(product) {
         const whatsappMsg = encodeURIComponent(`Hello Susan, I'm interested in ordering: ${product.name} (Ksh ${product.price})`);
+        
+        // Formats data cleanly; seamlessly reads raw Base64 strings or remote placeholder imagery fallback paths
+        const imageSrc = product.image ? product.image : "https://placehold.co/700x520/0a5c36/ffffff?text=Greenworld+Wellness";
 
         return `
             <div class="col-md-6 col-xl-4">
                 <article class="product-card">
                     <span class="category-pill">${escapeHtml(getPackageName(product.category, currentPackages))}</span>
                     <div class="product-img-box">
-                        <img src="${escapeHtml(product.image || "https://placehold.co/700x520/0a5c36/ffffff?text=Greenworld+Wellness")}" alt="${escapeHtml(product.name)}">
+                        <img src="${imageSrc}" alt="${escapeHtml(product.name)}">
                     </div>
                     <div class="product-info">
                         <div class="d-flex justify-content-between gap-3 align-items-start mb-2">
@@ -127,7 +132,7 @@
                                 <p class="small text-white-50 mb-0">${escapeHtml(product.benefits)}</p>
                             </div>
                         ` : ''}
-                        <a href="https://wa.me/254724415604?text=${whatsappMsg}" class="btn-order">
+                        <a href="https://wa.me/254724415604?text=${whatsappMsg}" class="btn-order" target="_blank" rel="noopener noreferrer">
                             <i class="bi bi-whatsapp"></i> Order on WhatsApp
                         </a>
                     </div>
@@ -136,6 +141,7 @@
         `;
     }
 
+    // Process visible items and divide them dynamically into package category sections
     function renderProducts() {
         const visibleProducts = currentProducts.filter(productMatches);
         grid.innerHTML = "";
@@ -155,11 +161,15 @@
             `;
             grid.appendChild(section);
         });
-    };
+    }
 
+    // Real-time listener feeding package arrays and keeping dropdown configurations accurate
     listenToPackages(pkgs => {
         currentPackages = pkgs;
-        const currentVal = categoryFilter.value;
+        
+        // Cache the active value before the dropdown options are wiped and recreated
+        const currentVal = categoryFilter.value || "all";
+        
         categoryFilter.innerHTML = '<option value="all">All package categories</option>';
         pkgs.forEach(pkg => {
             const option = document.createElement('option');
@@ -167,20 +177,27 @@
             option.textContent = pkg.name;
             categoryFilter.appendChild(option);
         });
-        categoryFilter.value = currentVal;
+        
+        // Reapply the original filter context safely
+        const matchesExist = Array.from(categoryFilter.options).some(opt => opt.value === currentVal);
+        categoryFilter.value = matchesExist ? currentVal : "all";
+        
         if (currentProducts.length > 0) renderProducts();
     });
 
+    // Real-time listener streaming products collection from Firestore snapshot module
     listenToProducts(prods => {
         currentProducts = prods;
         renderProducts();
     });
 
+    // Handle user inputs for searching and filtering categories
     searchInput.addEventListener("input", renderProducts);
     categoryFilter.addEventListener("change", renderProducts);
 
     initPremiumBackground();
 
+    // Canvas Visual Background Generator Animation
     function initPremiumBackground() {
         const canvas = document.getElementById("bg-canvas");
         if (!canvas) return;

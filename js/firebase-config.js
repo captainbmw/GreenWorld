@@ -8,7 +8,7 @@ const firebaseConfig = {
     authDomain: "greenworldstore-e00c4.firebaseapp.com",
     databaseURL: "https://greenworldstore-e00c4-default-rtdb.firebaseio.com/",
     projectId: "greenworldstore-e00c4",
-    storageBucket: "greenworldstore-e00c4.firebasestorage.app",
+    storageBucket: "greenworldstore-e00c4.appspot.com",
     messagingSenderId: "1062777777569",
     appId: "1:1062777777569:web:385dc7ad92836b3ecb6fe0",
     measurementId: "G-WEN12J8DT2"
