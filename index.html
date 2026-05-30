@@ -446,75 +446,72 @@
         });
     }
 
-    // Render individual product item layout within the rolling tracks
+    // Render individual product item layout (Matching product.html style for consistency)
     function renderHomeProductCard(product, packages) {
-        const finalImageSrc = product.image ? product.image : 'https://placehold.co/145x267/0a5c36/ffffff?text=Product';
+        const whatsappMsg = encodeURIComponent(`Hello Susan, I'm interested in ordering: ${product.name} (Ksh ${product.price})`);
+        const finalImageSrc = product.image ? product.image : 'https://placehold.co/700x520/0a5c36/ffffff?text=Product';
 
         return `
-            <div class="home-product-item">
-                <div class="product-card position-relative" data-aos="fade-up">
-                    <span class="category-badge">${escapeHtml(getPackageName(product.category, packages))}</span>
-                    <div class="product-img-wrap">
-                        <img src="${finalImageSrc}" alt="${escapeHtml(product.name)}">
+            <div class="col-md-6 col-lg-4" data-aos="fade-up">
+                <div class="product-card h-100 d-flex flex-column">
+                    <div class="position-relative">
+                        <span class="category-badge">${escapeHtml(getPackageName(product.category, packages))}</span>
+                        <div class="product-img-wrap w-100" style="height: 250px;">
+                            <img src="${finalImageSrc}" alt="${escapeHtml(product.name)}" class="w-100 h-100 object-fit-contain p-3">
+                        </div>
                     </div>
-                    <div class="p-3 text-center">
-                        <h6 class="fw-bold mb-1 text-white text-truncate">${escapeHtml(product.name)}</h6>
-                        <p class="text-success small fw-bold mb-2">Ksh ${escapeHtml(product.price)}</p>
-                        ${product.benefits ? `<p class="small text-white-50 text-truncate mb-2" title="${escapeHtml(product.benefits)}">${escapeHtml(product.benefits)}</p>` : ''}
-                        <a href="product.html" class="btn btn-sm btn-outline-success w-100 rounded-pill">View Details</a>
+                    <div class="p-4 d-flex flex-column flex-grow-1">
+                        <h5 class="fw-bold mb-1 text-white">${escapeHtml(product.name)}</h5>
+                        <p class="text-success fw-bold mb-3">Ksh ${escapeHtml(product.price)}</p>
+                        
+                        ${product.benefits ? `
+                            <div class="mb-4">
+                                <small class="text-white-50 d-block mb-1 fw-bold">KEY BENEFITS:</small>
+                                <p class="small text-white-50 mb-0" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(product.benefits)}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="mt-auto pt-3 border-top border-secondary">
+                            <a href="https://wa.me/254724415604?text=${whatsappMsg}" target="_blank" class="btn btn-gold w-100 mb-2">
+                                <i class="bi bi-whatsapp me-2"></i> Order on WhatsApp
+                            </a>
+                            <a href="product.html" class="btn btn-glass btn-sm w-100">View Details</a>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
     }
 
-    // Segment and build sliding group category packages
+    // Segment and build product grid categories
     function renderHomeProducts() {
         const targetGrid = document.getElementById('homeProductGrid');
-        if (!targetGrid) {
-            console.error("DEBUG ERROR: DOM element '#homeProductGrid' was not found.");
-            return;
-        }
-        
-        console.log("DEBUG EVENT: Running renderHomeProducts()", {
-            products: currentProducts.length,
-            packages: currentPackages.length
-        });
+        if (!targetGrid) return;
         
         if (currentProducts.length > 0) {
             targetGrid.innerHTML = '';
             const packageGroups = groupProducts(currentProducts, currentPackages);
 
-            if (!packageGroups || packageGroups.length === 0) {
-                targetGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>Could not group products. Check categories.</p></div>';
-                return;
-            }
-
             packageGroups.forEach(group => {
-                const shouldScroll = group.products.length > 4;
-                const trackProducts = shouldScroll ? [...group.products, ...group.products] : group.products;
-                const section = document.createElement('section');
-                section.className = 'product-package-group';
-                section.innerHTML = `
-                    <div class="product-package-heading">
-                        <h3>${escapeHtml(group.name)}</h3>
-                        <span>${group.products.length} product${group.products.length === 1 ? '' : 's'}</span>
+                const groupSection = document.createElement('div');
+                groupSection.className = 'mb-5';
+                groupSection.innerHTML = `
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <h3 class="fw-bold text-white mb-0">${escapeHtml(group.name)}</h3>
+                        <div class="flex-grow-1 border-bottom border-secondary opacity-25"></div>
+                        <span class="badge bg-success rounded-pill">${group.products.length} Items</span>
                     </div>
-                    <div class="product-scroll-window">
-                        <div class="product-scroll-track ${shouldScroll ? 'is-scrolling' : ''}">
-                            ${trackProducts.map(p => renderHomeProductCard(p, currentPackages)).join('')}
-                        </div>
+                    <div class="row g-4">
+                        ${group.products.map(p => renderHomeProductCard(p, currentPackages)).join('')}
                     </div>
                 `;
-                targetGrid.appendChild(section);
+                targetGrid.appendChild(groupSection);
             });
 
-            // Refresh AOS to ensure new elements are animated/visible
-            if (typeof AOS !== 'undefined') {
-                AOS.refresh();
-            }
+            // Refresh AOS with a small delay for DOM stability
+            setTimeout(() => { if (typeof AOS !== 'undefined') AOS.refresh(); }, 100);
         } else {
-            targetGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>No products featured yet. Check our store soon!</p></div>';
+            targetGrid.innerHTML = '<div class="text-center text-white-50 p-5"><i class="bi bi-inbox fs-1 d-block mb-3"></i><p>No products featured yet. Check our store soon!</p></div>';
         }
     }
 

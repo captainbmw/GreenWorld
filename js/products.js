@@ -21,9 +21,13 @@ export function listenToProducts(callback) {
         
         // Sort products by timestamp locally to ensure products without timestamps still appear
         products.sort((a, b) => {
-            const timeA = a.timestamp ? (a.timestamp.seconds || 0) : 0;
-            const timeB = b.timestamp ? (b.timestamp.seconds || 0) : 0;
-            return timeB - timeA;
+            const getVal = (v) => {
+                if (!v) return 0;
+                if (typeof v === 'number') return v;
+                if (v.seconds) return v.seconds * 1000 + (v.nanoseconds / 1000000);
+                return 0;
+            };
+            return getVal(b.timestamp) - getVal(a.timestamp);
         });
         
         callback(products);
