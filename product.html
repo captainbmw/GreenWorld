@@ -554,7 +554,7 @@ option{
         if (!grid) return;
         renderingTriggered = true;
 
-        // FILTER PROTECTION: Removes "initial product" cleanly across imports and backup triggers
+        // FIXED FILTER: Filter out only the explicit text layout matching "initial product"
         const cleanProducts = currentProducts.filter(p => {
             const label = (p.name || "").trim().toLowerCase();
             return label !== "initial product" && label !== "";
@@ -597,10 +597,10 @@ option{
     } catch(e) { console.error("Catalog products pipeline failed:", e); }
 
 
-    // Backup connection channel
+    // Direct Database Connection Fallback Channel
     setTimeout(() => {
         if (!renderingTriggered) {
-            console.warn("Catalog streams stalled. Running fallback database pipeline...");
+            console.warn("Catalog streams stalled. Running direct firestore snapshot trigger...");
             
             if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
                 const firestoreInstance = window.db || firebase.firestore();
@@ -615,7 +615,7 @@ option{
                     currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderProducts();
                 }, error => {
-                    if (grid) grid.innerHTML = `<div class="text-center text-white-50 p-5"><p>Link error: ${error.message}</p></div>`;
+                    if (grid) grid.innerHTML = `<div class="text-center text-white-50 p-5"><p>Database link error: ${error.message}</p></div>`;
                 });
             }
         }

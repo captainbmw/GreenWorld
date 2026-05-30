@@ -480,7 +480,7 @@
         if (!homeGrid) return;
         renderingTriggered = true;
         
-        // FILTER PROTECTION: Clean out data sets across all execution branches
+        // FIXED FILTER: Show ALL products, but strictly block the "initial product" text placeholder
         const cleanProducts = currentProducts.filter(p => {
             const label = (p.name || "").trim().toLowerCase();
             return label !== "initial product" && label !== "";
@@ -493,7 +493,7 @@
             try {
                 packageGroups = groupProducts(cleanProducts, currentPackages);
             } catch (err) {
-                console.error("groupProducts failed, rendering fallback lane:", err);
+                console.error("groupProducts failed, rendering generic row layout:", err);
             }
 
             if (!packageGroups || packageGroups.length === 0) {
@@ -533,7 +533,7 @@
                 homeGrid.appendChild(section);
             });
         } else {
-            homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>No featured products selected yet. Check our store catalog!</p></div>';
+            homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>No active wellness products found in the catalog.</p></div>';
         }
     }
 
@@ -544,19 +544,19 @@
             currentPackages = pkgs || [];
             if (currentProducts.length > 0) renderHomeProducts();
         });
-    } catch(e) { console.error("Packages channel failed:", e); }
+    } catch(e) { console.error("Packages stream hook error:", e); }
 
     try {
         listenToProducts(prods => {
             currentProducts = prods || [];
             renderHomeProducts();
         });
-    } catch(e) { console.error("Products channel failed:", e); }
+    } catch(e) { console.error("Products stream hook error:", e); }
 
-    // Backup connection channel
+    // Direct Firestore Database Fallback Link
     setTimeout(() => {
         if (!renderingTriggered && homeGrid) {
-            console.warn("Home module streams stalled. Running direct firestore stream...");
+            console.warn("Home module streams stalled. Hooking direct database stream...");
             if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
                 const firestoreInstance = window.db || firebase.firestore();
                 
