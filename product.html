@@ -508,8 +508,7 @@ option{
     let currentPackages = [];
     let renderingTriggered = false;
 
-    // Direct configuration list of document IDs to completely block from your public catalog
-    const blacklistedProductIds = ["initial_product", "placeholder", "test-product", "default"];
+   
 
     function productMatches(product) {
         if (!searchInput || !categoryFilter) return true;
