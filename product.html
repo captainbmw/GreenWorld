@@ -554,11 +554,14 @@ option{
         if (!grid) return;
         renderingTriggered = true;
 
-        const visibleProducts = currentProducts.filter(productMatches);
+        // CRUCIAL UPDATE: Filter out any items that are not explicitly featured
+        const featuredProducts = currentProducts.filter(p => p.featured === true);
+
+        const visibleProducts = featuredProducts.filter(productMatches);
         grid.innerHTML = visibleProducts.map(renderProductCard).join("");
         
         if (noProducts) {
-            noProducts.style.display = (visibleProducts.length === 0 && currentProducts.length > 0) ? "block" : "none";
+            noProducts.style.display = (visibleProducts.length === 0 && featuredProducts.length > 0) ? "block" : "none";
         }
     }
 
@@ -593,8 +596,6 @@ option{
 
 
     // --- CRUCIAL DIRECT FIRESTORE FALLBACK BRIDGE ---
-    // If the imported listeners stall or fail to output data within 2.5 seconds,
-    // this auto-recovery layer safely reaches straight into your Firestore configuration instance.
     setTimeout(() => {
         if (!renderingTriggered) {
             console.warn("Catalog streams stalled. Activating production fallback link directly...");
@@ -612,7 +613,6 @@ option{
                 // Directly register active document changes
                 firestoreInstance.collection('products').onSnapshot(snapshot => {
                     currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    console.log("Direct Catalog Bridge online. Active rows parsed:", currentProducts.length);
                     renderProducts();
                 }, error => {
                     console.error("Direct catalog streaming interface crash:", error);

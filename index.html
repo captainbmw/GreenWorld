@@ -484,12 +484,16 @@
         if (!homeGrid) return;
         renderingTriggered = true;
         
-        if (currentProducts.length > 0) {
+        // CRUCIAL UPDATE: Filter the list down to ONLY items explicitly marked as featured
+        const featuredProducts = currentProducts.filter(p => p.featured === true);
+        
+        if (featuredProducts.length > 0) {
             homeGrid.innerHTML = '';
             
             let packageGroups = [];
             try {
-                packageGroups = groupProducts(currentProducts, currentPackages);
+                // Group only the filtered items
+                packageGroups = groupProducts(featuredProducts, currentPackages);
             } catch (err) {
                 console.error("groupProducts failed, rendering standard stream grid:", err);
             }
@@ -501,11 +505,11 @@
                 section.innerHTML = `
                     <div class="product-package-heading">
                         <h3>Our Featured Formulas</h3>
-                        <span>${currentProducts.length} product${currentProducts.length === 1 ? '' : 's'}</span>
+                        <span>${featuredProducts.length} product${featuredProducts.length === 1 ? '' : 's'}</span>
                     </div>
                     <div class="product-scroll-window">
                         <div class="product-scroll-track">
-                            ${currentProducts.map(p => renderHomeProductCard(p, currentPackages)).join('')}
+                            ${featuredProducts.map(p => renderHomeProductCard(p, currentPackages)).join('')}
                         </div>
                     </div>
                 `;
@@ -533,7 +537,7 @@
                 homeGrid.appendChild(section);
             });
         } else {
-            homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>No products featured yet. Check our store soon!</p></div>';
+            homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>No featured products selected yet. Check our store catalog!</p></div>';
         }
     }
 
@@ -557,8 +561,6 @@
     } catch(e) { console.error("Products stream hook error:", e); }
 
     // 3. HARDWIRED DIRECT FALLBACK SYSTEM
-    // If the module fails to update the display within 2.5 seconds, bypass the file hooks
-    // and grab raw documents explicitly directly from your global Firebase context instance.
     setTimeout(() => {
         if (!renderingTriggered && homeGrid) {
             console.warn("Module streams stalled. Activating direct Firestore backup bridge access...");
@@ -574,7 +576,6 @@
                 // Directly bind stream listener to products collection bypass
                 firestoreInstance.collection('products').onSnapshot(snapshot => {
                     currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    console.log("Direct Firestore Backup Bridge connected. Products pulled:", currentProducts.length);
                     renderHomeProducts();
                 }, error => {
                     console.error("Direct bridge streaming failed:", error);
