@@ -407,7 +407,6 @@
 <script type="module">
     import { listenToProducts, listenToPackages, groupProducts, escapeHtml, getPackageName } from './js/products.js';
 
-    // Target elements mapped to your section structure
     const homeGrid = document.getElementById('homeProductGrid');
     const loginLink = document.getElementById('loginLink');
     const registerLink = document.getElementById('registerLink');
@@ -436,7 +435,6 @@
         }
     }
 
-    // Handle Session Logout
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             localStorage.removeItem('gw_role');
@@ -446,7 +444,6 @@
         });
     }
 
-    // Render individual product item layout within the rolling tracks
     function renderHomeProductCard(product, packages) {
         const finalImageSrc = product.image ? product.image : 'https://placehold.co/145x267/0a5c36/ffffff?text=Product';
         let categoryLabel = "General Collection";
@@ -479,37 +476,37 @@
         `;
     }
 
-    // Segment and build sliding group category packages
     function renderHomeProducts() {
         if (!homeGrid) return;
         renderingTriggered = true;
         
-        // CRUCIAL UPDATE: Filter the list down to ONLY items explicitly marked as featured
-        const featuredProducts = currentProducts.filter(p => p.featured === true);
+        // FILTER PROTECTION: Clean out data sets across all execution branches
+        const cleanProducts = currentProducts.filter(p => {
+            const label = (p.name || "").trim().toLowerCase();
+            return label !== "initial product" && label !== "";
+        });
         
-        if (featuredProducts.length > 0) {
+        if (cleanProducts.length > 0) {
             homeGrid.innerHTML = '';
-            
             let packageGroups = [];
+            
             try {
-                // Group only the filtered items
-                packageGroups = groupProducts(featuredProducts, currentPackages);
+                packageGroups = groupProducts(cleanProducts, currentPackages);
             } catch (err) {
-                console.error("groupProducts failed, rendering standard stream grid:", err);
+                console.error("groupProducts failed, rendering fallback lane:", err);
             }
 
-            // Fallback Rendering: If group calculations fail or come back empty
             if (!packageGroups || packageGroups.length === 0) {
                 const section = document.createElement('section');
                 section.className = 'product-package-group';
                 section.innerHTML = `
                     <div class="product-package-heading">
                         <h3>Our Featured Formulas</h3>
-                        <span>${featuredProducts.length} product${featuredProducts.length === 1 ? '' : 's'}</span>
+                        <span>${cleanProducts.length} product${cleanProducts.length === 1 ? '' : 's'}</span>
                     </div>
                     <div class="product-scroll-window">
                         <div class="product-scroll-track">
-                            ${featuredProducts.map(p => renderHomeProductCard(p, currentPackages)).join('')}
+                            ${cleanProducts.map(p => renderHomeProductCard(p, currentPackages)).join('')}
                         </div>
                     </div>
                 `;
@@ -517,7 +514,6 @@
                 return;
             }
 
-            // Standard layout grouping
             packageGroups.forEach(group => {
                 const shouldScroll = group.products.length > 4;
                 const trackProducts = shouldScroll ? [...group.products, ...group.products] : group.products;
@@ -541,60 +537,49 @@
         }
     }
 
-    // Run structural visual checking logic immediately
     updateNavbar();
 
-    // 1. Fire original package listeners
     try {
         listenToPackages(pkgs => {
             currentPackages = pkgs || [];
             if (currentProducts.length > 0) renderHomeProducts();
         });
-    } catch(e) { console.error("Packages stream hook error:", e); }
+    } catch(e) { console.error("Packages channel failed:", e); }
 
-    // 2. Fire original products module listeners
     try {
         listenToProducts(prods => {
             currentProducts = prods || [];
             renderHomeProducts();
         });
-    } catch(e) { console.error("Products stream hook error:", e); }
+    } catch(e) { console.error("Products channel failed:", e); }
 
-    // 3. HARDWIRED DIRECT FALLBACK SYSTEM
+    // Backup connection channel
     setTimeout(() => {
         if (!renderingTriggered && homeGrid) {
-            console.warn("Module streams stalled. Activating direct Firestore backup bridge access...");
-            
+            console.warn("Home module streams stalled. Running direct firestore stream...");
             if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
                 const firestoreInstance = window.db || firebase.firestore();
                 
-                // Directly pull packages raw array
                 firestoreInstance.collection('packages').get().then(snapshot => {
                     currentPackages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                }).catch(e => console.error("Direct fallback packages error:", e));
+                }).catch(e => console.error(e));
 
-                // Directly bind stream listener to products collection bypass
                 firestoreInstance.collection('products').onSnapshot(snapshot => {
                     currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderHomeProducts();
                 }, error => {
-                    console.error("Direct bridge streaming failed:", error);
-                    homeGrid.innerHTML = `<div class="text-center text-danger p-4"><p>Connection error: ${error.message}</p></div>`;
+                    homeGrid.innerHTML = `<div class="text-center text-danger p-4"><p>Link error: ${error.message}</p></div>`;
                 });
-            } else {
-                homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>Unable to initialize database link. Check Firebase script connections.</p></div>';
             }
         }
     }, 2500);
 
-    // Initialize animation drivers safely
     if (typeof AOS !== 'undefined') {
         AOS.init({ duration: 1000, once: true, offset: 50 });
     }
     
     initCentered3D();
     
-    // WebGL Canvas Engine Initialization
     function initCentered3D() {
         const canvas = document.getElementById('hero-canvas');
         if (!canvas || typeof THREE === 'undefined') return;

@@ -508,8 +508,6 @@ option{
     let currentPackages = [];
     let renderingTriggered = false;
 
-   
-
     function productMatches(product) {
         if (!searchInput || !categoryFilter) return true;
         
@@ -556,14 +554,17 @@ option{
         if (!grid) return;
         renderingTriggered = true;
 
-        // CRUCIAL CLEAN FIX: Clean out the list by rejecting items with placeholder Document IDs
-        const realProducts = currentProducts.filter(p => !blacklistedProductIds.includes(p.id));
+        // FILTER PROTECTION: Removes "initial product" cleanly across imports and backup triggers
+        const cleanProducts = currentProducts.filter(p => {
+            const label = (p.name || "").trim().toLowerCase();
+            return label !== "initial product" && label !== "";
+        });
 
-        const visibleProducts = realProducts.filter(productMatches);
+        const visibleProducts = cleanProducts.filter(productMatches);
         grid.innerHTML = visibleProducts.map(renderProductCard).join("");
         
         if (noProducts) {
-            noProducts.style.display = (visibleProducts.length === 0 && realProducts.length > 0) ? "block" : "none";
+            noProducts.style.display = (visibleProducts.length === 0 && cleanProducts.length > 0) ? "block" : "none";
         }
     }
 
@@ -580,54 +581,47 @@ option{
         categoryFilter.value = currentVal;
     }
 
-    // --- STANDARD PIPELINE ATTEMPTS ---
     try {
         listenToPackages(pkgs => {
             currentPackages = pkgs || [];
             populateCategoryFilter(currentPackages);
             if (currentProducts.length > 0) renderProducts();
         });
-    } catch(e) { console.error("Product page package stream failed:", e); }
+    } catch(e) { console.error("Catalog packages pipeline failed:", e); }
 
     try {
         listenToProducts(prods => {
             currentProducts = prods || [];
             renderProducts();
         });
-    } catch(e) { console.error("Product page product stream failed:", e); }
+    } catch(e) { console.error("Catalog products pipeline failed:", e); }
 
 
-    // --- CRUCIAL DIRECT FIRESTORE FALLBACK BRIDGE ---
+    // Backup connection channel
     setTimeout(() => {
         if (!renderingTriggered) {
-            console.warn("Catalog streams stalled. Activating production fallback link directly...");
+            console.warn("Catalog streams stalled. Running fallback database pipeline...");
             
             if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
                 const firestoreInstance = window.db || firebase.firestore();
                 
-                // Directly pull matching package lists
                 firestoreInstance.collection('packages').get().then(snapshot => {
                     currentPackages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     populateCategoryFilter(currentPackages);
                     if (currentProducts.length > 0) renderProducts();
-                }).catch(e => console.error("Direct catalog link pack query error:", e));
+                }).catch(e => console.error(e));
 
-                // Directly register active document changes
                 firestoreInstance.collection('products').onSnapshot(snapshot => {
                     currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderProducts();
                 }, error => {
-                    console.error("Direct catalog streaming interface crash:", error);
-                    if (grid) grid.innerHTML = `<div class="text-center text-white-50 p-5"><p>Database link error: ${error.message}</p></div>`;
+                    if (grid) grid.innerHTML = `<div class="text-center text-white-50 p-5"><p>Link error: ${error.message}</p></div>`;
                 });
-            } else {
-                if (grid) grid.innerHTML = '<div class="text-center text-white-50 p-5"><p>Could not load the catalog. Please confirm your database connection.</p></div>';
             }
         }
     }, 2500);
 
 
-    // --- EVENT INTERFACES ---
     if (searchInput) searchInput.addEventListener("input", renderProducts);
     if (categoryFilter) categoryFilter.addEventListener("change", renderProducts);
 
