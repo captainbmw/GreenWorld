@@ -17,10 +17,10 @@ export function listenToProducts(callback) {
         const products = [];
         snapshot.forEach((doc) => {
             const data = doc.data();
+            const label = (data.name || "").trim().toLowerCase();
             
-            // FILTER GUARANTEE: Only push products that are explicitly featured.
-            // This handles both boolean true and string "true" formats seamlessly.
-            if (data.featured === true || data.featured === 'true') {
+            // THE FIX: Allow ALL real products to load, but block "initial product" right here at the root!
+            if (label !== "initial product" && label !== "") {
                 products.push({ id: doc.id, ...data });
             }
         });
