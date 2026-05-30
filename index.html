@@ -4,309 +4,161 @@
     <title>Green World | Susan Aketch Odhiambo - Wellness Consultant</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">    
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-
         :root {
-
             --forest-green: #006400;
-
             --forest-green-dark: #004d00;
-
             --forest-green-light: #e0f0e0;
-
             --grey-bg: #f4f7f6;
-
             --card-white: #ffffff;
-
             --text-dark: #1a2c1e;
-
             --footer-bg: #1e2a2a;
-
             --forest: #0a5c36;
-
             --forest-deep: #063d24;
-
             --forest-glow: #1a8f55;
-
             --gold: #d4af37;
-
             --gold-light: #f0e6b8;
-
             --surface: #f7faf8;
-
             --text: #0f1f14;
-
             --text-muted: #5a6f62;
-
             --glass: rgba(255, 255, 255, 0.08);
-
             --glass-border: rgba(255, 255, 255, 0.18);
-
             --tree-icon-color: #8bc34a;
-
             --footer-brand-color: #e2f0e2;
-
         }
-
         * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-
         html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
-
         body { min-width: 320px; }
-
         main, section, header, footer, nav { min-width: 0; }
-
         img, video, iframe { max-width: 100%; height: auto; }
-
         table { width: 100%; }
-
         body { background-color: var(--grey-bg); display: flex; flex-direction: column; min-height: 100vh; color: #2c3e2f; padding-top: 0; margin: 0; }
-
         body:has(.home-page) { background: #021a0f !important; }
-
         body:has(.home-page) .main-content { background: transparent !important; }
-
         body:has(.home-page) .footer-minimalist { position: relative; z-index: 2; background: rgba(2, 26, 15, 0.75); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-
         .main-content { flex: 1 0 auto; }
-
         .navbar-forest { background: linear-gradient(135deg, var(--forest-green) 0%, var(--forest-green-dark) 100%); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); padding: 0.7rem 1rem; transition: all 0.2s; }
-
-        .navbar-brand { font-weight: 700; font-size: 1.65rem; letter-spacing: -0.5px; color: white !important; display: flex; align-items: center; gap: 10px; }
-
+        .navbar-brand { font-weight: 700; font-size: 1.65rem; letter-spacing: -0.5px; color: white !important; display: flex; align-items: center; gap: 10px; }    
         .navbar-brand i { font-size: 1.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
-
         .navbar-brand span { background: rgba(255,255,255,0.15); padding: 0.2rem 0.6rem; border-radius: 40px; font-size: 0.75rem; font-weight: 500; margin-left: 6px; }
-
         .nav-link-custom { color: rgba(255, 255, 255, 0.9) !important; font-weight: 500; margin: 0 0.2rem; border-radius: 40px; transition: all 0.2s ease; padding: 0.5rem 1rem; }
-
         .nav-link-custom:hover, .nav-link-custom.active { background: rgba(255, 255, 255, 0.18); color: white !important; transform: translateY(-1px); }
-
         .navbar-toggler { border: none; background: rgba(255,255,255,0.2); padding: 0.5rem 0.7rem; }
-
         .navbar-toggler-icon { filter: brightness(0) invert(1); }
-
-        .user-greeting { background: rgba(255, 255, 255, 0.12); padding: 0.35rem 0.9rem; border-radius: 50px; color: white; font-size: 0.9rem; font-weight: 500; }
-
+        .user-greeting { background: rgba(255, 255, 255, 0.12); padding: 0.35rem 0.9rem; border-radius: 50px; color: white; font-size: 0.9rem; font-weight: 500; } 
         .message-container { margin-top: 1.2rem; margin-bottom: 0.8rem; }
-
         .alert-custom { border-radius: 20px; border: none; padding: 0.9rem 1.2rem; font-weight: 500; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
-
         .footer-minimalist { background-color: var(--footer-bg); color: rgba(255, 255, 255, 0.75); padding: 2rem 0 1.2rem; margin-top: 3rem; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); }
-
         .footer-minimalist a { color: #b8e4b8; text-decoration: none; transition: color 0.2s; }
-
         .footer-minimalist a:hover { color: white; text-decoration: underline; }
-
         .footer-logo-icon { color: var(--tree-icon-color); }
-
         .footer-brand-name { color: var(--footer-brand-color); }
-
         .copyright { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.2rem; margin-top: 0.8rem; font-size: 0.75rem; text-align: center; }
-
-        @media (max-width: 768px) { .navbar-brand { font-size: 1.3rem; } .navbar-brand i { font-size: 1.4rem; } .footer-minimalist { text-align: center; } .message-container { margin-left: 12px; margin-right: 12px; } .navbar-nav { align-items: stretch !important; } .nav-link-custom { margin: 0.15rem 0; } }
-
+        @media (max-width: 768px) { .navbar-brand { font-size: 1.3rem; } .navbar-brand i { font-size: 1.4rem; } .footer-minimalist { text-align: center; } .message-container { margin-left: 12px; margin-right: 12px; } }
         .content-card { background: var(--card-white); border-radius: 28px; padding: 1.8rem; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05); border: none; transition: transform 0.1s ease; }
-
         .mt-safe { margin-top: 1rem; }
-
         .home-page { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; color: rgba(255, 255, 255, 0.92); overflow-x: hidden; position: relative; background: transparent; }
-
         .bg-3d-layer { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; background: #021a0f; }
-
         #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-
         .hero-overlay { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse 90% 70% at 50% 30%, rgba(26, 143, 85, 0.1) 0%, transparent 55%), radial-gradient(ellipse 60% 50% at 80% 70%, rgba(212, 175, 55, 0.05) 0%, transparent 50%), linear-gradient(180deg, rgba(2, 26, 15, 0.12) 0%, rgba(2, 26, 15, 0.28) 100%); }
-
         .hero-grid { position: absolute; inset: 0; z-index: 2; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 64px 64px; opacity: 0.45; }
-
         .home-content { position: relative; z-index: 1; }
-
         .home-page section, .home-page .section-pad, .home-page .cta-final, .home-page .comp-section, .home-page .bg-surface, .home-page .home-container, .home-page .row { background: transparent !important; }
-
         .hero-3d { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; background: transparent; text-align: center; }
-
         .hero-inner { position: relative; z-index: 10; width: 100%; max-width: 900px; margin: 0 auto; padding: 8rem 1.5rem 6rem; }
-
         .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1rem 0.45rem 0.65rem; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 100px; color: #b8f0d0; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); margin-bottom: 2rem; }
-
         .hero-badge .pulse { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 12px #4ade80; animation: pulse-dot 2s ease-in-out infinite; }
-
         @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.85); } }
-
         .hero-title { font-size: clamp(3rem, 8vw, 5rem); font-weight: 800; line-height: 1; letter-spacing: -0.04em; color: #fff; margin-bottom: 1.5rem; }
-
         .hero-title .accent { background: linear-gradient(135deg, #fff 0%, var(--gold-light) 50%, var(--gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-        .hero-lead { font-size: clamp(1.1rem, 3vw, 1.25rem); line-height: 1.6; color: rgba(255, 255, 255, 0.85); max-width: 40rem; margin: 0 auto 2.5rem; }
-
+        .hero-lead { font-size: clamp(1.1rem, 3vw, 1.25rem); line-height: 1.6; color: rgba(255, 255, 255, 0.85); max-width: 40rem; margin: 0 auto 2.5rem; }        
         .hero-stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 3rem; margin-top: 4rem; padding-top: 2.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
-
         .hero-stat strong { display: block; font-size: 2rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
-
         .hero-stat span { font-size: 0.8rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.08em; }
-
         .btn-gold { background: linear-gradient(135deg, var(--gold) 0%, #c9a227 100%); color: var(--forest-deep); border: none; padding: 1.1rem 2.5rem; font-weight: 700; font-size: 1rem; border-radius: 100px; letter-spacing: 0.02em; transition: transform 0.25s ease, box-shadow 0.25s ease; box-shadow: 0 8px 32px rgba(212, 175, 55, 0.35); text-decoration: none; display: inline-block; }
-
         .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(212, 175, 55, 0.5); color: var(--forest-deep); }
-
         .btn-glass { background: var(--glass); border: 1px solid var(--glass-border); color: #fff; padding: 1.1rem 2.5rem; font-weight: 600; border-radius: 100px; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: background 0.25s ease, transform 0.25s ease; text-decoration: none; display: inline-block; }
-
         .btn-glass:hover { background: rgba(255,255,255,0.15); color: #fff; transform: translateY(-3px); }
-
         .scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 10; color: rgba(255,255,255,0.4); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; animation: float-hint 2.5s ease-in-out infinite; }
-
         @keyframes float-hint { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
-
         .section-pad { padding: 8rem 0; }
-
         .section-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #7ee8a8; margin-bottom: 1rem; }
-
         .section-title { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.03em; color: #fff; margin-bottom: 1.25rem; }
-
         .section-desc { color: rgba(255, 255, 255, 0.7); max-width: 42rem; margin: 0 auto 4rem; text-align: center; font-size: 1.1rem; line-height: 1.7; }
-
         .glass-panel { background: transparent !important; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); padding: 3rem; }
-
         .feature-card { padding: 2.5rem; border-radius: 24px; background: transparent !important; border: 1px solid rgba(255, 255, 255, 0.1); height: 100%; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease; }
-
         .feature-card:hover { transform: translateY(-10px); border-color: rgba(126, 232, 168, 0.4); background: rgba(255, 255, 255, 0.03) !important; }
-
         .feature-icon-wrap { width: 64px; height: 64px; border-radius: 18px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; font-size: 1.75rem; color: #7ee8a8; margin-bottom: 1.75rem; }
-
         .product-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; overflow: hidden; transition: transform 0.3s ease; height: 100%; }
-
         .product-card:hover { transform: translateY(-8px); }
-
-        .product-img-wrap { height: 200px; width: 180px; margin: 0 auto; background: rgba(0,0,0,0.1); overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 10px; border-radius: 12px; }
-
+        .product-img-wrap { height: 267px; background: rgba(0,0,0,0.2); overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 12px; }
         .product-img-wrap img { width: 100%; height: 100%; object-fit: contain; }
-
         .product-package-group { margin-bottom: 3rem; overflow: hidden; }
-
         .product-package-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
-
         .product-package-heading h3 { color: #fff; font-weight: 800; margin: 0; font-size: 1.35rem; }
-
         .product-package-heading span { color: rgba(255,255,255,0.55); font-size: 0.85rem; font-weight: 700; }
-
         .product-scroll-window { overflow: hidden; padding: 0.25rem 0 1rem; }
-
         .product-scroll-track { display: flex; gap: 1.5rem; width: max-content; }
-
         .product-scroll-track.is-scrolling { animation: homeProductScroll 34s linear infinite; }
-
         .product-scroll-track.is-scrolling:hover { animation-play-state: paused; }
-
         .home-product-item { width: 250px; flex: 0 0 250px; }
-
         @keyframes homeProductScroll { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 0.75rem)); } }
-
         .category-badge { position: absolute; top: 1rem; right: 1rem; background: var(--forest); color: white; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-
         .consultant-card { border-radius: 32px; overflow: hidden; }
-
         .consultant-img { width: 200px; height: 200px; object-fit: cover; border: 4px solid var(--forest-glow); padding: 4px; }
-
         .comp-step { background: rgba(255, 255, 255, 0.04) !important; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; border-left: 4px solid transparent; transition: all 0.3s ease; }
-
         .comp-step:hover { border-left-color: var(--gold); background: rgba(255, 255, 255, 0.08) !important; transform: translateX(10px); }
-
         .testimonial-card { background: rgba(255, 255, 255, 0.03) !important; border-radius: 24px; padding: 3rem; border: 1px solid rgba(255, 255, 255, 0.1); height: 100%; }
-
         .quote-mark { font-size: 4rem; line-height: 1; color: #7ee8a8; opacity: 0.25; font-family: Georgia, serif; margin-bottom: -1rem; }
-
         .avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.3); }
-
         .cta-final { padding: 10rem 0; text-align: center; }
-
         .home-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
-
         .position-relative { position: relative; z-index: 1; }
-
         .lead-narrow { max-width: 36rem; }
-
         @media (max-width: 992px) {
-
             .section-pad { padding: 6rem 0; }
-
             .home-container { padding: 0 1.25rem; }
-
             .hero-title { font-size: 4rem; }
-
             .product-scroll-window { overflow-x: auto; }
-
             .product-scroll-track.is-scrolling { animation-duration: 42s; }
-
         }
-
         @media (max-width: 768px) {
-
-            .navbar-brand { font-size: 1.3rem; } .navbar-brand i { font-size: 1.4rem; } .footer-minimalist { text-align: center; } .message-container { margin-left: 12px; margin-right: 12px; } .navbar-nav { align-items: stretch !important; } .nav-link-custom { margin: 0.15rem 0; }
-
+            .navbar-brand { max-width: 72vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .hero-title { font-size: 3.1rem; }
-
             .hero-lead { font-size: 1rem; }
-
             .hero-stats { gap: 1rem; flex-wrap: wrap; }
-
             .hero-stat { min-width: 92px; }
-
             .glass-panel { padding: 1.5rem; }
-
             .product-package-heading { align-items: flex-start; flex-direction: column; gap: 0.35rem; }
-
             .home-product-item { width: 220px; flex-basis: 220px; }
-
             .cta-final { padding: 6rem 0; }
-
         }
-
         @media (max-width: 420px) {
-
             .home-container { padding: 0 0.85rem; }
-
             .section-pad { padding: 4.5rem 0; }
-
-            .navbar-brand { max-width: 68vw; font-size: 1.05rem; }
-
-            .navbar-brand span { display: none; }
-
-            .navbar .container { padding-left: 0.6rem; padding-right: 0.6rem; }
-
             .hero-3d { min-height: 92vh; min-height: 92dvh; padding: 5rem 0.75rem 4rem; }
-
             .hero-badge { font-size: 0.72rem; padding: 0.5rem 0.75rem; }
-
             .hero-title { font-size: 2.45rem; }
-
             .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; width: 100%; }
-
             .hero-stat strong { font-size: 1.35rem; }
-
             .hero-stat span { font-size: 0.72rem; }
-
             .section-title { font-size: 1.85rem; }
-
             .section-desc { margin-bottom: 2.5rem; }
-
             .home-product-item { width: 205px; flex-basis: 205px; }
-
             .product-img-wrap { height: 250px; }
-
             .product-scroll-track { gap: 1rem; }
-
             .display-3 { font-size: 2.1rem; }
-
             .btn-lg { width: 100%; }
-
         }
-
-        #adminLink, #logoutLink { display: none; }
-
+        @media (min-width: 1400px) {
+            .home-container { max-width: 1320px; }
+            .hero-inner { max-width: 1120px; }
+            .home-product-item { width: 280px; flex-basis: 280px; }
+            .product-img-wrap { height: 300px; }
+        }
     </style>
 </head>
 <body>
@@ -316,12 +168,12 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-1" id="mainNavList">
-                    <li class="nav-item"><a class="nav-link nav-link-custom" href="index.html"><i class="bi bi-house-door-fill"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#hero-section"><i class="bi bi-house-door-fill"></i> Home</a></li>
                     <li class="nav-item"><a class="nav-link nav-link-custom" href="product.html"><i class="bi bi-bag-heart"></i> Store</a></li>
                     <li class="nav-item" id="loginLink"><a class="nav-link nav-link-custom" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
                     <li class="nav-item" id="registerLink"><a class="nav-link nav-link-custom" href="register.html"><i class="bi bi-person-plus"></i> Register</a></li>
-                    <li class="nav-item" id="adminLink"><a class="nav-link nav-link-custom" href="add_product.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                    <li class="nav-item" id="logoutLink"><a class="nav-link nav-link-custom text-danger" href="javascript:void(0)" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                    <li class="nav-item" id="adminLink"><a class="nav-link nav-link-custom" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                    <li class="nav-item" id="logoutLink"><a class="nav-link nav-link-custom text-danger" href="index.html" onclick="localStorage.removeItem('gw_role')"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -361,9 +213,10 @@
                 </section>
                 <section class="section-pad bg-surface" id="products">
                     <div class="home-container">
-                        <div class="text-center"><p class="section-label">Signature Collection</p><h2 class="section-title">Premium Wellness Solutions</h2><p class="section-desc">Hand-picked herbal formulas for vitality, balance, and results.</p></div>
+                        <div class="text-center" data-aos="fade-up"><p class="section-label">Signature Collection</p><h2 class="section-title">Premium Wellness Solutions</h2><p class="section-desc">Hand-picked herbal formulas for vitality, balance, and results.</p></div>
                         <div class="product-groups" id="homeProductGrid">
-                            <div class="product-card text-center p-5"><i class="bi bi-arrow-repeat spin fs-1 text-success mb-3"></i><h6 class="text-white">Connecting to Store...</h6></div>
+                            <!-- Dynamic products or placeholders -->
+                            <div class="product-card text-center p-5"><i class="bi bi-arrow-repeat spin fs-1 text-success mb-3"></i><h6 class="text-white">Loading...</h6></div>
                         </div>
                         <div class="text-center mt-5"><a href="product.html" class="btn btn-gold">Browse Full Catalog</a></div>
                     </div>
@@ -386,7 +239,7 @@
                     </div>
                 </section>
                 <section class="cta-final position-relative">
-                    <div class="home-container" data-aos="zoom-in"><h2 class="display-3 fw-bold mb-4 text-white">Start Your Journey Today.</h2><p class="lead text-white-50 mb-5 mx-auto lead-narrow">Join Susan Aketch Odhiambo and thousands of entrepreneurs building health and wealth worldwide.</p><div class="d-flex gap-4 justify-content-center flex-wrap"><a href="https://wa.me/254724415604" class="btn btn-gold btn-lg px-5">Message Susan on WhatsApp</a><a href="tel:0724415604" class="btn btn-glass btn-lg px-5">Call Susan</a></div><p class="mt-5 small text-white-50">© 2026 Green World | Susan Aketch Odhiambo. All rights reserved.</p></div>
+                    <div class="home-container" data-aos="zoom-in"><h2 class="display-3 fw-bold mb-4">Start Your Journey Today.</h2><p class="lead lead-narrow text-white-50 mb-5 mx-auto">Join Susan Aketch Odhiambo and thousands of entrepreneurs building health and wealth worldwide.</p><div class="d-flex gap-4 justify-content-center flex-wrap"><a href="https://wa.me/254724415604" class="btn btn-gold btn-lg px-5">Message Susan on WhatsApp</a><a href="tel:0724415604" class="btn btn-glass btn-lg px-5">Call Susan</a></div><p class="mt-5 small text-white-50">© 2026 Green World | Susan Aketch Odhiambo. All rights reserved.</p></div>
                 </section>
             </div>
         </div>
@@ -395,217 +248,221 @@
         <div class="container">
             <div class="row gy-3">
                 <div class="col-md-5"><div class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-tree fs-4 footer-logo-icon"></i><span class="fw-semibold footer-brand-name">Greenworld Care</span></div><p class="small opacity-75">Empowering healthcare & membership management with eco-friendly digital solutions. Your wellness, our mission.</p></div>
-                <div class="col-md-3"><h6 class="text-white mb-3 fw-semibold">Quick Links</h6><ul class="list-unstyled small"><li><a href="index.html" class="text-decoration-none">Home</a></li><li class="mt-2"><a href="#wellness-consultant" class="text-decoration-none">Consultation</a></li><li class="mt-2"><a href="product.html" class="text-decoration-none">Herbal Products</a></li></ul></div>
+                <div class="col-md-3"><h6 class="text-white mb-3 fw-semibold">Quick Links</h6><ul class="list-unstyled small"><li><a href="#hero-section" class="text-decoration-none">Home</a></li><li class="mt-2"><a href="#wellness-consultant" class="text-decoration-none">Consultation</a></li><li class="mt-2"><a href="product.html" class="text-decoration-none">Herbal Products</a></li></ul></div>
                 <div class="col-md-4"><h6 class="text-white mb-3 fw-semibold">Support</h6><ul class="list-unstyled small"><li><i class="bi bi-envelope me-2"></i> susanneaketch@gmail.com</li><li class="mt-2"><i class="bi bi-telephone"></i> +254 724 415 604</li><li class="mt-2"><a href="#" class="text-decoration-none">Privacy Policy</a> | <a href="#" class="text-decoration-none">Terms</a></li></ul></div>
             </div>
             <div class="copyright">&copy; 2026 Greenworld Care — Susan Aketch Odhiambo. All rights reserved.<span class="mx-1">•</span> <i class="bi bi-forest"></i> Authorized Distributor</div>
         </div>
     </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script type="module">
-    import { listenToProducts, listenToPackages, groupProducts, escapeHtml, getPackageName } from './js/products.js';
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const role = localStorage.getItem('gw_role');
+            const loginLink = document.getElementById('loginLink');
+            const registerLink = document.getElementById('registerLink');
+            const adminLink = document.getElementById('adminLink');
+            const logoutLink = document.getElementById('logoutLink');
 
-    // Target elements mapped to your section structure
-    const homeGrid = document.getElementById('homeProductGrid');
-    const loginLink = document.getElementById('loginLink');
-    const registerLink = document.getElementById('registerLink');
-    const adminLink = document.getElementById('adminLink');
-    const logoutLink = document.getElementById('logoutLink');
-    const logoutBtn = document.getElementById('logoutBtn');
+            if (role) {
+                if (loginLink) loginLink.style.display = 'none';
+                if (registerLink) registerLink.style.display = 'none';
+                if (role === 'customer') {
+                    if (adminLink) adminLink.style.display = 'none';
+                }
+            } else {
+                if (adminLink) adminLink.style.display = 'none';
+                if (logoutLink) logoutLink.style.display = 'none';
+            }
 
-    let currentPackages = [];
-    let currentProducts = [];
+            const imageDbConfig = {
+                name: 'greenworld_catalog_assets',
+                version: 1,
+                store: 'product_images'
+            };
 
-    function updateNavbar() {
-        const role = localStorage.getItem('gw_role');
-        const isAdmin = role === 'admin';
+            function openImageDb() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(imageDbConfig.name, imageDbConfig.version);
 
-        if (isAdmin) {
-            if (loginLink) loginLink.style.display = 'none';
-            if (registerLink) registerLink.style.display = 'none';
-            if (adminLink) adminLink.style.display = 'block';
-            if (logoutLink) logoutLink.style.display = 'block';
-        } else {
-            if (loginLink) loginLink.style.display = 'block';
-            if (registerLink) registerLink.style.display = 'block';
-            if (adminLink) adminLink.style.display = 'none';
-            if (logoutLink) logoutLink.style.display = 'none';
-        }
-    }
+                    request.onupgradeneeded = () => {
+                        const db = request.result;
+                        if (!db.objectStoreNames.contains(imageDbConfig.store)) {
+                            db.createObjectStore(imageDbConfig.store);
+                        }
+                    };
 
-    // Handle Session Logout
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('gw_role');
-            localStorage.removeItem('gw_current_user');
-            updateNavbar();
-            window.location.reload(); 
-        });
-    }
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            }
 
-    // Render individual product item layout (Matching product.html style for consistency)
-    function renderHomeProductCard(product, packages) {
-        const whatsappMsg = encodeURIComponent(`Hello Susan, I'm interested in ordering: ${product.name} (Ksh ${product.price})`);
-        const finalImageSrc = product.image ? product.image : 'https://placehold.co/700x520/0a5c36/ffffff?text=Product';
+            async function getProductImageUrl(key) {
+                if (!key) return '';
+                const db = await openImageDb();
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(imageDbConfig.store, 'readonly');
+                    const request = transaction.objectStore(imageDbConfig.store).get(key);
+                    request.onsuccess = () => {
+                        db.close();
+                        resolve(request.result ? URL.createObjectURL(request.result) : '');
+                    };
+                    request.onerror = () => {
+                        db.close();
+                        reject(request.error);
+                    };
+                });
+            }
 
-        return `
-            <div class="col-md-6 col-lg-4" data-aos="fade-up">
-                <div class="product-card h-100 d-flex flex-column">
-                    <div class="position-relative">
-                        <span class="category-badge">${escapeHtml(getPackageName(product.category, packages))}</span>
-                        <div class="product-img-wrap w-100" style="height: 250px;">
-                            <img src="${finalImageSrc}" alt="${escapeHtml(product.name)}" class="w-100 h-100 object-fit-contain p-3">
-                        </div>
-                    </div>
-                    <div class="p-4 d-flex flex-column flex-grow-1">
-                        <h5 class="fw-bold mb-1 text-white">${escapeHtml(product.name)}</h5>
-                        <p class="text-success fw-bold mb-3">Ksh ${escapeHtml(product.price)}</p>
-                        
-                        ${product.benefits ? `
-                            <div class="mb-4">
-                                <small class="text-white-50 d-block mb-1 fw-bold">KEY BENEFITS:</small>
-                                <p class="small text-white-50 mb-0" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(product.benefits)}</p>
+            function escapeHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[char]));
+            }
+
+            function getPackageName(id, packages) {
+                return packages.find(pkg => pkg.id === id)?.name || id || 'Wellness';
+            }
+
+            function groupProductsByPackage(productList, packages) {
+                const groups = new Map();
+                productList.forEach(product => {
+                    const key = product.category || 'uncategorized';
+                    if (!groups.has(key)) {
+                        groups.set(key, {
+                            id: key,
+                            name: getPackageName(key, packages),
+                            products: []
+                        });
+                    }
+                    groups.get(key).products.push(product);
+                });
+
+                return [...groups.values()].sort((a, b) => {
+                    const aIndex = packages.findIndex(pkg => pkg.id === a.id);
+                    const bIndex = packages.findIndex(pkg => pkg.id === b.id);
+                    if (aIndex === -1 && bIndex === -1) return a.name.localeCompare(b.name);
+                    if (aIndex === -1) return 1;
+                    if (bIndex === -1) return -1;
+                    return aIndex - bIndex;
+                });
+            }
+
+            function renderHomeProductCard(product, duplicateIndex) {
+                return `
+                    <div class="home-product-item">
+                        <div class="product-card position-relative" data-aos="fade-up">
+                            <span class="category-badge">${escapeHtml(getPackageName(product.category, packages))}</span>
+                            <div class="product-img-wrap">
+                                <img data-product-image="${escapeHtml(product.id)}" src="${escapeHtml(product.image || 'https://placehold.co/145x267/0a5c36/ffffff?text=Product')}" alt="${escapeHtml(product.name)}">
                             </div>
-                        ` : ''}
-                        
-                        <div class="mt-auto pt-3 border-top border-secondary">
-                            <a href="https://wa.me/254724415604?text=${whatsappMsg}" target="_blank" class="btn btn-gold w-100 mb-2">
-                                <i class="bi bi-whatsapp me-2"></i> Order on WhatsApp
-                            </a>
-                            <a href="product.html" class="btn btn-glass btn-sm w-100">View Details</a>
+                            <div class="p-3 text-center">
+                                <h6 class="fw-bold mb-1 text-white text-truncate">${escapeHtml(product.name)}</h6>
+                                <p class="text-success small fw-bold mb-2">Ksh ${escapeHtml(product.price)}</p>
+                                <a href="product.html" class="btn btn-sm btn-outline-success w-100 rounded-pill">View Details</a>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // Segment and build product grid categories
-    function renderHomeProducts() {
-        const targetGrid = document.getElementById('homeProductGrid');
-        if (!targetGrid) return;
-        
-        if (currentProducts.length > 0) {
-            targetGrid.innerHTML = '';
-            const packageGroups = groupProducts(currentProducts, currentPackages);
-
-            packageGroups.forEach(group => {
-                const groupSection = document.createElement('div');
-                groupSection.className = 'mb-5';
-                groupSection.innerHTML = `
-                    <div class="d-flex align-items-center gap-3 mb-4">
-                        <h3 class="fw-bold text-white mb-0">${escapeHtml(group.name)}</h3>
-                        <div class="flex-grow-1 border-bottom border-secondary opacity-25"></div>
-                        <span class="badge bg-success rounded-pill">${group.products.length} Items</span>
-                    </div>
-                    <div class="row g-4">
-                        ${group.products.map(p => renderHomeProductCard(p, currentPackages)).join('')}
                     </div>
                 `;
-                targetGrid.appendChild(groupSection);
-            });
+            }
 
-            // Refresh AOS with a small delay for DOM stability
-            setTimeout(() => { if (typeof AOS !== 'undefined') AOS.refresh(); }, 100);
-        } else {
-            targetGrid.innerHTML = '<div class="text-center text-white-50 p-5"><i class="bi bi-inbox fs-1 d-block mb-3"></i><p>No products featured yet. Check our store soon!</p></div>';
-        }
-    }
+            async function hydrateHomeProductImages(featuredProducts) {
+                for (const product of featuredProducts) {
+                    if (!product.imageKey) continue;
+                    const images = document.querySelectorAll(`[data-product-image="${CSS.escape(product.id)}"]`);
+                    if (!images.length) continue;
 
-    // Run structural visual checking logic immediately
-    updateNavbar();
+                    try {
+                        const imageUrl = await getProductImageUrl(product.imageKey);
+                        if (imageUrl) images.forEach(image => image.src = imageUrl);
+                    } catch (error) {
+                        console.warn('Unable to load home product image', error);
+                    }
+                }
+            }
 
-    // Stream package data pipelines
-    listenToPackages(pkgs => {
-        console.log("DEBUG DATA: Firebase Packages Stream Received:", pkgs);
-        currentPackages = pkgs;
-        if (currentProducts.length > 0) renderHomeProducts();
-    });
+            // Render Products from LocalStorage
+            const products = JSON.parse(localStorage.getItem('greenworld_products')) || [];
+            const packages = JSON.parse(localStorage.getItem('greenworld_packages')) || [];
+            const homeGrid = document.getElementById('homeProductGrid');
 
-    // Stream premium products arrays
-    listenToProducts(prods => {
-        console.log("DEBUG DATA: Firebase Products Stream Received:", prods);
-        currentProducts = prods;
-        renderHomeProducts();
-    });
+            if (products.length > 0) {
+                homeGrid.innerHTML = '';
+                const packageGroups = groupProductsByPackage(products, packages);
 
-    // Initialize animation drivers safely
-    if (typeof AOS !== 'undefined') {
-        AOS.init({ duration: 1000, once: true, offset: 50 });
-    }
-    
-    initCentered3D();
-    
-    // WebGL Canvas Engine Initialization
-    function initCentered3D() {
-        const canvas = document.getElementById('hero-canvas');
-        if (!canvas || typeof THREE === 'undefined') return;
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
-        camera.position.set(0, 0, 15);
-        
-        const ambient = new THREE.AmbientLight(0xffffff, 0.45);
-        scene.add(ambient);
-        const keyLight = new THREE.DirectionalLight(0x7ee8a8, 1.4);
-        keyLight.position.set(10, 10, 10);
-        scene.add(keyLight);
-        const goldLight = new THREE.PointLight(0xd4af37, 2, 50);
-        goldLight.position.set(-8, 4, 6);
-        scene.add(goldLight);
-        
-        const group = new THREE.Group();
-        scene.add(group);
-        const coreGeo = new THREE.IcosahedronGeometry(2.4, 1);
-        const coreMat = new THREE.MeshPhysicalMaterial({ color: 0x0a5c36, emissive: 0x1a8f55, emissiveIntensity: 0.4, metalness: 0.7, roughness: 0.2, transparent: true, opacity: 0.95 });
-        const core = new THREE.Mesh(coreGeo, coreMat);
-        group.add(core);
-        
-        const wireShell = new THREE.Mesh(new THREE.IcosahedronGeometry(2.8, 2), new THREE.MeshBasicMaterial({ color: 0x4ade80, wireframe: true, transparent: true, opacity: 0.3 }));
-        group.add(wireShell);
-        
-        const ring1 = new THREE.Mesh(new THREE.TorusGeometry(4.2, 0.04, 16, 100), new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.6 }));
-        ring1.rotation.x = Math.PI / 2.5;
-        group.add(ring1);
-        
-        const ring2 = ring1.clone();
-        ring2.scale.set(0.8, 0.8, 0.8);
-        ring2.rotation.x = -Math.PI / 4;
-        group.add(ring2);
-        
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => { 
-            mouseX = (e.clientX / window.innerWidth - 0.5) * 2; 
-            mouseY = (e.clientY / window.innerHeight - 0.5) * 2; 
+                packageGroups.forEach(group => {
+                    const shouldScroll = group.products.length > 4;
+                    const trackProducts = shouldScroll ? [...group.products, ...group.products] : group.products;
+                    const section = document.createElement('section');
+                    section.className = 'product-package-group';
+                    section.innerHTML = `
+                        <div class="product-package-heading">
+                            <h3>${escapeHtml(group.name)}</h3>
+                            <span>${group.products.length} product${group.products.length === 1 ? '' : 's'}</span>
+                        </div>
+                        <div class="product-scroll-window">
+                            <div class="product-scroll-track ${shouldScroll ? 'is-scrolling' : ''}">
+                                ${trackProducts.map(renderHomeProductCard).join('')}
+                            </div>
+                        </div>
+                    `;
+                    homeGrid.appendChild(section);
+                });
+
+                hydrateHomeProductImages(products);
+            } else {
+                homeGrid.innerHTML = '<div class="text-center text-white-50"><p>No products featured yet. Check our store soon!</p></div>';
+            }
+
+            AOS.init({ duration: 1000, once: true, offset: 50 });
+            initCentered3D();
         });
-        
-        function resize() { 
-            const w = window.innerWidth, h = window.innerHeight; 
-            renderer.setSize(w, h, false); 
-            camera.aspect = w / h; 
-            camera.updateProjectionMatrix(); 
+
+        function initCentered3D() {
+            const canvas = document.getElementById('hero-canvas');
+            if (!canvas || typeof THREE === 'undefined') return;
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+            camera.position.set(0, 0, 15);
+            const ambient = new THREE.AmbientLight(0xffffff, 0.45);
+            scene.add(ambient);
+            const keyLight = new THREE.DirectionalLight(0x7ee8a8, 1.4);
+            keyLight.position.set(10, 10, 10);
+            scene.add(keyLight);
+            const goldLight = new THREE.PointLight(0xd4af37, 2, 50);
+            goldLight.position.set(-8, 4, 6);
+            scene.add(goldLight);
+            const group = new THREE.Group();
+            scene.add(group);
+            const coreGeo = new THREE.IcosahedronGeometry(2.4, 1);
+            const coreMat = new THREE.MeshPhysicalMaterial({ color: 0x0a5c36, emissive: 0x1a8f55, emissiveIntensity: 0.4, metalness: 0.7, roughness: 0.2, transparent: true, opacity: 0.95 });
+            const core = new THREE.Mesh(coreGeo, coreMat);
+            group.add(core);
+            const wireShell = new THREE.Mesh(new THREE.IcosahedronGeometry(2.8, 2), new THREE.MeshBasicMaterial({ color: 0x4ade80, wireframe: true, transparent: true, opacity: 0.3 }));
+            group.add(wireShell);
+            const ring1 = new THREE.Mesh(new THREE.TorusGeometry(4.2, 0.04, 16, 100), new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.6 }));
+            ring1.rotation.x = Math.PI / 2.5;
+            group.add(ring1);
+            const ring2 = ring1.clone();
+            ring2.scale.set(0.8, 0.8, 0.8);
+            ring2.rotation.x = -Math.PI / 4;
+            group.add(ring2);
+            let mouseX = 0, mouseY = 0;
+            document.addEventListener('mousemove', (e) => { mouseX = (e.clientX / window.innerWidth - 0.5) * 2; mouseY = (e.clientY / window.innerHeight - 0.5) * 2; });
+            function resize() { const w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+            window.addEventListener('resize', resize);
+            resize();
+            const clock = new THREE.Clock();
+            function animate() { requestAnimationFrame(animate); const t = clock.getElapsedTime(); core.rotation.y = t * 0.3; wireShell.rotation.y = -t * 0.2; ring1.rotation.z = t * 0.4; ring2.rotation.z = -t * 0.3; group.rotation.y += (mouseX * 0.2 - group.rotation.y) * 0.05; group.rotation.x += (-mouseY * 0.1 - group.rotation.x) * 0.05; renderer.render(scene, camera); }
+            animate();
         }
-        window.addEventListener('resize', resize);
-        resize();
-        
-        const clock = new THREE.Clock();
-        function animate() { 
-            requestAnimationFrame(animate); 
-            const t = clock.getElapsedTime(); 
-            core.rotation.y = t * 0.3; 
-            wireShell.rotation.y = -t * 0.2; 
-            ring1.rotation.z = t * 0.4; 
-            ring2.rotation.z = -t * 0.3; 
-            group.rotation.y += (mouseX * 0.2 - group.rotation.y) * 0.05; 
-            group.rotation.x += (-mouseY * 0.1 - group.rotation.x) * 0.05; 
-            renderer.render(scene, camera); 
-        }
-        animate();
-    }
-</script>
+    </script>
 </body>
 </html>
