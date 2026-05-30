@@ -496,7 +496,6 @@ option{
 <footer class="footer">
     © 2026 Green World Care — Futuristic Wellness Commerce
 </footer>
-
 <script type="module">
     import { listenToProducts, listenToPackages, escapeHtml } from './js/products.js';
 
@@ -507,8 +506,11 @@ option{
     
     let currentProducts = [];
     let currentPackages = [];
+    let renderingTriggered = false;
 
     function productMatches(product) {
+        if (!searchInput || !categoryFilter) return true;
+        
         const query = searchInput.value.trim().toLowerCase();
         const category = categoryFilter.value;
         const haystack = [
@@ -549,13 +551,19 @@ option{
     }
 
     function renderProducts() {
+        if (!grid) return;
+        renderingTriggered = true;
+
         const visibleProducts = currentProducts.filter(productMatches);
         grid.innerHTML = visibleProducts.map(renderProductCard).join("");
-        noProducts.style.display = (visibleProducts.length === 0 && currentProducts.length > 0) ? "block" : "none";
+        
+        if (noProducts) {
+            noProducts.style.display = (visibleProducts.length === 0 && currentProducts.length > 0) ? "block" : "none";
+        }
     }
 
-    listenToPackages(pkgs => {
-        currentPackages = pkgs;
+    function populateCategoryFilter(pkgs) {
+        if (!categoryFilter) return;
         const currentVal = categoryFilter.value || "all";
         categoryFilter.innerHTML = '<option value="all">All Categories</option>';
         pkgs.forEach(pkg => {
@@ -565,16 +573,61 @@ option{
             categoryFilter.appendChild(option);
         });
         categoryFilter.value = currentVal;
-        if (currentProducts.length > 0) renderProducts();
-    });
+    }
 
-    listenToProducts(prods => {
-        currentProducts = prods;
-        renderProducts();
-    });
+    // --- STANDARD PIPELINE ATTEMPTS ---
+    try {
+        listenToPackages(pkgs => {
+            currentPackages = pkgs || [];
+            populateCategoryFilter(currentPackages);
+            if (currentProducts.length > 0) renderProducts();
+        });
+    } catch(e) { console.error("Product page package stream failed:", e); }
 
-    searchInput.addEventListener("input", renderProducts);
-    categoryFilter.addEventListener("change", renderProducts);
+    try {
+        listenToProducts(prods => {
+            currentProducts = prods || [];
+            renderProducts();
+        });
+    } catch(e) { console.error("Product page product stream failed:", e); }
+
+
+    // --- CRUCIAL DIRECT FIRESTORE FALLBACK BRIDGE ---
+    // If the imported listeners stall or fail to output data within 2.5 seconds,
+    // this auto-recovery layer safely reaches straight into your Firestore configuration instance.
+    setTimeout(() => {
+        if (!renderingTriggered) {
+            console.warn("Catalog streams stalled. Activating production fallback link directly...");
+            
+            if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
+                const firestoreInstance = window.db || firebase.firestore();
+                
+                // Directly pull matching package lists
+                firestoreInstance.collection('packages').get().then(snapshot => {
+                    currentPackages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    populateCategoryFilter(currentPackages);
+                    if (currentProducts.length > 0) renderProducts();
+                }).catch(e => console.error("Direct catalog link pack query error:", e));
+
+                // Directly register active document changes
+                firestoreInstance.collection('products').onSnapshot(snapshot => {
+                    currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    console.log("Direct Catalog Bridge online. Active rows parsed:", currentProducts.length);
+                    renderProducts();
+                }, error => {
+                    console.error("Direct catalog streaming interface crash:", error);
+                    if (grid) grid.innerHTML = `<div class="text-center text-white-50 p-5"><p>Database link error: ${error.message}</p></div>`;
+                });
+            } else {
+                if (grid) grid.innerHTML = '<div class="text-center text-white-50 p-5"><p>Could not load the catalog. Please confirm your database connection.</p></div>';
+            }
+        }
+    }, 2500);
+
+
+    // --- EVENT INTERFACES ---
+    if (searchInput) searchInput.addEventListener("input", renderProducts);
+    if (categoryFilter) categoryFilter.addEventListener("change", renderProducts);
 
     const menuBtn = document.getElementById('menuBtn');
     const navLinks = document.getElementById('navLinks');

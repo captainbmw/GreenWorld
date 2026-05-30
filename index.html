@@ -417,6 +417,7 @@
 
     let currentPackages = [];
     let currentProducts = [];
+    let renderingTriggered = false;
 
     function updateNavbar() {
         const role = localStorage.getItem('gw_role');
@@ -445,91 +446,145 @@
         });
     }
 
-    // Render individual product item layout (Matching product.html style for consistency)
+    // Render individual product item layout within the rolling tracks
     function renderHomeProductCard(product, packages) {
-        const whatsappMsg = encodeURIComponent(`Hello Susan, I'm interested in ordering: ${product.name} (Ksh ${product.price})`);
-        const finalImageSrc = product.image ? product.image : 'https://placehold.co/700x520/0a5c36/ffffff?text=Product';
+        const finalImageSrc = product.image ? product.image : 'https://placehold.co/145x267/0a5c36/ffffff?text=Product';
+        let categoryLabel = "General Collection";
+        
+        try {
+            if (product.category && packages && packages.length > 0) {
+                categoryLabel = getPackageName(product.category, packages);
+            } else if (product.category) {
+                categoryLabel = product.category;
+            }
+        } catch(e) {
+            if(product.category) categoryLabel = product.category;
+        }
 
         return `
-            <div class="col-md-6 col-lg-4" data-aos="fade-up">
-                <div class="product-card h-100 d-flex flex-column">
-                    <div class="position-relative">
-                        <span class="category-badge">${escapeHtml(getPackageName(product.category, packages))}</span>
-                        <div class="product-img-wrap w-100" style="height: 250px;">
-                            <img src="${finalImageSrc}" alt="${escapeHtml(product.name)}" class="w-100 h-100 object-fit-contain p-3">
-                        </div>
+            <div class="home-product-item">
+                <div class="product-card position-relative" data-aos="fade-up">
+                    <span class="category-badge">${escapeHtml(categoryLabel)}</span>
+                    <div class="product-img-wrap">
+                        <img src="${finalImageSrc}" alt="${escapeHtml(product.name || 'Herbal Product')}">
                     </div>
-                    <div class="p-4 d-flex flex-column flex-grow-1">
-                        <h5 class="fw-bold mb-1 text-white">${escapeHtml(product.name)}</h5>
-                        <p class="text-success fw-bold mb-3">Ksh ${escapeHtml(product.price)}</p>
-                        
-                        ${product.benefits ? `
-                            <div class="mb-4">
-                                <small class="text-white-50 d-block mb-1 fw-bold">KEY BENEFITS:</small>
-                                <p class="small text-white-50 mb-0" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${escapeHtml(product.benefits)}</p>
-                            </div>
-                        ` : ''}
-                        
-                        <div class="mt-auto pt-3 border-top border-secondary">
-                            <a href="https://wa.me/254724415604?text=${whatsappMsg}" target="_blank" class="btn btn-gold w-100 mb-2">
-                                <i class="bi bi-whatsapp me-2"></i> Order on WhatsApp
-                            </a>
-                            <a href="product.html" class="btn btn-glass btn-sm w-100">View Details</a>
-                        </div>
+                    <div class="p-3 text-center">
+                        <h6 class="fw-bold mb-1 text-white text-truncate">${escapeHtml(product.name || 'Unnamed Item')}</h6>
+                        <p class="text-success small fw-bold mb-2">Ksh ${escapeHtml(product.price || '0')}</p>
+                        ${product.benefits ? `<p class="small text-white-50 text-truncate mb-2" title="${escapeHtml(product.benefits)}">${escapeHtml(product.benefits)}</p>` : ''}
+                        <a href="product.html" class="btn btn-sm btn-outline-success w-100 rounded-pill">View Details</a>
                     </div>
                 </div>
             </div>
         `;
     }
 
-    // Segment and build product grid categories
+    // Segment and build sliding group category packages
     function renderHomeProducts() {
-        const targetGrid = document.getElementById('homeProductGrid');
-        if (!targetGrid) return;
+        if (!homeGrid) return;
+        renderingTriggered = true;
         
         if (currentProducts.length > 0) {
-            targetGrid.innerHTML = '';
-            const packageGroups = groupProducts(currentProducts, currentPackages);
+            homeGrid.innerHTML = '';
+            
+            let packageGroups = [];
+            try {
+                packageGroups = groupProducts(currentProducts, currentPackages);
+            } catch (err) {
+                console.error("groupProducts failed, rendering standard stream grid:", err);
+            }
 
-            packageGroups.forEach(group => {
-                const groupSection = document.createElement('div');
-                groupSection.className = 'mb-5';
-                groupSection.innerHTML = `
-                    <div class="d-flex align-items-center gap-3 mb-4">
-                        <h3 class="fw-bold text-white mb-0">${escapeHtml(group.name)}</h3>
-                        <div class="flex-grow-1 border-bottom border-secondary opacity-25"></div>
-                        <span class="badge bg-success rounded-pill">${group.products.length} Items</span>
+            // Fallback Rendering: If group calculations fail or come back empty
+            if (!packageGroups || packageGroups.length === 0) {
+                const section = document.createElement('section');
+                section.className = 'product-package-group';
+                section.innerHTML = `
+                    <div class="product-package-heading">
+                        <h3>Our Featured Formulas</h3>
+                        <span>${currentProducts.length} product${currentProducts.length === 1 ? '' : 's'}</span>
                     </div>
-                    <div class="row g-4">
-                        ${group.products.map(p => renderHomeProductCard(p, currentPackages)).join('')}
+                    <div class="product-scroll-window">
+                        <div class="product-scroll-track">
+                            ${currentProducts.map(p => renderHomeProductCard(p, currentPackages)).join('')}
+                        </div>
                     </div>
                 `;
-                targetGrid.appendChild(groupSection);
-            });
+                homeGrid.appendChild(section);
+                return;
+            }
 
-            // Refresh AOS with a small delay for DOM stability
-            setTimeout(() => { if (typeof AOS !== 'undefined') AOS.refresh(); }, 100);
+            // Standard layout grouping
+            packageGroups.forEach(group => {
+                const shouldScroll = group.products.length > 4;
+                const trackProducts = shouldScroll ? [...group.products, ...group.products] : group.products;
+                const section = document.createElement('section');
+                section.className = 'product-package-group';
+                section.innerHTML = `
+                    <div class="product-package-heading">
+                        <h3>${escapeHtml(group.name)}</h3>
+                        <span>${group.products.length} product${group.products.length === 1 ? '' : 's'}</span>
+                    </div>
+                    <div class="product-scroll-window">
+                        <div class="product-scroll-track ${shouldScroll ? 'is-scrolling' : ''}">
+                            ${trackProducts.map(p => renderHomeProductCard(p, currentPackages)).join('')}
+                        </div>
+                    </div>
+                `;
+                homeGrid.appendChild(section);
+            });
         } else {
-            targetGrid.innerHTML = '<div class="text-center text-white-50 p-5"><i class="bi bi-inbox fs-1 d-block mb-3"></i><p>No products featured yet. Check our store soon!</p></div>';
+            homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>No products featured yet. Check our store soon!</p></div>';
         }
     }
 
     // Run structural visual checking logic immediately
     updateNavbar();
 
-    // Stream package data pipelines
-    listenToPackages(pkgs => {
-        console.log("DEBUG DATA: Firebase Packages Stream Received:", pkgs);
-        currentPackages = pkgs;
-        if (currentProducts.length > 0) renderHomeProducts();
-    });
+    // 1. Fire original package listeners
+    try {
+        listenToPackages(pkgs => {
+            currentPackages = pkgs || [];
+            if (currentProducts.length > 0) renderHomeProducts();
+        });
+    } catch(e) { console.error("Packages stream hook error:", e); }
 
-    // Stream premium products arrays
-    listenToProducts(prods => {
-        console.log("DEBUG DATA: Firebase Products Stream Received:", prods);
-        currentProducts = prods;
-        renderHomeProducts();
-    });
+    // 2. Fire original products module listeners
+    try {
+        listenToProducts(prods => {
+            currentProducts = prods || [];
+            renderHomeProducts();
+        });
+    } catch(e) { console.error("Products stream hook error:", e); }
+
+    // 3. HARDWIRED DIRECT FALLBACK SYSTEM
+    // If the module fails to update the display within 2.5 seconds, bypass the file hooks
+    // and grab raw documents explicitly directly from your global Firebase context instance.
+    setTimeout(() => {
+        if (!renderingTriggered && homeGrid) {
+            console.warn("Module streams stalled. Activating direct Firestore backup bridge access...");
+            
+            if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
+                const firestoreInstance = window.db || firebase.firestore();
+                
+                // Directly pull packages raw array
+                firestoreInstance.collection('packages').get().then(snapshot => {
+                    currentPackages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                }).catch(e => console.error("Direct fallback packages error:", e));
+
+                // Directly bind stream listener to products collection bypass
+                firestoreInstance.collection('products').onSnapshot(snapshot => {
+                    currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    console.log("Direct Firestore Backup Bridge connected. Products pulled:", currentProducts.length);
+                    renderHomeProducts();
+                }, error => {
+                    console.error("Direct bridge streaming failed:", error);
+                    homeGrid.innerHTML = `<div class="text-center text-danger p-4"><p>Connection error: ${error.message}</p></div>`;
+                });
+            } else {
+                homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>Unable to initialize database link. Check Firebase script connections.</p></div>';
+            }
+        }
+    }, 2500);
 
     // Initialize animation drivers safely
     if (typeof AOS !== 'undefined') {
