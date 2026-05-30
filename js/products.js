@@ -1,5 +1,5 @@
 import { db } from './firebase-config.js';
-import { collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Helper to escape HTML and prevent XSS
 export function escapeHtml(value) {
@@ -16,7 +16,13 @@ export function listenToProducts(callback) {
     return onSnapshot(productsRef, (snapshot) => {
         const products = [];
         snapshot.forEach((doc) => {
-            products.push({ id: doc.id, ...doc.data() });
+            const data = doc.data();
+            
+            // FILTER GUARANTEE: Only push products that are explicitly featured.
+            // This handles both boolean true and string "true" formats seamlessly.
+            if (data.featured === true || data.featured === 'true') {
+                products.push({ id: doc.id, ...data });
+            }
         });
         
         // Sort products by timestamp locally to ensure products without timestamps still appear
