@@ -508,6 +508,9 @@ option{
     let currentPackages = [];
     let renderingTriggered = false;
 
+    // Direct configuration list of document IDs to completely block from your public catalog
+    const blacklistedProductIds = ["initial_product", "placeholder", "test-product", "default"];
+
     function productMatches(product) {
         if (!searchInput || !categoryFilter) return true;
         
@@ -554,14 +557,14 @@ option{
         if (!grid) return;
         renderingTriggered = true;
 
-        // CRUCIAL UPDATE: Filter out any items that are not explicitly featured
-        const featuredProducts = currentProducts.filter(p => p.featured === true);
+        // CRUCIAL CLEAN FIX: Clean out the list by rejecting items with placeholder Document IDs
+        const realProducts = currentProducts.filter(p => !blacklistedProductIds.includes(p.id));
 
-        const visibleProducts = featuredProducts.filter(productMatches);
+        const visibleProducts = realProducts.filter(productMatches);
         grid.innerHTML = visibleProducts.map(renderProductCard).join("");
         
         if (noProducts) {
-            noProducts.style.display = (visibleProducts.length === 0 && featuredProducts.length > 0) ? "block" : "none";
+            noProducts.style.display = (visibleProducts.length === 0 && realProducts.length > 0) ? "block" : "none";
         }
     }
 
