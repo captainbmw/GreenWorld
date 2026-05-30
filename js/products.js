@@ -12,13 +12,20 @@ export function escapeHtml(value) {
 // Function to fetch and listen to real-time updates for products
 export function listenToProducts(callback) {
     const productsRef = collection(db, "products");
-    const q = query(productsRef, orderBy("timestamp", "desc"));
     
-    return onSnapshot(q, (snapshot) => {
+    return onSnapshot(productsRef, (snapshot) => {
         const products = [];
         snapshot.forEach((doc) => {
             products.push({ id: doc.id, ...doc.data() });
         });
+        
+        // Sort products by timestamp locally to ensure products without timestamps still appear
+        products.sort((a, b) => {
+            const timeA = a.timestamp ? (a.timestamp.seconds || 0) : 0;
+            const timeB = b.timestamp ? (b.timestamp.seconds || 0) : 0;
+            return timeB - timeA;
+        });
+        
         callback(products);
     }, (error) => {
         console.error("Error listening to products:", error);
