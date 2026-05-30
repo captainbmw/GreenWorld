@@ -62,29 +62,3 @@ export function listenToPackages(callback) {
         callback([]);
     });
 }
-
-// Helper to group products by their category
-export function groupProducts(products, packages) {
-    const groups = {};
-    
-    products.forEach(product => {
-        const catId = product.category || 'uncategorized';
-        if (!groups[catId]) {
-            const pkg = packages.find(p => p.id === catId);
-            groups[catId] = {
-                id: catId,
-                name: pkg ? pkg.name : catId.charAt(0).toUpperCase() + catId.slice(1),
-                products: []
-            };
-        }
-        groups[catId].products.push(product);
-    });
-    
-    return Object.values(groups);
-}
-
-// Helper to get package name from ID
-export function getPackageName(id, packages) {
-    const pkg = packages.find(p => p.id === id);
-    return pkg ? pkg.name : id;
-}
