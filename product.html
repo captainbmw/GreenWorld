@@ -506,6 +506,7 @@ option{
     
     let currentProducts = [];
     let currentPackages = [];
+    let renderingTriggered = false;
 
     function productMatches(product) {
         if (!searchInput || !categoryFilter) return true;
@@ -551,6 +552,7 @@ option{
 
     function renderProducts() {
         if (!grid) return;
+        renderingTriggered = true;
 
         const visibleProducts = currentProducts.filter(productMatches);
         grid.innerHTML = visibleProducts.map(renderProductCard).join("");
@@ -588,6 +590,32 @@ option{
         });
     } catch(e) { console.error("Catalog products pipeline failed:", e); }
 
+
+    // Backup connection channel
+    setTimeout(() => {
+        if (!renderingTriggered) {
+            console.warn("Catalog streams stalled. Running fallback database pipeline...");
+            
+            if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
+                const firestoreInstance = window.db || firebase.firestore();
+                
+                firestoreInstance.collection('packages').get().then(snapshot => {
+                    currentPackages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    populateCategoryFilter(currentPackages);
+                    if (currentProducts.length > 0) renderProducts();
+                }).catch(e => console.error(e));
+
+                firestoreInstance.collection('products').onSnapshot(snapshot => {
+                    currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderProducts();
+                }, error => {
+                    if (grid) grid.innerHTML = `<div class="text-center text-white-50 p-5"><p>Link error: ${error.message}</p></div>`;
+                });
+            }
+        }
+    }, 2500);
+
+
     if (searchInput) searchInput.addEventListener("input", renderProducts);
     if (categoryFilter) categoryFilter.addEventListener("change", renderProducts);
 
@@ -599,9 +627,7 @@ option{
         });
     }
 
-    try {
-        initParticles();
-    } catch(e) { console.warn("Particle canvas stream minimized."); }
+    initParticles();
 
     function initParticles() {
         const canvas = document.getElementById("bg-canvas");

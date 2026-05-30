@@ -17,15 +17,15 @@ export function listenToProducts(callback) {
         const products = [];
         snapshot.forEach((doc) => {
             const data = doc.data();
-            const label = (data.name || "").trim().toLowerCase();
             
-            // Allow ALL products to pass through, but block "initial product" placeholder
-            if (label !== "initial product" && label !== "") {
+            // FILTER GUARANTEE: Only push products that are explicitly featured.
+            // This handles both boolean true and string "true" formats seamlessly.
+            if (data.featured === true || data.featured === 'true') {
                 products.push({ id: doc.id, ...data });
             }
         });
         
-        // Sort products by timestamp locally
+        // Sort products by timestamp locally to ensure products without timestamps still appear
         products.sort((a, b) => {
             const getVal = (v) => {
                 if (!v) return 0;
@@ -53,6 +53,7 @@ export function listenToPackages(callback) {
             packages.push({ id: doc.id, ...doc.data() });
         });
         
+        // If no packages exist, provide defaults for better UX
         if (packages.length === 0) {
             packages.push(
                 { id: "detox", name: "Detox" },
@@ -68,7 +69,7 @@ export function listenToPackages(callback) {
     });
 }
 
-// EXPORT ADDED: Helper to group products by their category
+// Helper to group products by their category
 export function groupProducts(products, packages) {
     const groups = {};
     
@@ -88,7 +89,7 @@ export function groupProducts(products, packages) {
     return Object.values(groups);
 }
 
-// EXPORT ADDED: Helper to get package name from ID
+// Helper to get package name from ID
 export function getPackageName(id, packages) {
     const pkg = packages.find(p => p.id === id);
     return pkg ? pkg.name : id;

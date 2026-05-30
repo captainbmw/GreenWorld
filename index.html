@@ -416,15 +416,23 @@
 
     let currentPackages = [];
     let currentProducts = [];
+    let renderingTriggered = false;
 
     function updateNavbar() {
         const role = localStorage.getItem('gw_role');
         const isAdmin = role === 'admin';
 
-        if (loginLink) loginLink.style.display = isAdmin ? 'none' : 'block';
-        if (registerLink) registerLink.style.display = isAdmin ? 'none' : 'block';
-        if (adminLink) adminLink.style.display = isAdmin ? 'block' : 'none';
-        if (logoutLink) logoutLink.style.display = isAdmin ? 'block' : 'none';
+        if (isAdmin) {
+            if (loginLink) loginLink.style.display = 'none';
+            if (registerLink) registerLink.style.display = 'none';
+            if (adminLink) adminLink.style.display = 'block';
+            if (logoutLink) logoutLink.style.display = 'block';
+        } else {
+            if (loginLink) loginLink.style.display = 'block';
+            if (registerLink) registerLink.style.display = 'block';
+            if (adminLink) adminLink.style.display = 'none';
+            if (logoutLink) logoutLink.style.display = 'none';
+        }
     }
 
     if (logoutBtn) {
@@ -470,15 +478,16 @@
 
     function renderHomeProducts() {
         if (!homeGrid) return;
+        renderingTriggered = true;
         
         if (currentProducts.length > 0) {
             homeGrid.innerHTML = '';
-            let packageGroups = [];
             
+            let packageGroups = [];
             try {
                 packageGroups = groupProducts(currentProducts, currentPackages);
             } catch (err) {
-                console.error("groupProducts processing failed:", err);
+                console.error("groupProducts failed, rendering standard stream grid:", err);
             }
 
             if (!packageGroups || packageGroups.length === 0) {
@@ -518,7 +527,7 @@
                 homeGrid.appendChild(section);
             });
         } else {
-            homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>Connecting to live botanical catalog...</p></div>';
+            homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>No products featured yet. Check our store soon!</p></div>';
         }
     }
 
@@ -529,22 +538,41 @@
             currentPackages = pkgs || [];
             if (currentProducts.length > 0) renderHomeProducts();
         });
-    } catch(e) { console.error("Packages initialization error:", e); }
+    } catch(e) { console.error("Packages channel failed:", e); }
 
     try {
         listenToProducts(prods => {
             currentProducts = prods || [];
             renderHomeProducts();
         });
-    } catch(e) { console.error("Products initialization error:", e); }
+    } catch(e) { console.error("Products channel failed:", e); }
+
+    // Backup connection channel
+    setTimeout(() => {
+        if (!renderingTriggered && homeGrid) {
+            console.warn("Home module streams stalled. Running direct firestore stream...");
+            if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
+                const firestoreInstance = window.db || firebase.firestore();
+                
+                firestoreInstance.collection('packages').get().then(snapshot => {
+                    currentPackages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                }).catch(e => console.error(e));
+
+                firestoreInstance.collection('products').onSnapshot(snapshot => {
+                    currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderHomeProducts();
+                }, error => {
+                    homeGrid.innerHTML = `<div class="text-center text-danger p-4"><p>Link error: ${error.message}</p></div>`;
+                });
+            }
+        }
+    }, 2500);
 
     if (typeof AOS !== 'undefined') {
         AOS.init({ duration: 1000, once: true, offset: 50 });
     }
     
-    try {
-        initCentered3D();
-    } catch(e) { console.warn("ThreeJS visual context failed to scale:", e); }
+    initCentered3D();
     
     function initCentered3D() {
         const canvas = document.getElementById('hero-canvas');
@@ -560,13 +588,34 @@
         const keyLight = new THREE.DirectionalLight(0x7ee8a8, 1.4);
         keyLight.position.set(10, 10, 10);
         scene.add(keyLight);
+        const goldLight = new THREE.PointLight(0xd4af37, 2, 50);
+        goldLight.position.set(-8, 4, 6);
+        scene.add(goldLight);
         
         const group = new THREE.Group();
         scene.add(group);
         const coreGeo = new THREE.IcosahedronGeometry(2.4, 1);
-        const coreMat = new THREE.MeshPhysicalMaterial({ color: 0x0a5c36, emissive: 0x1a8f55, metalness: 0.7, roughness: 0.2, transparent: true, opacity: 0.95 });
+        const coreMat = new THREE.MeshPhysicalMaterial({ color: 0x0a5c36, emissive: 0x1a8f55, emissiveIntensity: 0.4, metalness: 0.7, roughness: 0.2, transparent: true, opacity: 0.95 });
         const core = new THREE.Mesh(coreGeo, coreMat);
         group.add(core);
+        
+        const wireShell = new THREE.Mesh(new THREE.IcosahedronGeometry(2.8, 2), new THREE.MeshBasicMaterial({ color: 0x4ade80, wireframe: true, transparent: true, opacity: 0.3 }));
+        group.add(wireShell);
+        
+        const ring1 = new THREE.Mesh(new THREE.TorusGeometry(4.2, 0.04, 16, 100), new THREE.MeshBasicMaterial({ color: 0xd4af37, transparent: true, opacity: 0.6 }));
+        ring1.rotation.x = Math.PI / 2.5;
+        group.add(ring1);
+        
+        const ring2 = ring1.clone();
+        ring2.scale.set(0.8, 0.8, 0.8);
+        ring2.rotation.x = -Math.PI / 4;
+        group.add(ring2);
+        
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => { 
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2; 
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2; 
+        });
         
         function resize() { 
             const w = window.innerWidth, h = window.innerHeight; 
@@ -577,9 +626,16 @@
         window.addEventListener('resize', resize);
         resize();
         
+        const clock = new THREE.Clock();
         function animate() { 
             requestAnimationFrame(animate); 
-            core.rotation.y += 0.005; 
+            const t = clock.getElapsedTime(); 
+            core.rotation.y = t * 0.3; 
+            wireShell.rotation.y = -t * 0.2; 
+            ring1.rotation.z = t * 0.4; 
+            ring2.rotation.z = -t * 0.3; 
+            group.rotation.y += (mouseX * 0.2 - group.rotation.y) * 0.05; 
+            group.rotation.x += (-mouseY * 0.1 - group.rotation.x) * 0.05; 
             renderer.render(scene, camera); 
         }
         animate();
