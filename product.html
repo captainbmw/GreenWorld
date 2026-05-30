@@ -506,7 +506,6 @@ option{
     
     let currentProducts = [];
     let currentPackages = [];
-    let renderingTriggered = false;
 
     function productMatches(product) {
         if (!searchInput || !categoryFilter) return true;
@@ -552,9 +551,8 @@ option{
 
     function renderProducts() {
         if (!grid) return;
-        renderingTriggered = true;
 
-        // FIXED FILTER: Filter out only the explicit text layout matching "initial product"
+        // Strip out only the "initial product" placeholder card completely
         const cleanProducts = currentProducts.filter(p => {
             const label = (p.name || "").trim().toLowerCase();
             return label !== "initial product" && label !== "";
@@ -581,46 +579,21 @@ option{
         categoryFilter.value = currentVal;
     }
 
+    // Connect to your primary Firestore v10 configurations
     try {
         listenToPackages(pkgs => {
             currentPackages = pkgs || [];
             populateCategoryFilter(currentPackages);
             if (currentProducts.length > 0) renderProducts();
         });
-    } catch(e) { console.error("Catalog packages pipeline failed:", e); }
+    } catch(e) { console.error("Catalog packages query pipeline failed:", e); }
 
     try {
         listenToProducts(prods => {
             currentProducts = prods || [];
             renderProducts();
         });
-    } catch(e) { console.error("Catalog products pipeline failed:", e); }
-
-
-    // Direct Database Connection Fallback Channel
-    setTimeout(() => {
-        if (!renderingTriggered) {
-            console.warn("Catalog streams stalled. Running direct firestore snapshot trigger...");
-            
-            if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
-                const firestoreInstance = window.db || firebase.firestore();
-                
-                firestoreInstance.collection('packages').get().then(snapshot => {
-                    currentPackages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    populateCategoryFilter(currentPackages);
-                    if (currentProducts.length > 0) renderProducts();
-                }).catch(e => console.error(e));
-
-                firestoreInstance.collection('products').onSnapshot(snapshot => {
-                    currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderProducts();
-                }, error => {
-                    if (grid) grid.innerHTML = `<div class="text-center text-white-50 p-5"><p>Database link error: ${error.message}</p></div>`;
-                });
-            }
-        }
-    }, 2500);
-
+    } catch(e) { console.error("Catalog products query pipeline failed:", e); }
 
     if (searchInput) searchInput.addEventListener("input", renderProducts);
     if (categoryFilter) categoryFilter.addEventListener("change", renderProducts);

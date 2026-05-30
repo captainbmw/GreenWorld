@@ -416,7 +416,6 @@
 
     let currentPackages = [];
     let currentProducts = [];
-    let renderingTriggered = false;
 
     function updateNavbar() {
         const role = localStorage.getItem('gw_role');
@@ -478,9 +477,8 @@
 
     function renderHomeProducts() {
         if (!homeGrid) return;
-        renderingTriggered = true;
         
-        // FIXED FILTER: Show ALL products, but strictly block the "initial product" text placeholder
+        // Remove "initial product" cleanly while preserving all your real, uploaded items
         const cleanProducts = currentProducts.filter(p => {
             const label = (p.name || "").trim().toLowerCase();
             return label !== "initial product" && label !== "";
@@ -493,7 +491,7 @@
             try {
                 packageGroups = groupProducts(cleanProducts, currentPackages);
             } catch (err) {
-                console.error("groupProducts failed, rendering generic row layout:", err);
+                console.error("groupProducts calculation error:", err);
             }
 
             if (!packageGroups || packageGroups.length === 0) {
@@ -533,12 +531,13 @@
                 homeGrid.appendChild(section);
             });
         } else {
-            homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>No active wellness products found in the catalog.</p></div>';
+            homeGrid.innerHTML = '<div class="text-center text-white-50 p-5"><p>Loading live botanical catalog database streams...</p></div>';
         }
     }
 
     updateNavbar();
 
+    // Fire standard, clean Firebase Modular connection streams
     try {
         listenToPackages(pkgs => {
             currentPackages = pkgs || [];
@@ -553,27 +552,6 @@
         });
     } catch(e) { console.error("Products stream hook error:", e); }
 
-    // Direct Firestore Database Fallback Link
-    setTimeout(() => {
-        if (!renderingTriggered && homeGrid) {
-            console.warn("Home module streams stalled. Hooking direct database stream...");
-            if (window.db || (typeof firebase !== 'undefined' && firebase.firestore)) {
-                const firestoreInstance = window.db || firebase.firestore();
-                
-                firestoreInstance.collection('packages').get().then(snapshot => {
-                    currentPackages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                }).catch(e => console.error(e));
-
-                firestoreInstance.collection('products').onSnapshot(snapshot => {
-                    currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderHomeProducts();
-                }, error => {
-                    homeGrid.innerHTML = `<div class="text-center text-danger p-4"><p>Link error: ${error.message}</p></div>`;
-                });
-            }
-        }
-    }, 2500);
-
     if (typeof AOS !== 'undefined') {
         AOS.init({ duration: 1000, once: true, offset: 50 });
     }
@@ -585,7 +563,8 @@
         if (!canvas || typeof THREE === 'undefined') return;
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        const scene = new THREE.Scene();
+        const scene = THREE.Scene ? new THREE.Scene() : null;
+        if(!scene) return;
         const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
         camera.position.set(0, 0, 15);
         
