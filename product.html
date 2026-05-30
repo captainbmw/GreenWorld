@@ -552,17 +552,11 @@ option{
     function renderProducts() {
         if (!grid) return;
 
-        // Strip out only the "initial product" placeholder card completely
-        const cleanProducts = currentProducts.filter(p => {
-            const label = (p.name || "").trim().toLowerCase();
-            return label !== "initial product" && label !== "";
-        });
-
-        const visibleProducts = cleanProducts.filter(productMatches);
+        const visibleProducts = currentProducts.filter(productMatches);
         grid.innerHTML = visibleProducts.map(renderProductCard).join("");
         
         if (noProducts) {
-            noProducts.style.display = (visibleProducts.length === 0 && cleanProducts.length > 0) ? "block" : "none";
+            noProducts.style.display = (visibleProducts.length === 0 && currentProducts.length > 0) ? "block" : "none";
         }
     }
 
@@ -579,21 +573,20 @@ option{
         categoryFilter.value = currentVal;
     }
 
-    // Connect to your primary Firestore v10 configurations
     try {
         listenToPackages(pkgs => {
             currentPackages = pkgs || [];
             populateCategoryFilter(currentPackages);
             if (currentProducts.length > 0) renderProducts();
         });
-    } catch(e) { console.error("Catalog packages query pipeline failed:", e); }
+    } catch(e) { console.error("Catalog packages pipeline failed:", e); }
 
     try {
         listenToProducts(prods => {
             currentProducts = prods || [];
             renderProducts();
         });
-    } catch(e) { console.error("Catalog products query pipeline failed:", e); }
+    } catch(e) { console.error("Catalog products pipeline failed:", e); }
 
     if (searchInput) searchInput.addEventListener("input", renderProducts);
     if (categoryFilter) categoryFilter.addEventListener("change", renderProducts);
@@ -606,7 +599,9 @@ option{
         });
     }
 
-    initParticles();
+    try {
+        initParticles();
+    } catch(e) { console.warn("Particle canvas stream minimized."); }
 
     function initParticles() {
         const canvas = document.getElementById("bg-canvas");

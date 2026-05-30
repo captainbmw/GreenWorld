@@ -19,13 +19,13 @@ export function listenToProducts(callback) {
             const data = doc.data();
             const label = (data.name || "").trim().toLowerCase();
             
-            // THE FIX: Allow ALL real products to load, but block "initial product" right here at the root!
+            // Allow ALL products to pass through, but block "initial product" placeholder
             if (label !== "initial product" && label !== "") {
                 products.push({ id: doc.id, ...data });
             }
         });
         
-        // Sort products by timestamp locally to ensure products without timestamps still appear
+        // Sort products by timestamp locally
         products.sort((a, b) => {
             const getVal = (v) => {
                 if (!v) return 0;
@@ -53,7 +53,6 @@ export function listenToPackages(callback) {
             packages.push({ id: doc.id, ...doc.data() });
         });
         
-        // If no packages exist, provide defaults for better UX
         if (packages.length === 0) {
             packages.push(
                 { id: "detox", name: "Detox" },
@@ -69,7 +68,7 @@ export function listenToPackages(callback) {
     });
 }
 
-// Helper to group products by their category
+// EXPORT ADDED: Helper to group products by their category
 export function groupProducts(products, packages) {
     const groups = {};
     
@@ -89,7 +88,7 @@ export function groupProducts(products, packages) {
     return Object.values(groups);
 }
 
-// Helper to get package name from ID
+// EXPORT ADDED: Helper to get package name from ID
 export function getPackageName(id, packages) {
     const pkg = packages.find(p => p.id === id);
     return pkg ? pkg.name : id;
