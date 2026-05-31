@@ -17,10 +17,11 @@ export function listenToProducts(callback) {
         const products = [];
         snapshot.forEach((doc) => {
             const data = doc.data();
+            const label = (data.name || "").trim().toLowerCase();
             
-            // FILTER GUARANTEE: Only push products that are explicitly featured.
-            // This handles both boolean true and string "true" formats seamlessly.
-            if (data.featured === true || data.featured === 'true') {
+            // FIXED FILTER: Allow all real products to pass through to the frontend,
+            // while cleanly filtering out only the "initial product" text placeholder card.
+            if (label !== "initial product" && label !== "") {
                 products.push({ id: doc.id, ...data });
             }
         });
