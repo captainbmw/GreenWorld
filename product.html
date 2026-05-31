@@ -558,7 +558,9 @@ option{
         grid.innerHTML = visibleProducts.map(renderProductCard).join("");
         
         if (noProducts) {
-            noProducts.style.display = (visibleProducts.length === 0 && currentProducts.length > 0) ? "block" : "none";
+            // FIXED CONDITION: If database returns absolutely no matching featured items, 
+            // open up the empty state block cleanly instead of hanging blank.
+            noProducts.style.display = (visibleProducts.length === 0) ? "block" : "none";
         }
     }
 
