@@ -269,189 +269,223 @@
     </main>
 
     <script type="module">
-        import { db } from './js/firebase-config.js';
-        import { 
-            collection, 
-            query, 
-            where, 
-            onSnapshot, 
-            orderBy 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { db } from './js/firebase-config.js';
+    import { 
+        collection, 
+        query, 
+        where, 
+        onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        document.addEventListener("DOMContentLoaded", function() {
-            // Role Check
-            if (localStorage.getItem("gw_role") !== "admin") {
-                window.location.href = "index.html";
-                return;
-            }
+    document.addEventListener("DOMContentLoaded", function() {
+        // Role Check
+        if (localStorage.getItem("gw_role") !== "admin") {
+            window.location.href = "index.html";
+            return;
+        }
 
-            // Real-time Customers
-            const qUsers = query(collection(db, "users"), where("role", "==", "customer"), orderBy("timestamp", "desc"));
-            onSnapshot(qUsers, (snapshot) => {
-                const customers = [];
-                snapshot.forEach((doc) => {
-                    customers.push({ id: doc.id, ...doc.data() });
-                });
-                renderCustomers(customers);
+        // Real-time Customers (Index requirement removed by sorting locally)
+        const qUsers = query(collection(db, "users"), where("role", "==", "customer"));
+        onSnapshot(qUsers, (snapshot) => {
+            const customers = [];
+            snapshot.forEach((doc) => {
+                customers.push({ id: doc.id, ...doc.data() });
+            });
+            
+            // Sort by timestamp safely in local memory
+            customers.sort((a, b) => {
+                const timeA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                const timeB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+                return timeB - timeA;
             });
 
-            // Real-time Leads
-            const qLeads = query(collection(db, "leads"), orderBy("timestamp", "desc"));
-            onSnapshot(qLeads, (snapshot) => {
-                const leads = [];
-                snapshot.forEach((doc) => {
-                    leads.push({ id: doc.id, ...doc.data() });
-                });
-                renderLeads(leads);
-                updateStats(leads);
-            });
-
-            function updateStats(leads) {
-                const totalBV = leads.reduce((sum, lead) => sum + (parseFloat(lead.bv) || 0), 0);
-                const bvGoal = 5000;
-                const bvPercent = Math.min(Math.round((totalBV / bvGoal) * 100), 100);
-
-                // Daily Sales (leads from today)
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const todayLeads = leads.filter(l => {
-                    if (!l.timestamp) return false;
-                    const leadDate = l.timestamp.toDate ? l.timestamp.toDate() : new Date(l.timestamp);
-                    return leadDate >= today;
-                });
-
-                document.getElementById("totalBV").textContent = totalBV.toLocaleString();
-                document.getElementById("orderCount").textContent = leads.length;
-                document.getElementById("bvPercent").textContent = bvPercent + "%";
-                document.getElementById("bvProgressBar").style.width = bvPercent + "%";
-                
-                // Add a small indicator for today's sales if possible, or just update the count
-                // For now, I'll use the "WhatsApp Order Leads" card for total leads and maybe add a subtitle
-                const orderLabel = document.querySelector('.stat-card i.bi-cart-check-fill').nextElementSibling.nextElementSibling;
-                orderLabel.innerHTML = `Total Order Leads <br><small class="text-success">${todayLeads.length} today</small>`;
-            }
-
-            function renderCustomers(customers) {
-                const customerTable = document.getElementById("customerTableBody");
-                const noCustomers = document.getElementById("noCustomers");
-                document.getElementById("customerCount").textContent = customers.length;
-                document.getElementById("customerBadge").textContent = customers.length;
-
-                if (customers.length === 0) {
-                    noCustomers.classList.remove("d-none");
-                    customerTable.innerHTML = '';
-                } else {
-                    noCustomers.classList.add("d-none");
-                    customerTable.innerHTML = customers.map(c => `
-                        <tr>
-                            <td>
-                                <div class="fw-bold">${c.fullName || 'Anonymous'}</div>
-                                <div class="small text-white-50">${c.email || 'N/A'}</div>
-                            </td>
-                            <td><span class="badge-health">${c.healthGoal || 'N/A'}</span></td>
-                            <td><small>${c.location || 'N/A'}</small></td>
-                        </tr>
-                    `).join("");
-                }
-            }
-
-            function renderLeads(leads) {
-                const orderTable = document.getElementById("orderTableBody");
-                const noOrders = document.getElementById("noOrders");
-                document.getElementById("orderBadge").textContent = leads.length;
-
-                if (leads.length === 0) {
-                    noOrders.classList.remove("d-none");
-                    orderTable.innerHTML = '';
-                } else {
-                    noOrders.classList.add("d-none");
-                    orderTable.innerHTML = leads.map(o => {
-                        const date = o.timestamp?.toDate ? o.timestamp.toDate() : new Date(o.timestamp);
-                        return `
-                            <tr>
-                                <td>
-                                    <div class="fw-bold">${o.customerName || 'Guest'}</div>
-                                    <div class="small text-white-50">${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                                </td>
-                                <td>${o.productName}</td>
-                                <td class="text-warning fw-bold">${o.bv || 0}</td>
-                            </tr>
-                        `;
-                    }).join("");
-                }
-            }
-
-            initPremiumBackground();
+            renderCustomers(customers);
+        }, (error) => {
+            console.error("Firestore Users stream error:", error);
         });
 
-        function initPremiumBackground() {
-            const canvas = document.getElementById("bg-canvas");
-            const ctx = canvas.getContext("2d");
-            const particles = [];
-            const pointer = { x: 0, y: 0 };
-            const count = window.matchMedia("(max-width: 768px)").matches ? 80 : 150;
-
-            function resize() {
-                const ratio = Math.min(window.devicePixelRatio || 1, 2);
-                canvas.width = window.innerWidth * ratio;
-                canvas.height = window.innerHeight * ratio;
-                canvas.style.width = `${window.innerWidth}px`;
-                canvas.style.height = `${window.innerHeight}px`;
-                ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-            }
-
-            function makeParticle() {
-                return {
-                    x: (Math.random() - 0.5) * window.innerWidth * 1.5,
-                    y: (Math.random() - 0.5) * window.innerHeight * 1.5,
-                    z: Math.random() * 900 + 100,
-                    speed: Math.random() * 0.6 + 0.2,
-                    size: Math.random() * 1.6 + 0.6,
-                    hue: Math.random() > 0.5 ? 210 : 45
-                };
-            }
-
-            function reset(item) {
-                Object.assign(item, makeParticle(), { z: 980 });
-            }
-
-            function draw() {
-                ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-                const cx = window.innerWidth / 2;
-                const cy = window.innerHeight / 2;
-
-                particles.forEach(item => {
-                    item.z -= item.speed;
-                    if (item.z <= 1) reset(item);
-
-                    const depth = 480 / item.z;
-                    const x = cx + (item.x + pointer.x * 0.015) * depth;
-                    const y = cy + (item.y + pointer.y * 0.015) * depth;
-                    const radius = Math.max(0.2, item.size * depth * 2);
-
-                    if (x < -60 || x > window.innerWidth + 60 || y < -60 || y > window.innerHeight + 60) {
-                        reset(item);
-                        return;
-                    }
-
-                    ctx.beginPath();
-                    ctx.fillStyle = `hsla(${item.hue}, 80%, 60%, ${Math.min(0.7, depth * 0.7)})`;
-                    ctx.arc(x, y, radius, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-
-                requestAnimationFrame(draw);
-            }
-
-            resize();
-            for (let i = 0; i < count; i += 1) particles.push(makeParticle());
-            window.addEventListener("resize", resize);
-            window.addEventListener("mousemove", event => {
-                pointer.x = event.clientX - window.innerWidth / 2;
-                pointer.y = event.clientY - window.innerHeight / 2;
+        // Real-time Leads
+        const qLeads = query(collection(db, "leads"));
+        onSnapshot(qLeads, (snapshot) => {
+            const leads = [];
+            snapshot.forEach((doc) => {
+                leads.push({ id: doc.id, ...doc.data() });
             });
-            draw();
+
+            // Sort leads locally by timestamp newest first
+            leads.sort((a, b) => {
+                const timeA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                const timeB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+                return timeB - timeA;
+            });
+
+            renderLeads(leads);
+            updateStats(leads);
+        }, (error) => {
+            console.error("Firestore Leads stream error:", error);
+        });
+
+        function updateStats(leads) {
+            const totalBV = leads.reduce((sum, lead) => sum + (parseFloat(lead.bv) || 0), 0);
+            const bvGoal = 5000;
+            const bvPercent = Math.min(Math.round((totalBV / bvGoal) * 100), 100);
+
+            // Daily Sales (leads from today)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayLeads = leads.filter(l => {
+                if (!l.timestamp) return false;
+                const leadDate = l.timestamp.toDate ? l.timestamp.toDate() : new Date(l.timestamp);
+                return leadDate >= today;
+            });
+
+            // Update safety wrappers for numeric stats cards
+            if(document.getElementById("totalBV")) document.getElementById("totalBV").textContent = totalBV.toLocaleString();
+            if(document.getElementById("orderCount")) document.getElementById("orderCount").textContent = leads.length;
+            if(document.getElementById("bvPercent")) document.getElementById("bvPercent").textContent = bvPercent + "%";
+            if(document.getElementById("bvProgressBar")) document.getElementById("bvProgressBar").style.width = bvPercent + "%";
+            
+            // Safe DOM search selection to prevent complete layout crashes
+            const orderIcon = document.querySelector('.stat-card i.bi-cart-check-fill');
+            if (orderIcon && orderIcon.nextElementSibling && orderIcon.nextElementSibling.nextElementSibling) {
+                const orderLabel = orderIcon.nextElementSibling.nextElementSibling;
+                orderLabel.innerHTML = `Total Order Leads <br><small class="text-success">${todayLeads.length} today</small>`;
+            }
         }
-    </script>
+
+        function renderCustomers(customers) {
+            const customerTable = document.getElementById("customerTableBody");
+            const noCustomers = document.getElementById("noCustomers");
+            
+            if(document.getElementById("customerCount")) document.getElementById("customerCount").textContent = customers.length;
+            if(document.getElementById("customerBadge")) document.getElementById("customerBadge").textContent = customers.length;
+
+            if (!customerTable) return;
+
+            if (customers.length === 0) {
+                if(noCustomers) noCustomers.classList.remove("d-none");
+                customerTable.innerHTML = '';
+            } else {
+                if(noCustomers) noCustomers.classList.add("d-none");
+                customerTable.innerHTML = customers.map(c => `
+                    <tr>
+                        <td>
+                            <div class="fw-bold">${c.fullName || 'Anonymous User'}</div>
+                            <div class="small text-white-50">${c.email || 'No email attached'}</div>
+                        </td>
+                        <td><span class="badge bg-success">${c.healthGoal || 'General Wellness'}</span></td>
+                        <td><small>${c.location || 'Not Specified'}</small></td>
+                    </tr>
+                `).join("");
+            }
+        }
+
+        function renderLeads(leads) {
+            const orderTable = document.getElementById("orderTableBody");
+            const noOrders = document.getElementById("noOrders");
+            
+            if(document.getElementById("orderBadge")) document.getElementById("orderBadge").textContent = leads.length;
+
+            if (!orderTable) return;
+
+            if (leads.length === 0) {
+                if(noOrders) noOrders.classList.remove("d-none");
+                orderTable.innerHTML = '';
+            } else {
+                if(noOrders) noOrders.classList.add("d-none");
+                orderTable.innerHTML = leads.map(o => {
+                    let formattedDate = "Recent Order";
+                    try {
+                        const date = o.timestamp?.toDate ? o.timestamp.toDate() : new Date(o.timestamp);
+                        formattedDate = `${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                    } catch(e) {}
+
+                    return `
+                        <tr>
+                            <td>
+                                <div class="fw-bold">${o.customerName || o.clientName || 'Guest Shopper'}</div>
+                                <div class="small text-white-50">${formattedDate}</div>
+                            </td>
+                            <td><span class="text-info fw-semibold">${o.productName || o.orderedItem || 'Unknown Product'}</span></td>
+                            <td class="text-warning fw-bold">${o.bv || 0} BV</td>
+                        </tr>
+                    `;
+                }).join("");
+            }
+        }
+
+        initPremiumBackground();
+    });
+
+    function initPremiumBackground() {
+        const canvas = document.getElementById("bg-canvas");
+        if(!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const particles = [];
+        const pointer = { x: 0, y: 0 };
+        const count = window.matchMedia("(max-width: 768px)").matches ? 80 : 150;
+
+        function resize() {
+            const ratio = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = window.innerWidth * ratio;
+            canvas.height = window.innerHeight * ratio;
+            canvas.style.width = `${window.innerWidth}px`;
+            canvas.style.height = `${window.innerHeight}px`;
+            ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        }
+
+        function makeParticle() {
+            return {
+                x: (Math.random() - 0.5) * window.innerWidth * 1.5,
+                y: (Math.random() - 0.5) * window.innerHeight * 1.5,
+                z: Math.random() * 900 + 100,
+                speed: Math.random() * 0.6 + 0.2,
+                size: Math.random() * 1.6 + 0.6,
+                hue: Math.random() > 0.5 ? 210 : 45
+            };
+        }
+
+        function reset(item) {
+            Object.assign(item, makeParticle(), { z: 980 });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+
+            particles.forEach(item => {
+                item.z -= item.speed;
+                if (item.z <= 1) reset(item);
+
+                const depth = 480 / item.z;
+                const x = cx + (item.x + pointer.x * 0.015) * depth;
+                const y = cy + (item.y + pointer.y * 0.015) * depth;
+                const radius = Math.max(0.2, item.size * depth * 2);
+
+                if (x < -60 || x > window.innerWidth + 60 || y < -60 || y > window.innerHeight + 60) {
+                    reset(item);
+                    return;
+                }
+
+                ctx.beginPath();
+                ctx.fillStyle = `hsla(${item.hue}, 80%, 60%, ${Math.min(0.7, depth * 0.7)})`;
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        resize();
+        for (let i = 0; i < count; i += 1) particles.push(makeParticle());
+        window.addEventListener("resize", resize);
+        window.addEventListener("mousemove", event => {
+            pointer.x = event.clientX - window.innerWidth / 2;
+            pointer.y = event.clientY - window.innerHeight / 2;
+        });
+        draw();
+    }
+</script>
 </body>
 </html>
