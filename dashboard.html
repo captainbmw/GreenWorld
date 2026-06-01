@@ -268,7 +268,16 @@
         </div>
     </main>
 
-    <script>
+    <script type="module">
+        import { db } from './js/firebase-config.js';
+        import { 
+            collection, 
+            query, 
+            where, 
+            onSnapshot, 
+            orderBy 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
         document.addEventListener("DOMContentLoaded", function() {
             // Role Check
             if (localStorage.getItem("gw_role") !== "admin") {
@@ -276,59 +285,100 @@
                 return;
             }
 
-            const customers = JSON.parse(localStorage.getItem("greenworld_customers")) || [];
-            const orders = JSON.parse(localStorage.getItem("greenworld_orders")) || [];
+            // Real-time Customers
+            const qUsers = query(collection(db, "users"), where("role", "==", "customer"), orderBy("timestamp", "desc"));
+            onSnapshot(qUsers, (snapshot) => {
+                const customers = [];
+                snapshot.forEach((doc) => {
+                    customers.push({ id: doc.id, ...doc.data() });
+                });
+                renderCustomers(customers);
+            });
 
-            // Update Stats
-            const totalBV = orders.reduce((sum, order) => sum + (parseFloat(order.bv) || 0), 0);
-            const bvGoal = 5000;
-            const bvPercent = Math.min(Math.round((totalBV / bvGoal) * 100), 100);
+            // Real-time Leads
+            const qLeads = query(collection(db, "leads"), orderBy("timestamp", "desc"));
+            onSnapshot(qLeads, (snapshot) => {
+                const leads = [];
+                snapshot.forEach((doc) => {
+                    leads.push({ id: doc.id, ...doc.data() });
+                });
+                renderLeads(leads);
+                updateStats(leads);
+            });
 
-            document.getElementById("totalBV").textContent = totalBV.toLocaleString();
-            document.getElementById("customerCount").textContent = customers.length;
-            document.getElementById("orderCount").textContent = orders.length;
-            
-            document.getElementById("bvPercent").textContent = bvPercent + "%";
-            document.getElementById("bvProgressBar").style.width = bvPercent + "%";
+            function updateStats(leads) {
+                const totalBV = leads.reduce((sum, lead) => sum + (parseFloat(lead.bv) || 0), 0);
+                const bvGoal = 5000;
+                const bvPercent = Math.min(Math.round((totalBV / bvGoal) * 100), 100);
 
-            // Render Customers
-            const customerTable = document.getElementById("customerTableBody");
-            const noCustomers = document.getElementById("noCustomers");
-            document.getElementById("customerBadge").textContent = customers.length;
+                // Daily Sales (leads from today)
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayLeads = leads.filter(l => {
+                    if (!l.timestamp) return false;
+                    const leadDate = l.timestamp.toDate ? l.timestamp.toDate() : new Date(l.timestamp);
+                    return leadDate >= today;
+                });
 
-            if (customers.length === 0) {
-                noCustomers.classList.remove("d-none");
-            } else {
-                customerTable.innerHTML = customers.map(c => `
-                    <tr>
-                        <td>
-                            <div class="fw-bold">${c.fullName}</div>
-                            <div class="small text-white-50">${c.email}</div>
-                        </td>
-                        <td><span class="badge-health">${c.healthGoal || 'N/A'}</span></td>
-                        <td><small>${c.location || 'N/A'}</small></td>
-                    </tr>
-                `).join("");
+                document.getElementById("totalBV").textContent = totalBV.toLocaleString();
+                document.getElementById("orderCount").textContent = leads.length;
+                document.getElementById("bvPercent").textContent = bvPercent + "%";
+                document.getElementById("bvProgressBar").style.width = bvPercent + "%";
+                
+                // Add a small indicator for today's sales if possible, or just update the count
+                // For now, I'll use the "WhatsApp Order Leads" card for total leads and maybe add a subtitle
+                const orderLabel = document.querySelector('.stat-card i.bi-cart-check-fill').nextElementSibling.nextElementSibling;
+                orderLabel.innerHTML = `Total Order Leads <br><small class="text-success">${todayLeads.length} today</small>`;
             }
 
-            // Render Orders
-            const orderTable = document.getElementById("orderTableBody");
-            const noOrders = document.getElementById("noOrders");
-            document.getElementById("orderBadge").textContent = orders.length;
+            function renderCustomers(customers) {
+                const customerTable = document.getElementById("customerTableBody");
+                const noCustomers = document.getElementById("noCustomers");
+                document.getElementById("customerCount").textContent = customers.length;
+                document.getElementById("customerBadge").textContent = customers.length;
 
-            if (orders.length === 0) {
-                noOrders.classList.remove("d-none");
-            } else {
-                orderTable.innerHTML = orders.map(o => `
-                    <tr>
-                        <td>
-                            <div class="fw-bold">${o.customerName}</div>
-                            <div class="small text-white-50">${new Date(o.timestamp).toLocaleDateString()}</div>
-                        </td>
-                        <td>${o.productName}</td>
-                        <td class="text-warning fw-bold">${o.bv}</td>
-                    </tr>
-                `).join("");
+                if (customers.length === 0) {
+                    noCustomers.classList.remove("d-none");
+                    customerTable.innerHTML = '';
+                } else {
+                    noCustomers.classList.add("d-none");
+                    customerTable.innerHTML = customers.map(c => `
+                        <tr>
+                            <td>
+                                <div class="fw-bold">${c.fullName || 'Anonymous'}</div>
+                                <div class="small text-white-50">${c.email || 'N/A'}</div>
+                            </td>
+                            <td><span class="badge-health">${c.healthGoal || 'N/A'}</span></td>
+                            <td><small>${c.location || 'N/A'}</small></td>
+                        </tr>
+                    `).join("");
+                }
+            }
+
+            function renderLeads(leads) {
+                const orderTable = document.getElementById("orderTableBody");
+                const noOrders = document.getElementById("noOrders");
+                document.getElementById("orderBadge").textContent = leads.length;
+
+                if (leads.length === 0) {
+                    noOrders.classList.remove("d-none");
+                    orderTable.innerHTML = '';
+                } else {
+                    noOrders.classList.add("d-none");
+                    orderTable.innerHTML = leads.map(o => {
+                        const date = o.timestamp?.toDate ? o.timestamp.toDate() : new Date(o.timestamp);
+                        return `
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">${o.customerName || 'Guest'}</div>
+                                    <div class="small text-white-50">${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                </td>
+                                <td>${o.productName}</td>
+                                <td class="text-warning fw-bold">${o.bv || 0}</td>
+                            </tr>
+                        `;
+                    }).join("");
+                }
             }
 
             initPremiumBackground();

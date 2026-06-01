@@ -349,8 +349,11 @@
         </section>
     </main>
 
-    <script>
-        document.getElementById("detailedRegisterForm").addEventListener("submit", function(event) {
+    <script type="module">
+        import { db } from './js/firebase-config.js';
+        import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        document.getElementById("detailedRegisterForm").addEventListener("submit", async function(event) {
             event.preventDefault();
             const fullName = document.getElementById("fullName").value.trim();
             const email = document.getElementById("email").value.trim();
@@ -372,20 +375,36 @@
                 return;
             }
 
-            // Save customer to localStorage
-            const customers = JSON.parse(localStorage.getItem("greenworld_customers")) || [];
-            customers.push({
-                fullName,
-                email,
-                phone,
-                location,
-                healthGoal,
-                timestamp: new Date().toISOString()
-            });
-            localStorage.setItem("greenworld_customers", JSON.stringify(customers));
+            try {
+                // Save customer to Firestore
+                await addDoc(collection(db, "users"), {
+                    fullName,
+                    email,
+                    phone,
+                    location,
+                    healthGoal,
+                    role: 'customer',
+                    timestamp: serverTimestamp()
+                });
 
-            // Redirect to login
-            window.location.href = "index.html";
+                // Also keep in localStorage for immediate session use if needed
+                const customers = JSON.parse(localStorage.getItem("greenworld_customers")) || [];
+                customers.push({
+                    fullName,
+                    email,
+                    phone,
+                    location,
+                    healthGoal,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem("greenworld_customers", JSON.stringify(customers));
+
+                alert("Registration successful!");
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Error registering user: ", error);
+                alert("Registration failed: " + error.message);
+            }
         });
 
         initPremiumBackground();

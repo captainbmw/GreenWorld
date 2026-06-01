@@ -373,23 +373,37 @@
         </div>
     </main>
 
-    <script>
-        document.getElementById("loginForm").addEventListener("submit", function(event) {
+    <script type="module">
+        import { db } from './js/firebase-config.js';
+        import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
             event.preventDefault();
             const email = document.getElementById("customerEmail").value.trim();
             
-            // Try to find customer name from registered customers
-            const customers = JSON.parse(localStorage.getItem("greenworld_customers")) || [];
-            const customer = customers.find(c => c.email === email);
-            const fullName = customer ? customer.fullName : "Valued Member";
+            try {
+                // Query Firestore for the user
+                const q = query(collection(db, "users"), where("email", "==", email));
+                const querySnapshot = await getDocs(q);
+                
+                let fullName = "Valued Member";
+                if (!querySnapshot.empty) {
+                    const userData = querySnapshot.docs[0].data();
+                    fullName = userData.fullName || "Valued Member";
+                }
 
-            localStorage.setItem("gw_role", "customer");
-            localStorage.setItem("gw_current_user", JSON.stringify({
-                email: email,
-                fullName: fullName
-            }));
-            
-            window.location.href = "home.html";
+                localStorage.setItem("gw_role", "customer");
+                localStorage.setItem("gw_current_user", JSON.stringify({
+                    email: email,
+                    fullName: fullName
+                }));
+                
+                // Redirect to index (since home.html doesn't exist)
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Error logging in: ", error);
+                alert("Login failed. Please try again.");
+            }
         });
 
         initPremiumBackground();
