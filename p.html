@@ -1,16 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details | Green World Care</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --forest-green: #006400;
+            --forest-green-dark: #004d00;
+            --forest-green-light: #e0f0e0;
+            --grey-bg: #f4f7f6;
+            --card-white: #ffffff;
+            --text-dark: #1a2c1e;
+            --footer-bg: #1e2a2a;
+            --forest: #0a5c36;
+            --forest-deep: #063d24;
+            --forest-glow: #1a8f55;
+            --gold: #d4af37;
+            --gold-light: #f0e6b8;
+            --surface: #f7faf8;
+            --text: #0f1f14;
+            --text-muted: #5a6f62;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.18);
+        }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(140deg, #020705, #04120f, #071d18, #020705);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding-bottom: 50px;
+        }
 
-        <style>
-.product-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; overflow: hidden; transition: transform 0.3s ease; height: 100%; } 
-        .product-card:hover { transform: translateY(-8px); } 
-        .product-img-wrap { height: 200px; width: 180px; margin: 0 auto; background: rgba(0,0,0,0.1); overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 10px; border-radius: 12px; } 
-        .product-img-wrap img { width: 100%; height: 100%; object-fit: contain; } 
-        .product-package-group { margin-bottom: 3rem; overflow: hidden; } 
-        .product-package-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; } 
-        .product-package-heading h3 { color: #fff; font-weight: 800; margin: 0; font-size: 1.35rem; } 
-        .product-package-heading span { color: rgba(255,255,255,0.55); font-size: 0.85rem; font-weight: 700; } 
-        .product-scroll-window { overflow: hidden; padding: 0.25rem 0 1rem; } 
-        .product-scroll-track { display: flex; gap: 1.5rem; width: max-content; } 
-        .product-scroll-track.is-scrolling { animation: homeProductScroll 34s linear infinite; } 
-        .product-scroll-track.is-scrolling:hover { animation-play-state: paused; }
-        </style>
+        .navbar-forest { 
+            background: linear-gradient(135deg, var(--forest-green) 0%, var(--forest-green-dark) 100%); 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); 
+            padding: 0.7rem 1rem; 
+            transition: all 0.2s; 
+        }
+
+        .navbar-brand { 
+            font-weight: 700; 
+            font-size: 1.65rem; 
+            letter-spacing: -0.5px; 
+            color: white !important; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            text-decoration: none;
+        }
+
+        .navbar-brand i { font-size: 1.8rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+
+        .navbar-brand span { 
+            background: rgba(255,255,255,0.15); 
+            padding: 0.2rem 0.6rem; 
+            border-radius: 40px; 
+            font-size: 0.75rem; 
+            font-weight: 500; 
+            margin-left: 6px; 
+        }
+
+        .nav-link-custom { 
+            color: rgba(255, 255, 255, 0.9) !important; 
+            font-weight: 500; 
+            margin: 0 0.2rem; 
+            border-radius: 40px; 
+            transition: all 0.2s ease; 
+            padding: 0.5rem 1rem; 
+            text-decoration: none;
+        }
+
+        .nav-link-custom:hover, .nav-link-custom.active { 
+            background: rgba(255, 255, 255, 0.18); 
+            color: white !important; 
+            transform: translateY(-1px); 
+        }
+
+        .navbar-toggler { border: none; background: rgba(255,255,255,0.2); padding: 0.5rem 0.7rem; }
+        .navbar-toggler-icon { filter: brightness(0) invert(1); }
+
+        #adminLink, #logoutLink { display: none; }
+
+        .details-container {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .product-detail-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 40px;
+            margin-bottom: 60px;
+            position: relative;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .product-detail-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .package-tag {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            padding: 8px 16px;
+            background: rgba(125, 255, 156, 0.15);
+            border: 1px solid var(--green);
+            color: var(--green);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .product-img-wrap {
+            background: rgba(255,255,255,0.05);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .product-img-wrap img {
+            max-width: 100%;
+            height: 250px;
+            object-fit: contain;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.5));
+        }
+
+        .product-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #fff, #7dff9c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--green);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .product-description, .product-benefits {
+            color: rgba(255,255,255,0.7);
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .benefit-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .benefit-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+        }
+
+        .benefit-list li::before {
+            content: "\F272";
+            font-family: "bootstrap-icons";
+            position: absolute;
+            left: 0;
+            color: var(--green);
+            font-weight: bold;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-order {
+            background: linear-gradient(135deg, #14d96b, #00a6ff);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .btn-order:hover {
+            transform: scale(1.05);
+            color: white;
+            box-shadow: 0 10px 25px rgba(20, 217, 107, 0.3);
+        }
+
+        .btn-back {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px 25px;
+            border-radius: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .btn-back:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        @media (max-width: 768px) {
+            .product-title { font-size: 1.8rem; }
+            .product-detail-card { padding: 25px; }
+            .action-btns { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="index.html" class="logo">
+                <span>Green World Care</span>
+            </a>
+            <a href="index.html" class="btn-back"><i class="bi bi-arrow-left me-2"></i>Back to Home</a>
+        </div>
+    </nav>
+
+    <div class="details-container">
+
+        <!-- MALE CARE PACKAGE -->
+
+        <div id="vigpower" class="product-detail-card">
+            <span class="package-tag">Male Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/m1.PNG" alt="Vigpower Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Vigpower Capsule</h1>
+                    <p class="product-price">Ksh 2,500</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Green World Vigpower Capsule is a premier herbal supplement specifically designed to enhance male vitality and reproductive health. Formulated with traditional Chinese medicinal herbs, it provides a natural way to boost energy, stamina, and overall performance.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Enhances libido and sexual performance.</li>
+                        <li>Improves sperm quality and quantity.</li>
+                        <li>Relieves fatigue and increases physical stamina.</li>
+                        <li>Supports kidney health and hormonal balance.</li>
+                        <li>Promotes blood circulation to the reproductive system.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Vigpower Capsule" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="prostacare" class="product-detail-card">
+            <span class="package-tag">Male Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/m2.PNG" alt="Prostacare Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Prostacare Capsule</h1>
+                    <p class="product-price">Ksh 1,800</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Green World Prostacare Capsule is formulated to support prostate health and maintain normal urinary function in men. It helps in preventing and managing common prostate issues that often occur with aging.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Improves urinary flow and reduces frequency.</li>
+                        <li>Helps prevent prostate enlargement (BPH).</li>
+                        <li>Reduces inflammation in the prostate gland.</li>
+                        <li>Supports healthy reproductive function.</li>
+                        <li>Promotes overall male hormonal balance.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Prostacare Capsule" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="kidney-men" class="product-detail-card">
+            <span class="package-tag">Male Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/m3.PNG" alt="Kidney Tonifying Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Kidney Tonifying Capsule (Men)</h1>
+                    <p class="product-price">Ksh 2,100</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        This specialized formula is designed to tonify the kidneys and support the "Yang" energy in men. In traditional medicine, the kidneys are the foundation of vitality and reproductive strength.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Strengthens kidney function and vitality.</li>
+                        <li>Improves sexual vigor and stamina.</li>
+                        <li>Alleviates lower back pain and knee weakness.</li>
+                        <li>Supports healthy adrenal function.</li>
+                        <li>Helps with frequent nighttime urination.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Kidney Tonifying Capsule (Men)" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="golden-knight" class="product-detail-card">
+            <span class="package-tag">Male Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/m4.PNG" alt="Golden Knight Spray">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Golden Knight Spray</h1>
+                    <p class="product-price">Ksh 2,500</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Golden Knight Spray is a topical solution designed for men to improve endurance and delay ejaculation. It is safe, effective, and made from natural extracts to enhance intimate experiences.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Helps manage premature ejaculation.</li>
+                        <li>Enhances sexual endurance and confidence.</li>
+                        <li>Quick-acting and easy to use.</li>
+                        <li>Natural formula with no harsh chemicals.</li>
+                        <li>Promotes mutual satisfaction in relationships.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Golden Knight Spray" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ginseng-rhs" class="product-detail-card">
+            <span class="package-tag">Male Care Package / Immune</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/m5.PNG" alt="Ginseng RHs Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Ginseng RHs Capsule</h1>
+                    <p class="product-price">Ksh 1,800</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Ginseng RHs is a powerful concentrated extract of Ginsenoside Rh2, known for its incredible immune-boosting and anti-tumor properties. It is a premium product for those seeking peak health and recovery.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Strongly boosts the immune system.</li>
+                        <li>Inhibits the growth of cancer cells.</li>
+                        <li>Enhances physical strength and recovery.</li>
+                        <li>Reduces the side effects of chemotherapy.</li>
+                        <li>Improves overall cellular health.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Ginseng RHs Capsule" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cordyceps" class="product-detail-card">
+            <span class="package-tag">Male Care Package / Immune</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/m6.PNG" alt="Cordyceps Plus Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Cordyceps Plus Capsule</h1>
+                    <p class="product-price">Ksh 2,100</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Cordyceps is a rare and powerful mushroom that grows in the high altitudes of Tibet. It has been used for centuries to boost lung and kidney function, as well as increase energy and longevity.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Improves respiratory health and lung capacity.</li>
+                        <li>Strengthens kidney function.</li>
+                        <li>Increases athletic performance and stamina.</li>
+                        <li>Anti-aging and antioxidant properties.</li>
+                        <li>Modulates the immune system.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Cordyceps Plus Capsule" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IMMUNE CARE PACKAGE -->
+
+        <div id="a-power" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I1.PNG" alt="A-Power Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">A-Power Capsule</h1>
+                    <p class="product-price">Ksh 3,200</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Green World A-Power Capsule is specifically designed to provide high-level immune support. It is particularly beneficial for individuals with severely compromised immune systems or those recovering from chronic illnesses.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Optimizes immune system response.</li>
+                        <li>Increases CD4 cell counts in compromised patients.</li>
+                        <li>Anti-viral and anti-bacterial properties.</li>
+                        <li>Supports recovery from long-term sickness.</li>
+                        <li>Promotes overall cellular repair.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order A-Power Capsule" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="jinpure" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I2.PNG" alt="Jinpure Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Jinpure Capsule</h1>
+                    <p class="product-price">Ksh 1,500</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Jinpure Capsule is an excellent supplement for cardiovascular health and blood purification. It helps maintain healthy blood pressure and cholesterol levels naturally.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Regulates blood pressure levels.</li>
+                        <li>Lowers bad cholesterol and blood lipids.</li>
+                        <li>Prevents atherosclerosis (hardening of arteries).</li>
+                        <li>Improves overall blood circulation.</li>
+                        <li>Supports heart health and detoxification.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Jinpure Capsule" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ganoderma" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I3.PNG" alt="Ganoderma Plus Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Ganoderma Plus Capsule</h1>
+                    <p class="product-price">Ksh 2,800</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Ganoderma Lucidum, also known as Reishi, is the "King of Herbs." These capsules are enriched with Reishi spores and Ginseng to provide comprehensive liver protection and immune modulation.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Protects and regenerates liver cells.</li>
+                        <li>Calms the nerves and improves sleep quality.</li>
+                        <li>Enhances the body's resistance to diseases.</li>
+                        <li>Anti-cancer and anti-inflammatory effects.</li>
+                        <li>Supports recovery from radiotherapy/chemotherapy.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Ganoderma Plus Capsule" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="spirulina" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I5.PNG" alt="Spirulina Plus Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Spirulina Plus Capsule</h1>
+                    <p class="product-price">Ksh 1,500</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Spirulina is a nutrient-dense blue-green algae. It is considered one of the most complete food sources in the world, providing essential vitamins, minerals, and proteins.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Provides balanced nutrition and boosts energy.</li>
+                        <li>Helps with weight management and appetite control.</li>
+                        <li>Strengthens the immune system.</li>
+                        <li>Powerful antioxidant and anti-inflammatory.</li>
+                        <li>Supports detoxification and digestion.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Spirulina Plus Capsule" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="jinpure-tea" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I6.PNG" alt="Jinpure Tea">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Jinpure Tea</h1>
+                    <p class="product-price">Ksh 2,800</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Green World Jinpure Tea is a natural herbal tea designed to support healthy weight loss and improve cardiovascular health by reducing blood lipids and cholesterol.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Promotes healthy weight loss and fat burning.</li>
+                        <li>Lowers blood pressure and cholesterol.</li>
+                        <li>Cleanses the blood and improves circulation.</li>
+                        <li>Antioxidant properties support longevity.</li>
+                        <li>Refreshing taste with natural herbal ingredients.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Jinpure Tea" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="blueberry-juice" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I7.PNG" alt="Blueberry Juice High VC">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Blueberry Juice High VC</h1>
+                    <p class="product-price">Ksh 2,800</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Rich in Vitamin C and blueberry anthocyanins, this juice is a powerhouse of antioxidants. It is designed to support eye health, skin radiance, and a strong immune system.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Improves vision and protects eye health.</li>
+                        <li>Strong antioxidant protection for the entire body.</li>
+                        <li>Boosts immune system with high Vitamin C.</li>
+                        <li>Promotes skin elasticity and anti-aging.</li>
+                        <li>Supports healthy brain function and memory.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Blueberry Juice High VC" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pine-pollen" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I8.PNG" alt="Pine Pollen Tea">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Pine Pollen Tea</h1>
+                    <p class="product-price">Ksh 2,800</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Pine Pollen is known as a "natural vitamin cabinet." This tea is packed with over 200 bioactive nutrients, including vitamins, minerals, and amino acids, to provide ultimate vitality.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Balances hormones naturally in men and women.</li>
+                        <li>Enhances physical stamina and reduces fatigue.</li>
+                        <li>Improves skin health and complexion.</li>
+                        <li>Supports prostate health in men.</li>
+                        <li>Boosts metabolism and immune response.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Pine Pollen Tea" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="vitamin-c" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I9.PNG" alt="Vitamin C Tablet">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Vitamin C Tablet</h1>
+                    <p class="product-price">Ksh 2,800</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        Green World Vitamin C tablets provide a high-potency dose of this essential antioxidant. It is vital for collagen production, tissue repair, and maintaining a robust immune system.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Prevents colds and flu by boosting immunity.</li>
+                        <li>Supports healthy skin, hair, and nails.</li>
+                        <li>Aids in the absorption of iron and other nutrients.</li>
+                        <li>Protects cells from oxidative stress.</li>
+                        <li>Promotes wound healing and tissue health.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Vitamin C Tablet" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ginseng-rhs-premium" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I4.PNG" alt="Ginseng RHs Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Ginseng RHs Capsule (Premium)</h1>
+                    <p class="product-price">Ksh 3,200</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        The Premium Ginseng RHs Capsule contains a higher concentration of Ginsenoside Rh2, offering maximum support for those with critical health needs or those requiring a stronger immune boost.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Maximum potency immune system modulation.</li>
+                        <li>Superior anti-tumor and cancer cell inhibition.</li>
+                        <li>Enhanced vitality and physical recovery.</li>
+                        <li>Reduces fatigue during intensive treatments.</li>
+                        <li>Promotes long-term cellular wellness.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Ginseng RHs Capsule (Premium)" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cordyceps-premium" class="product-detail-card">
+            <span class="package-tag">Immune Care Package</span>
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="product-img-wrap">
+                        <img src="images/I10.PNG" alt="Cordyceps Plus Capsule">
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <h1 class="product-title">Cordyceps Plus Capsule (Premium)</h1>
+                    <p class="product-price">Ksh 2,800</p>
+                    
+                    <div class="section-subtitle"><i class="bi bi-info-circle"></i> Description</div>
+                    <p class="product-description">
+                        This premium version of Cordyceps Plus offers enhanced lung and kidney support with a more concentrated formula, ideal for those with chronic respiratory or renal concerns.
+                    </p>
+
+                    <div class="section-subtitle"><i class="bi bi-check2-circle"></i> Key Benefits</div>
+                    <ul class="benefit-list">
+                        <li>Intensive respiratory and lung support.</li>
+                        <li>Enhanced kidney tonification and health.</li>
+                        <li>Superior stamina and energy levels.</li>
+                        <li>Strong antioxidant and anti-aging effects.</li>
+                        <li>Improves overall body resistance.</li>
+                    </ul>
+
+                    <div class="action-btns">
+                        <a href="https://wa.me/254724415604?text=Hello Susan, I want to order Cordyceps Plus Capsule (Premium)" class="btn-order"><i class="bi bi-whatsapp me-2"></i>Order on WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2026 Green World Care | Susan Aketch Odhiambo. All rights reserved.
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
