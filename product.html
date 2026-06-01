@@ -339,7 +339,17 @@ option{
 .product-title{
     font-size:1.3rem;
     font-weight:800;
+    margin-bottom:8px;
+}
+
+.product-id{
+    font-family:'Monaco','Consolas',monospace;
+    font-size:0.75rem;
+    color:var(--gold);
     margin-bottom:12px;
+    opacity:0.85;
+    display:block;
+    letter-spacing:0.5px;
 }
 
 .product-desc{
@@ -570,6 +580,7 @@ option{
                 <div class="product-content">
                     <div>
                         <h2 class="product-title">${escapeHtml(product.name)}</h2>
+                        <span class="product-id">Code: ${escapeHtml(product.product_id || 'N/A')}</span>
                         <p class="product-desc">${escapeHtml(product.description || "")}</p>
                     </div>
                     <div class="product-bottom">
