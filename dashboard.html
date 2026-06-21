@@ -273,7 +273,6 @@
     import { 
         collection, 
         query, 
-        where, 
         onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -284,27 +283,7 @@
             return;
         }
 
-        // Real-time Customers (Index requirement removed by sorting locally)
-        const qUsers = query(collection(db, "users"), where("role", "==", "customer"));
-        onSnapshot(qUsers, (snapshot) => {
-            const customers = [];
-            snapshot.forEach((doc) => {
-                customers.push({ id: doc.id, ...doc.data() });
-            });
-            
-            // Sort by timestamp safely in local memory
-            customers.sort((a, b) => {
-                const timeA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
-                const timeB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
-                return timeB - timeA;
-            });
-
-            renderCustomers(customers);
-        }, (error) => {
-            console.error("Firestore Users stream error:", error);
-        });
-
-        // Real-time Leads
+        // Real-time Leads (Product Orders Only)
         const qLeads = query(collection(db, "leads"));
         onSnapshot(qLeads, (snapshot) => {
             const leads = [];
@@ -350,33 +329,6 @@
             if (orderIcon && orderIcon.nextElementSibling && orderIcon.nextElementSibling.nextElementSibling) {
                 const orderLabel = orderIcon.nextElementSibling.nextElementSibling;
                 orderLabel.innerHTML = `Total Order Leads <br><small class="text-success">${todayLeads.length} today</small>`;
-            }
-        }
-
-        function renderCustomers(customers) {
-            const customerTable = document.getElementById("customerTableBody");
-            const noCustomers = document.getElementById("noCustomers");
-            
-            if(document.getElementById("customerCount")) document.getElementById("customerCount").textContent = customers.length;
-            if(document.getElementById("customerBadge")) document.getElementById("customerBadge").textContent = customers.length;
-
-            if (!customerTable) return;
-
-            if (customers.length === 0) {
-                if(noCustomers) noCustomers.classList.remove("d-none");
-                customerTable.innerHTML = '';
-            } else {
-                if(noCustomers) noCustomers.classList.add("d-none");
-                customerTable.innerHTML = customers.map(c => `
-                    <tr>
-                        <td>
-                            <div class="fw-bold">${c.fullName || 'Anonymous User'}</div>
-                            <div class="small text-white-50">${c.email || 'No email attached'}</div>
-                        </td>
-                        <td><span class="badge bg-success">${c.healthGoal || 'General Wellness'}</span></td>
-                        <td><small>${c.location || 'Not Specified'}</small></td>
-                    </tr>
-                `).join("");
             }
         }
 
