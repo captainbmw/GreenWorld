@@ -269,6 +269,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
    Scroll Container
 =========================== */
 
+.product-scroll-wrapper {
+    position: relative;
+}
+
 .product-scroll-window {
     width: 100%;
     overflow-x: auto;
@@ -276,12 +280,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-
+    touch-action: pan-x;
     cursor: grab;
-
-    /* Hide scrollbar */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
 
     padding: .5rem 0 1rem;
 }
@@ -292,6 +292,44 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 .product-scroll-window::-webkit-scrollbar {
     display: none;
+}
+
+.product-scroll-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.35);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    z-index: 4;
+}
+
+.product-scroll-control:hover {
+    transform: translateY(-50%) scale(1.05);
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.product-scroll-control-left {
+    left: 0.5rem;
+}
+
+.product-scroll-control-right {
+    right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .product-scroll-control {
+        width: 36px;
+        height: 36px;
+    }
 }
 
 /* ===========================
@@ -2450,6 +2488,96 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     
     // 3D Hero Animation
     initCentered3D();
+    initProductScrollControls();
+    
+    function initProductScrollControls() {
+        const AUTO_SCROLL_RESUME_MS = 1800;
+        const scrollContainers = Array.from(document.querySelectorAll('.product-scroll-window'));
+
+        scrollContainers.forEach((container) => {
+            const track = container.querySelector('.product-scroll-track');
+            if (!track) return;
+
+            let resumeTimer = null;
+            let isInteracting = false;
+
+            const pauseAutoScroll = () => {
+                if (isInteracting) return;
+                isInteracting = true;
+                track.classList.remove('is-scrolling');
+                if (resumeTimer) {
+                    clearTimeout(resumeTimer);
+                    resumeTimer = null;
+                }
+            };
+
+            const resumeAutoScroll = () => {
+                if (!isInteracting) return;
+                isInteracting = false;
+                track.classList.add('is-scrolling');
+            };
+
+            const scheduleResume = () => {
+                if (resumeTimer) {
+                    clearTimeout(resumeTimer);
+                }
+                resumeTimer = window.setTimeout(resumeAutoScroll, AUTO_SCROLL_RESUME_MS);
+            };
+
+            const onInteractionStart = () => {
+                pauseAutoScroll();
+            };
+
+            const onInteractionEnd = () => {
+                scheduleResume();
+            };
+
+            container.addEventListener('pointerdown', onInteractionStart, { passive: true });
+            container.addEventListener('pointerup', onInteractionEnd, { passive: true });
+            container.addEventListener('pointerleave', onInteractionEnd, { passive: true });
+            container.addEventListener('touchstart', onInteractionStart, { passive: true });
+            container.addEventListener('touchend', onInteractionEnd, { passive: true });
+            const buttonWrapper = document.createElement('div');
+            buttonWrapper.className = 'product-scroll-wrapper';
+
+            if (!container.parentNode.classList.contains('product-scroll-wrapper')) {
+                container.parentNode.insertBefore(buttonWrapper, container);
+                buttonWrapper.appendChild(container);
+            }
+
+            const scrollStep = Math.max(240, Math.floor(container.clientWidth * 0.7));
+            const createControl = (direction) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `product-scroll-control product-scroll-control-${direction === -1 ? 'left' : 'right'}`;
+                button.innerHTML = direction === -1 ? '<i class="bi bi-chevron-left"></i>' : '<i class="bi bi-chevron-right"></i>';
+                button.addEventListener('click', () => {
+                    pauseAutoScroll();
+                    container.scrollBy({ left: scrollStep * direction, behavior: 'smooth' });
+                    scheduleResume();
+                });
+                return button;
+            };
+
+            const prevButton = createControl(-1);
+            const nextButton = createControl(1);
+            buttonWrapper.appendChild(prevButton);
+            buttonWrapper.appendChild(nextButton);
+
+            container.addEventListener('wheel', (event) => {
+                if (Math.abs(event.deltaX) > 0 || Math.abs(event.deltaY) > 0) {
+                    pauseAutoScroll();
+                    scheduleResume();
+                }
+            }, { passive: true });
+            container.addEventListener('scroll', () => {
+                if (!isInteracting) {
+                    pauseAutoScroll();
+                    scheduleResume();
+                }
+            }, { passive: true });
+        });
+    }
     
     function initCentered3D() {
         const canvas = document.getElementById('hero-canvas');
