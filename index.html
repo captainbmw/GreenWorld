@@ -297,7 +297,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .product-scroll-control {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-50%) scale(0.95);
     width: 42px;
     height: 42px;
     border-radius: 50%;
@@ -308,11 +308,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
     z-index: 4;
+    opacity: 0;
+    pointer-events: none;
 }
 
-.product-scroll-control:hover {
+.product-scroll-wrapper:hover .product-scroll-control,
+.product-scroll-wrapper:focus-within .product-scroll-control,
+.product-scroll-control:focus {
+    opacity: 1;
+    pointer-events: auto;
     transform: translateY(-50%) scale(1.05);
     background: rgba(255, 255, 255, 0.22);
 }
